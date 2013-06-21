@@ -1,0 +1,1 @@
+/home/ntsp/github/anki-addons/advanced_browser.py
