@@ -213,22 +213,16 @@ def myColumnData(self, index):
     if type in _customTypes:
         return _customTypes[type].onData(c, n, type)
 
-def myOrder(type, order):
-    sort = _customTypes[type].onSort()
-    # TODO: do this more efficiently
-    # Make nulls appear after non-nulls. This is very slow since we use the
-    # "order by" column twice, which is sometimes a nested SELECT (i.e., it
-    # doubles the sort time).
-    q = " ORDER BY %s IS NULL, %s" % (sort, sort)
-    return q, mw.col.conf['sortBackwards']
-
 
 def myFindCards(self, query, order=False):
     """
     Overriding Finder.findCards. Use original if sort type is not one
     handled by this add-on. Our version will try to build a more
     efficiently sortable query, but leave the rest intact.
+    
+    Currently, no optimizations are done.
     """
+    
     type = self.col.conf['sortType']
     if type not in _customTypes:
         return origFindCards(self, query, order)
@@ -237,13 +231,34 @@ def myFindCards(self, query, order=False):
     preds, args = self._where(tokens)
     if preds is None:
         return []
-    order, rev = myOrder(type, order)
-    sql = self._query(preds, order)
+    
+    rev = self.col.conf['sortBackwards']
+    
+    # We bypass _query() and _order and write our own combined version
+    
+    order = _customTypes[type].onSort()
+    
+    # can we skip the note table?
+    if "n." not in preds and "n." not in order:
+        sql = "select c.id from cards c where "
+    else:
+        sql = "select c.id from cards c, notes n where c.nid=n.id and "
+        
+    # combine with preds
+    if preds:
+        sql += "(" + preds + ")"
+    else:
+        sql += "1"
+
+    sql += " order by " + order
     try:
+        print "sql :", sql
         res = self.col.db.list(sql, *args)
-    except:
+    except Exception, e:
         # invalid grouping
+        print "Error finding cards:", e
         return []
+    
     if rev:
         res.reverse()
     return res
