@@ -12,7 +12,7 @@ from anki.find import Finder
 CONF_KEY = 'advbrowse_activeCols'
 
 origColumnData = DataModel.columnData
-origOrder = Finder._order
+origFindCards = Finder.findCards
 
 # CustomColumn objects maintained by this add-on.
 # {type -> CustomColumn}
@@ -213,37 +213,47 @@ def myColumnData(self, index):
     if type in _customTypes:
         return _customTypes[type].onData(c, n, type)
 
-def myOrder(self, order):
-    # This is pulled from the original _order() -----------------------
-    if not order:
-        return "", False
-    elif order is not True:
-        # custom order string provided
-        return " order by " + order, False
-    # use deck default
+def myOrder(type, order):
+    sort = _customTypes[type].onSort()
+    # TODO: do this more efficiently
+    # Make nulls appear after non-nulls. This is very slow since we use the
+    # "order by" column twice, which is sometimes a nested SELECT (i.e., it
+    # doubles the sort time).
+    q = " ORDER BY %s IS NULL, %s" % (sort, sort)
+    return q, mw.col.conf['sortBackwards']
+
+
+def myFindCards(self, query, order=False):
+    """
+    Overriding Finder.findCards. Use original if sort type is not one
+    handled by this add-on. Our version will try to build a more
+    efficiently sortable query, but leave the rest intact.
+    """
     type = self.col.conf['sortType']
-    sort = None
-    # -----------------------------------------------------------------
+    if type not in _customTypes:
+        return origFindCards(self, query, order)
     
-    if type in _customTypes:
-        sort = _customTypes[type].onSort()
-    
-    if not sort:
-        # If we couldn't sort it, it must be a built-in column. Handle
-        # it internally.
-        return origOrder(self, order)
-    
-    # This is also from the original _order()
-    return " order by " + sort, self.col.conf['sortBackwards']
-
-
-
+    tokens = self._tokenize(query)
+    preds, args = self._where(tokens)
+    if preds is None:
+        return []
+    order, rev = myOrder(type, order)
+    sql = self._query(preds, order)
+    try:
+        res = self.col.db.list(sql, *args)
+    except:
+        # invalid grouping
+        return []
+    if rev:
+        res.reverse()
+    return res
+        
 DataModel.__init__ = wrap(DataModel.__init__, myDataModel__init__)
 DataModel.columnData = myColumnData
 Browser.setupColumns = wrap(Browser.setupColumns, mySetupColumns)
 Browser.onHeaderContext = myOnHeaderContext
 Browser.closeEvent = wrap(Browser.closeEvent, myCloseEvent, "before")
-Finder._order = myOrder
+Finder.findCards = myFindCards
 
 def onLoad():
     runHook("advBrowserLoad")
