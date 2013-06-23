@@ -41,10 +41,14 @@ class CustomColumn:
             "select min(id) from revlog where cid = ?", card.id)
     
     onSort = Optional function that returns an SQL query as a string to
-    sort the column. This query will be used as the "where" clause of
-    a larger query.
-    E.g.:
-    def myColumnOnSort():
+    sort the column. This query will be used as the "order by" column
+    of a larger query.
+    def myColumnOnSort1():
+        return "c.id"
+        
+    A nested query is also possible:
+    
+    def myColumnOnSort2():
         return "(select min(id) from revlog where cid = c.id)"
         
     In this query, you have the names "c" and "n" to refer to cards and
@@ -59,6 +63,8 @@ class CustomColumn:
 
 class ContextColumnGroup:
     """
+    A sub-menu in the context menu. Can hold CustomColumns or even more
+    nested ContextColumnGroups.
     """
     def __init__(self, name):
         self.name = name
@@ -250,7 +256,10 @@ def myFindCards(self, query, order=False):
     else:
         sql += "1"
 
-    sql += " order by " + order
+    # Ensure nulls and empty values appear at the end. Sadly, this can be
+    # slow if we have a nested select in the "order by" clause since we're
+    # effectively doing it three times. :( There must be a better way.
+    sql += " order by %s is null, %s is '', %s " % (order, order, order)
     try:
         print "sql :", sql
         res = self.col.db.list(sql, *args)
