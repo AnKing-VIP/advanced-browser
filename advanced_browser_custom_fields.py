@@ -33,6 +33,7 @@ _modelFieldPos = {}
 # collection to decide how to build the context menu.
 _customColumns = []
 
+
 def onLoad():
     # Create a new SQL function that we can use in our queries.
     mw.col.db._db.create_function("valueForField", 3, valueForField)
@@ -54,7 +55,7 @@ def valueForField(mid, flds, fldName):
 
     index = _modelFieldPos.get(mid).get(fldName, None)
     if index is not None:
-        fieldsList = flds.split("\x1f", index)
+        fieldsList = flds.split("\x1f", index+1)
         return anki.utils.stripHTML(fieldsList[index])
 
 
@@ -77,8 +78,11 @@ def buildKnownModels():
 
 def onBuildContextMenu():
     """
-    Build our part of the browser columns context menu. Decide
-    which columns to show and sort them.
+    Build our part of the browser columns context menu. Decide which
+    columns to show.
+    
+    Currently, we show all "useful" fields in the top-level menu and
+    all note fields in a submenu.
     """
     
     # Model might have changed. Ensure we only offer existing columns.
