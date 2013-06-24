@@ -9,14 +9,6 @@ from aqt import *
 from anki.hooks import addHook
 import advanced_browser
 
-# Some useful columns to have
-_usefulColumns = [('cfirst', "First review"),
-                ('clast', "Last review"),
-                ('cavtime', "Time (Average)"),
-                ('ctottime', "Time (Total)"),
-                ('ntags', "Tags")]
-
-
 
 # Dictionary of field names indexed by "type" name. Used to figure out if
 # the requested column is a note field.
