@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Version: 0.1alpha2
+# Version: 0.1alpha3
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
 
@@ -25,6 +25,45 @@ _modelFieldPos = {}
 # collection to decide how to build the context menu.
 _customColumns = []
 
+## Let's use our own HTML-stipping function for now until the improved
+## version is merged upstream. This should be quite a bit faster.
+import re, htmlentitydefs
+
+reStyle = re.compile("(?s)<style.*?>.*?</style>")
+reScript = re.compile("(?s)<script.*?>.*?</script>")
+reTag = re.compile("<.*?>")
+reEnts = re.compile("&#?\w+;")
+reMedia = re.compile("<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
+
+def stripHTML(s):
+    s = reStyle.sub("", s)
+    s = reScript.sub("", s)
+    s = reTag.sub("", s)
+    s = entsToTxt(s)
+    return s
+
+def entsToTxt(html):
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                pass
+        else:
+            # named entity
+            try:
+                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+            except KeyError:
+                pass
+        return text # leave as is
+    return reEnts.sub(fixup, html)
+
+#################
 
 def onLoad():
     # Create a new SQL function that we can use in our queries.
@@ -48,7 +87,8 @@ def valueForField(mid, flds, fldName):
     index = _modelFieldPos.get(mid).get(fldName, None)
     if index is not None:
         fieldsList = flds.split("\x1f", index+1)
-        return anki.utils.stripHTML(fieldsList[index])
+        #return anki.utils.stripHTML(fieldsList[index])
+        return stripHTML(fieldsList[index])
 
 
 def buildKnownModels():
@@ -174,7 +214,8 @@ def onAdvBrowserLoad():
     def fldOnData(c, n, t):
         field = _fieldTypes[t]
         if field in c.note().keys():
-            return anki.utils.stripHTML(c.note()[field])
+            #return anki.utils.stripHTML(c.note()[field])
+            return stripHTML(c.note()[field])
 
     def getOnSort(f): return lambda: f
     
