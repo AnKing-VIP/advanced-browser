@@ -2,6 +2,7 @@
 # Version: 0.1alpha2
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
+
 from operator import  itemgetter
 
 from aqt import *
@@ -222,13 +223,22 @@ def myColumnData(self, index):
 
 def myFindCards(self, query, order=False):
     """
-    Overriding Finder.findCards. Use original if sort type is not one
-    handled by this add-on. Our version will try to build a more
-    efficiently sortable query, but leave the rest intact.
+    Overriding Finder.findCards. Since we intend to augment the sort
+    behaviour for our custom types, we defer to the original findCards
+    if there is a custom or no order string provided. We also use the
+    original if the sort type is not one handled by this add-on. Our
+    version will try to build a more efficiently sortable query, but
+    aims to leave the rest intact.
     
     Currently, no optimizations are done.
     """
     
+    if not order:
+        return origFindCards(self, query, order)
+    elif order is not True:
+        # custom order string provided
+        return origFindCards(self, query, order)
+        
     type = self.col.conf['sortType']
     if type not in _customTypes:
         return origFindCards(self, query, order)
