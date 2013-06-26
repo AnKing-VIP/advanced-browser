@@ -102,7 +102,11 @@ def myDataModel__init__(self, browser):
                 validSortType = True
     
     if not validSortType:
-        mw.col.conf['sortType'] = 'noteCrt'
+        mw.col.conf['sortType'] = 'noteFld'
+        # Guarantee that we always start with at least one column.
+        if 'noteFld' not in self.activeCols:
+            self.activeCols.append('noteFld')
+        
 
 
 # Context menu -------
