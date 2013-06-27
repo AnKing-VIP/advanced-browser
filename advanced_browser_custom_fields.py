@@ -7,7 +7,11 @@ import time
 
 from aqt import *
 from anki.hooks import addHook
-import advanced_browser
+try:
+    import advanced_browser
+except:
+    print "Failed to import. Module loaded before advanced_browser."
+    pass
 
 
 # Dictionary of field names indexed by "type" name. Used to figure out if
@@ -66,6 +70,7 @@ def entsToTxt(html):
 #################
 
 def onLoad():
+    print "advanced_browser_custom_fields: onLoad"
     # Create a new SQL function that we can use in our queries.
     mw.col.db._db.create_function("valueForField", 3, valueForField)
 
@@ -137,6 +142,7 @@ def onAdvBrowserLoad():
     Create and add all custom columns owned by this add-on.
     """
     global _customColumns
+    import advanced_browser
     from advanced_browser import CustomColumn
     
     # First review
@@ -233,7 +239,7 @@ def onAdvBrowserLoad():
     for column in _customColumns:
         advanced_browser.addCustomColumn(column)
 
-    
+
 addHook("profileLoaded", onLoad)
 addHook("advBrowserLoad", onAdvBrowserLoad)
 addHook("advBrowserBuildContext", onBuildContextMenu)
