@@ -256,38 +256,69 @@ def myFindCards(self, query, order=False):
     rev = self.col.conf['sortBackwards']
     
     # We bypass _query() and _order and write our own combined version
-    
-    order = _customTypes[type].onSort()
-    
-    # can we skip the note table?
-    if "n." not in preds and "n." not in order:
-        sql = "select c.id from cards c where "
-    else:
-        sql = "select c.id from cards c, notes n where c.nid=n.id and "
-        
-    # combine with preds
-    if preds:
-        sql += "(" + preds + ")"
-    else:
-        sql += "1"
 
-    # Ensure nulls and empty values appear at the end. Sadly, this can be
-    # slow if we have a nested select in the "order by" clause since we're
-    # effectively doing it three times. :( There must be a better way.
-    sql += " order by %s is null, %s is '', %s " % (order, order, order)
-    
+    order = _customTypes[type].onSort()
+
     t = time.time()
-    try:
-        
-        print "sql :", sql
-        res = self.col.db.list(sql, *args)
-    except Exception, e:
-        # invalid grouping
-        print "Error finding cards:", e
-        return []
     
-    if rev:
-        res.reverse()
+    if "select" in order.lower():
+        print "TEMP SORT TABLE PATH"
+        s = ("create temp table tmpsort as select "+
+             "c.id, %s as srtClm from cards c where " % order)
+
+        # combine with preds
+        if preds:
+            s += "(" + preds + ")"
+        else:
+            s += "1"
+    
+        try:   
+            print "Order table sql: ", s
+            self.col.db.execute(s)
+        except Exception, e:
+            print "Failed to create temp sort table: " + e.message
+
+        sql = ("select id, srtClm from tmpsort order by "+
+               "tmpsort.srtClm is null, tmpsort.srtClm is '', tmpsort.srtClm")
+               
+        try:
+            print "sql :", sql
+            res = self.col.db.list(sql, *args)
+        except Exception, e:
+            # invalid grouping
+            print "Error finding cards:", e
+            return []
+        
+        if rev:
+            res.reverse()
+        self.col.db.execute("drop table tmpsort")
+    else:
+        print "NORMAL SORT PATH"
+        # can we skip the note table?
+        if "n." not in preds and "n." not in order:
+            sql = "select c.id from cards c where "
+        else:
+            sql = "select c.id from cards c, notes n where c.nid=n.id and "
+    
+        # combine with preds
+        if preds:
+            sql += "(" + preds + ")"
+        else:
+            sql += "1"
+
+        sql += " order by %s is null, %s is '', %s " % (order, order, order)
+        
+        try:
+            print "sql :", sql
+            res = self.col.db.list(sql, *args)
+        except Exception, e:
+            # invalid grouping
+            print "Error finding cards:", e
+            return []
+        
+        if rev:
+            res.reverse()
+
     print "Search took: %dms" % ((time.time() - t)*1000)
     return res
         
