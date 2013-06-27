@@ -3,6 +3,7 @@
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
 
+import time
 from operator import  itemgetter
 
 from aqt import *
@@ -274,7 +275,10 @@ def myFindCards(self, query, order=False):
     # slow if we have a nested select in the "order by" clause since we're
     # effectively doing it three times. :( There must be a better way.
     sql += " order by %s is null, %s is '', %s " % (order, order, order)
+    
+    t = time.time()
     try:
+        
         print "sql :", sql
         res = self.col.db.list(sql, *args)
     except Exception, e:
@@ -284,6 +288,7 @@ def myFindCards(self, query, order=False):
     
     if rev:
         res.reverse()
+    print "Search took: %dms" % ((time.time() - t)*1000)
     return res
         
 DataModel.__init__ = wrap(DataModel.__init__, myDataModel__init__)
