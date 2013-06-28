@@ -315,13 +315,12 @@ def myFindCards(self, query, order=False):
                 tmpSql = ("create temp table tmp as select *, %s as srt "
                           "from cards c where %s" % (order, preds))
             else:
-                # TODO: this is broken
                 tmpSql = ("create temp table tmp as select *, %s as srt "
                           "from cards c, notes n where c.nid=n.id and %s"
                            % (order, preds))
             
             print "Temp sort table sql: ", tmpSql
-            self.col.db.execute(tmpSql)
+            self.col.db.execute(tmpSql, *args)
             drop = True
         except Exception, e:
             print "Failed to create temp sort table: " + e.message
@@ -342,7 +341,7 @@ def myFindCards(self, query, order=False):
 
     try:
         print "sql :", sql
-        res = self.col.db.list(sql, *args)
+        res = self.col.db.list(sql)
     except Exception, e:
         print "Error finding cards:", e
         return []
