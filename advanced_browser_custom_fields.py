@@ -69,11 +69,6 @@ def entsToTxt(html):
 
 #################
 
-def onLoad():
-    print "advanced_browser_custom_fields: onLoad"
-    # Create a new SQL function that we can use in our queries.
-    mw.col.db._db.create_function("valueForField", 3, valueForField)
-
 def valueForField(mid, flds, fldName):
     """
     SQLite function to get the value of a field, given a field name and
@@ -141,10 +136,15 @@ def onAdvBrowserLoad():
     
     Create and add all custom columns owned by this add-on.
     """
+    print "abcf: onAdvBrowserLoad"
+
     global _customColumns
     import advanced_browser
     from advanced_browser import CustomColumn
-    
+
+    # Create a new SQL function that we can use in our queries.
+    mw.col.db._db.create_function("valueForField", 3, valueForField)
+           
     # First review
     def cFirstOnData(c, n, t):
         first = mw.col.db.scalar(
@@ -240,6 +240,5 @@ def onAdvBrowserLoad():
         advanced_browser.addCustomColumn(column)
 
 
-addHook("profileLoaded", onLoad)
-addHook("advBrowserLoad", onAdvBrowserLoad)
+addHook("advBrowserLoaded", onAdvBrowserLoad)
 addHook("advBrowserBuildContext", onBuildContextMenu)

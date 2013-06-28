@@ -153,5 +153,5 @@ class InternalFields():
 
 iff = InternalFields()
 
-addHook("advBrowserLoad", iff.onAdvBrowserLoad)
+addHook("advBrowserLoaded", iff.onAdvBrowserLoad)
 addHook("advBrowserBuildContext", iff.onBuildContextMenu)
