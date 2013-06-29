@@ -29,7 +29,7 @@ _modelFieldPos = {}
 # collection to decide how to build the context menu.
 _customColumns = []
 
-## Let's use our own HTML-stipping function for now until the improved
+## Let's use our own HTML-stripping function for now until the improved
 ## version is merged upstream. This should be quite a bit faster.
 import re, htmlentitydefs
 
@@ -71,8 +71,8 @@ def entsToTxt(html):
 
 def valueForField(mid, flds, fldName):
     """
-    SQLite function to get the value of a field, given a field name and
-    the model id for the note.
+    Function called from SQLite to get the value of a field, given a
+    field name and the model id for the note.
     
     mid is the model id. The model contains the definition of a note,
     including the names of all fields.
@@ -81,14 +81,22 @@ def valueForField(mid, flds, fldName):
     "x1f". We split this and index into it according to a precomputed
     index for the model (mid) and field name (fldName).
     
-    fldName is the field name we are after.
+    fldName is the name of the field we are after.
     """
 
-    index = _modelFieldPos.get(mid).get(fldName, None)
-    if index is not None:
-        fieldsList = flds.split("\x1f", index+1)
-        #return anki.utils.stripHTML(fieldsList[index])
-        return stripHTML(fieldsList[index])
+    try:
+        index = _modelFieldPos.get(mid).get(fldName, None)
+        if index is not None:
+            fieldsList = flds.split("\x1f", index+1)
+            #return anki.utils.stripHTML(fieldsList[index])
+            return stripHTML(fieldsList[index])
+    except Exception, e:
+        print "Failed to get value for field."
+        print "Mid:" + (mid or 'None')
+        print "flds" + (flds or 'None')
+        print "fldName" + (fldName or 'None')
+        print "_modelFieldPos" + _modelFieldPos
+        print "Error was: " + e.message
 
 
 def buildKnownModels():
