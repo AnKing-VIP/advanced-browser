@@ -98,14 +98,19 @@ def buildKnownModels():
     for model in mw.col.models.all():
         # For some reason, some mids return as unicode, so convert to int
         mid = int(model['id'])
+        # And some platforms get a signed 32-bit integer from SQlite, so we
+        # will also provide an index to that as a workaround.
+        mid32 = (mid + 2**31) % 2**32 - 2**31
         _modelFieldPos[mid] = {}
+        _modelFieldPos[mid32] = {}
         for field in model['flds']:
             name = field['name']
             ord = field['ord']
             type = "_field_"+name #prefix to avoid potential clashes
             _modelFieldPos[mid][name] = ord
-            if type not in _fieldTypes:
-                _fieldTypes[type] = name    
+            _modelFieldPos[mid32][name] = ord
+            if type not in _fieldTypes: #avoid dupes
+                _fieldTypes[type] = name
 
 
 def onBuildContextMenu():
