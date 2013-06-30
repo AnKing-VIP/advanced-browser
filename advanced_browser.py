@@ -327,7 +327,7 @@ def myFindCards(self, query, order=False):
             return []
 
         sql = ("select id, srt from tmp order by "
-               "tmp.srt is null, tmp.srt is '', tmp.srt")
+               "tmp.srt is null, tmp.srt is '', tmp.srt collate nocase")
     else:
         print "NORMAL SORT PATH"
         
@@ -337,7 +337,8 @@ def myFindCards(self, query, order=False):
             sql = "select * from cards c, notes n where c.nid=n.id and "
     
         sql += preds
-        sql += " order by %s is null, %s is '', %s " % (order, order, order)
+        sql += (" order by %s is null, %s is '', %s collate nocase" %
+                (order, order, order))
 
     try:
         print "sql :", sql
