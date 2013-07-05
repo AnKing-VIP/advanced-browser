@@ -342,7 +342,7 @@ def myFindCards(self, query, order=False):
 
     try:
         print "sql :", sql
-        res = self.col.db.list(sql)
+        res = self.col.db.list(sql, *args)
     except Exception, e:
         print "Error finding cards:", e
         return []
