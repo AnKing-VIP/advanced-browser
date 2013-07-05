@@ -222,7 +222,7 @@ def onAdvBrowserLoad():
     _customColumns.append(CustomColumn(
         type = 'ntags',
         name = 'Tags',
-        onData = lambda c, n, t: " ".join(str(tag) for tag in n.tags),
+        onData = lambda c, n, t: " ".join(unicode(tag) for tag in n.tags),
         onSort = lambda: "n.tags"
     ))
 
