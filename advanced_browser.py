@@ -322,6 +322,7 @@ def myFindCards(self, query, order=False):
             print "Temp sort table sql: ", tmpSql
             self.col.db.execute(tmpSql, *args)
             drop = True
+            args = {} # We've consumed them, so empty this.
         except Exception, e:
             print "Failed to create temp sort table: " + e.message
             return []
