@@ -26,6 +26,9 @@ class InternalFields:
         add-on here.
         """
         
+        # Clear existing state
+        self.noteColumns = []
+        self.cardColumns = []
         
         cc = advBrowser.newCustomColumn(
             type = "nid",

@@ -91,6 +91,11 @@ class CustomFields:
         loading. Create and add all custom columns owned by this
         add-on."""
 
+        # Clear existing state
+        self.fieldTypes = {}
+        self.modelFieldPos = {}
+        self.customColumns = []
+        
         # Create a new SQL function that we can use in our queries.
         mw.col.db._db.create_function("valueForField", 3, self.valueForField)
                
