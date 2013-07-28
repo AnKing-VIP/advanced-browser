@@ -12,6 +12,7 @@ class ContextMenu:
         self._items.append(item)
 
     def newSubMenu(self, name):
+        """Create and add a new sub-menu."""
         cm = ContextMenu(subGroupName=name)
         self.addItem(cm)
         return cm

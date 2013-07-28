@@ -28,7 +28,7 @@ class AdvancedBrowser:
     """Maintains state for the add-on."""
     
     def __init__(self):
-                
+
         # CustomColumn objects maintained by this add-on.
         # {type -> CustomColumn}
         self.customTypes = {}
@@ -45,7 +45,6 @@ class AdvancedBrowser:
         cc = CustomColumn(type, name, onData, onSort, cacheSortValue)
         self.customTypes[cc.type] = cc
         return cc
-
 
 
 def myDataModel__init__(self, browser):
@@ -307,4 +306,3 @@ Browser.setupColumns = wrap(Browser.setupColumns, mySetupColumns)
 Browser.onHeaderContext = myOnHeaderContext
 Browser.closeEvent = wrap(Browser.closeEvent, myCloseEvent, "before")
 Finder.findCards = myFindCards
-

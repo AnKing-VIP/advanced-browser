@@ -72,24 +72,26 @@ class CustomFields:
         for model in mw.col.models.all():
             # For some reason, some mids return as unicode, so convert to int
             mid = int(model['id'])
-            # And some platforms get a signed 32-bit integer from SQlite, so we
-            # will also provide an index to that as a workaround.
+            # And some platforms get a signed 32-bit integer from SQlite, so
+            # we will also provide an index to that as a workaround.
             mid32 = (mid + 2**31) % 2**32 - 2**31
             self.modelFieldPos[mid] = {}
             self.modelFieldPos[mid32] = {}
             for field in model['flds']:
                 name = field['name']
                 ord = field['ord']
-                type = "_field_"+name #prefix to avoid potential clashes
+                type = "_field_"+name  #prefix to avoid potential clashes
                 self.modelFieldPos[mid][name] = ord
                 self.modelFieldPos[mid32][name] = ord
-                if type not in self.fieldTypes: #avoid dupes
+                if type not in self.fieldTypes:  #avoid dupes
                     self.fieldTypes[type] = name
     
     def onAdvBrowserLoad(self, advBrowser):
         """Called when the Advanced Browser add-on has finished
         loading. Create and add all custom columns owned by this
-        add-on."""
+        module.
+        
+        """
 
         # Clear existing state
         self.fieldTypes = {}
@@ -172,6 +174,7 @@ class CustomFields:
         )
         self.customColumns.append(cc)
         
+        
         # Note fields
         self.buildKnownModels()
         
@@ -195,13 +198,13 @@ class CustomFields:
             )
             self.customColumns.append(cc)
 
-
     def onBuildContextMenu(self, contextMenu):
         """Build our part of the browser columns context menu. Decide
         which columns to show.
         
         Currently, we show all "useful" columns in the top-level menu
         and all note fields in a submenu.
+        
         """
         
         # Model might have changed. Ensure we only offer existing columns.
@@ -216,9 +219,8 @@ class CustomFields:
 
 
     def valueForField(self, mid, flds, fldName):
-        """
-        Function called from SQLite to get the value of a field, given a
-        field name and the model id for the note.
+        """Function called from SQLite to get the value of a field,
+        given a field name and the model id for the note.
         
         mid is the model id. The model contains the definition of a note,
         including the names of all fields.
@@ -228,6 +230,7 @@ class CustomFields:
         index for the model (mid) and field name (fldName).
         
         fldName is the name of the field we are after.
+        
         """
     
         try:

@@ -18,12 +18,12 @@ class InternalFields:
             nGroup.addItem(cc)
         for cc in self.cardColumns:
             cGroup.addItem(cc)
-        
     
     def onAdvBrowserLoad(self, advBrowser):
         """Called when the Advanced Browser add-on has finished
         loading. Create and add all custom columns owned by this
         add-on here.
+        
         """
         
         # Clear existing state
@@ -93,7 +93,6 @@ class InternalFields:
             onSort = lambda: "c.id"
         )
         self.cardColumns.append(cc)
-
         
         cc = advBrowser.newCustomColumn(
             type = "cdid",
@@ -166,7 +165,7 @@ class InternalFields:
             onSort = lambda: "c.flags"
         )
         self.cardColumns.append(cc)
-        
+
 
 iff = InternalFields()
 
