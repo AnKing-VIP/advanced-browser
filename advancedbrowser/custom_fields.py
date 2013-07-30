@@ -5,8 +5,8 @@
 import time
 
 from aqt import *
+from aqt.main import AnkiQt
 from anki.hooks import addHook, wrap
-from aqt.browser import Browser
 
 #######################################################################
 ## Let's use our own HTML-stripping function for now until the improved
@@ -244,21 +244,19 @@ class CustomFields:
             print "_modelFieldPos" + self.modelFieldPos
             print "Error was: " + e.message
 
+    def myLoadCollection(self, _self):
+        """Wrap collection load so we can add our custom DB function.
+        We do this here instead of on startup because the collection
+        might get closed/reopened while Anki is still open (e.g., after
+        sync), which clears the DB function we added.
+        
+        """
+        
+        # Create a new SQL function that we can use in our queries.
+        mw.col.db._db.create_function("valueForField", 3, self.valueForField)
+
+
 cf = CustomFields()
-
-def myBrowser__init__(self, browser):
-    """Wrap Browser's init so we can add our custom DB function. We
-    do this here instead of on startup because the collection might get
-    closed/reopened while Anki is still open (e.g., after sync), which
-    clears the DB function we added. Doing it here ensures we always
-    have the function when the browser opens.
-    
-    """
-
-    # Create a new SQL function that we can use in our queries.
-    mw.col.db._db.create_function("valueForField", 3, cf.valueForField)
-
-
 addHook("advBrowserLoaded", cf.onAdvBrowserLoad)
 addHook("advBrowserBuildContext", cf.onBuildContextMenu)
-Browser.__init__ = wrap(Browser.__init__, myBrowser__init__)
+AnkiQt.loadCollection = wrap(AnkiQt.loadCollection, cf.myLoadCollection)
