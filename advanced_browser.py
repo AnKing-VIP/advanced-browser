@@ -4,12 +4,19 @@
 # https://github.com/hssm/advanced-browser
 
 from anki.hooks import addHook, runHook
+from aqt import mw
 
 from advancedbrowser.core import AdvancedBrowser
 from advancedbrowser import internal_fields
 from advancedbrowser import custom_fields
 
 def onLoad():
+    
+    # TODO: Remove this in next major version
+    # Remove any saved data from the internal_fields_in_browser add-on that
+    # this add-on replaces. Don't let them interfere with each other.
+    mw.col.conf.pop('ifib_activeCols', None)
+    
     advBrowser = AdvancedBrowser()
     
     # Signal that the add-on has loaded. Other add-ons can add their
