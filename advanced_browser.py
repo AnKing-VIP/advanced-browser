@@ -7,8 +7,10 @@ from anki.hooks import addHook, runHook
 from aqt import mw
 
 from advancedbrowser.core import AdvancedBrowser
-from advancedbrowser import internal_fields
 from advancedbrowser import custom_fields
+
+# Uncomment this if you want internal fields (card/note/model IDs, etc)
+#from advancedbrowser import internal_fields
 
 def onLoad():
     
