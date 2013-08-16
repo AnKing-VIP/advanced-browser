@@ -8,7 +8,7 @@ An Anki add-on that adds advanced features to the card browser. This add-on is l
 
 Advanced Browser is an Anki add-on that aims to add useful features or enhance the usability of the card browser. The primary feature offered at the moment is the addition of **any** field in your decks as a column that you can display and sort. This means you can have more than just ```Sort Field``` as a usable column.
 
-![Multi-column editor](https://raw.github.com/hssm/advanced-browser/master/docs/screenshot_info.png)
+![Note fields](https://raw.github.com/hssm/advanced-browser/master/docs/screenshot_info.png)
 
 Other useful fields that can be added as columns:
 - First review date
@@ -17,4 +17,4 @@ Other useful fields that can be added as columns:
 - Total answer time
 - Tags
 
-![Multi-column editor](https://raw.github.com/hssm/advanced-browser/master/docs/context.png)
+![Useful columns](https://raw.github.com/hssm/advanced-browser/master/docs/context.png)
