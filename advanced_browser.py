@@ -18,12 +18,6 @@ def onLoad():
     # Remove any saved data from the internal_fields_in_browser add-on that
     # this add-on replaces. Don't let them interfere with each other.
     mw.col.conf.pop('ifib_activeCols', None)
-    
-    advBrowser = AdvancedBrowser()
-    
-    # Signal that the add-on has loaded. Other add-ons can add their
-    # own columns through this hook.
-    runHook("advBrowserLoaded", advBrowser)
 
 
 # Set up Advanced Browser after profile load so we have a guarantee
