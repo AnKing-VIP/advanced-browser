@@ -171,7 +171,8 @@ class CustomFields:
             onSort = lambda: "n.tags"
         )
         self.customColumns.append(cc)
-        
+        # Remove the built-in tags column.
+        advBrowser.removeColumn("noteTags")
         
         # Note fields
         self.buildKnownModels()
