@@ -44,7 +44,6 @@ class AdvancedDataModel(DataModel):
             if 'noteFld' not in self.activeCols:
                 self.activeCols.append('noteFld')
 
-
     def columnData(self, index):
         # Try to handle built-in Anki column
         returned = self._columnData(self, index)
@@ -89,7 +88,6 @@ class AdvancedDataModel(DataModel):
         type = self.col.conf['sortType']
         if type not in cTypes:
             return finder.findCards(query, order=True)
-        
         
         # We bypass _query() and _order and write our own combined version
         #
