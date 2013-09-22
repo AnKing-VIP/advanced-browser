@@ -26,6 +26,7 @@ Other useful fields that can be added as columns:
 You can also show some fields used internally by Anki but probably aren't very useful for the typical user. These are disabled by default, but you can enable them by going to **Tools -> Add-ons -> advanced_browser -> Edit...** and uncommenting the line that loads the extension that offers those fields.
 
 ![Internal fields](https://raw.github.com/hssm/advanced-browser/master/docs/edit.png)
+![Internal fields](https://raw.github.com/hssm/advanced-browser/master/docs/context_internal.png)
 
 
 ###Known issues
