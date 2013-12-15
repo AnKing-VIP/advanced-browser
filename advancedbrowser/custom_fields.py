@@ -8,46 +8,6 @@ from aqt import *
 from aqt.main import AnkiQt
 from anki.hooks import addHook, wrap
 
-#######################################################################
-## Let's use our own HTML-stripping function for now until the improved
-## version is merged upstream. This should be quite a bit faster.
-import re, htmlentitydefs
-
-reStyle = re.compile("(?s)<style.*?>.*?</style>")
-reScript = re.compile("(?s)<script.*?>.*?</script>")
-reTag = re.compile("<.*?>")
-reEnts = re.compile("&#?\w+;")
-reMedia = re.compile("<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
-
-def stripHTML(s):
-    s = reStyle.sub("", s)
-    s = reScript.sub("", s)
-    s = reTag.sub("", s)
-    s = entsToTxt(s)
-    return s
-
-def entsToTxt(html):
-    def fixup(m):
-        text = m.group(0)
-        if text[:2] == "&#":
-            # character reference
-            try:
-                if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
-                else:
-                    return unichr(int(text[2:-1]))
-            except ValueError:
-                pass
-        else:
-            # named entity
-            try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
-            except KeyError:
-                pass
-        return text # leave as is
-    return reEnts.sub(fixup, html)
-#######################################################################
-
 
 class CustomFields:
 
@@ -180,8 +140,7 @@ class CustomFields:
         def fldOnData(c, n, t):
             field = self.fieldTypes[t]
             if field in c.note().keys():
-                #return anki.utils.stripHTML(c.note()[field])
-                return stripHTML(c.note()[field])
+                return anki.utils.stripHTML(c.note()[field])
     
         def getOnSort(f): return lambda: f
         
@@ -235,8 +194,7 @@ class CustomFields:
             index = self.modelFieldPos.get(mid).get(fldName, None)
             if index is not None:
                 fieldsList = flds.split("\x1f", index+1)
-                #return anki.utils.stripHTML(fieldsList[index])
-                return stripHTML(fieldsList[index])
+                return anki.utils.stripHTML(fieldsList[index])
         except Exception, e:
             print "Failed to get value for field."
             print "Mid:" + (mid or 'None')
