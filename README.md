@@ -29,9 +29,6 @@ You can also show some fields used internally by Anki but probably aren't very u
 ![Internal fields](https://raw.github.com/hssm/advanced-browser/master/docs/context_internal.png)
 
 
-###Known issues
-Currently, you cannot sort fields numerically.
-
 ###I want a new column
 If you have a good idea for a new column, please open a new issue on GitHub and I will likely include it. If you are a developer and would like to add it yourself, you will likely want to add it to ```custom_fields.py```. Contributions are more than welcomed!
 
