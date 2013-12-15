@@ -140,7 +140,7 @@ class InternalFields:
             onData = lambda c, n, t: c.queue,
             onSort = lambda: "c.queue"
         )
-        self.noteColumns.append(cc)
+        self.cardColumns.append(cc)
         
         cc = advBrowser.newCustomColumn(
             type = "cleft",
