@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Version: 1.2
+# Version: 1.3b1
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
 
