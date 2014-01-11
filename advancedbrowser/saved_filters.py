@@ -5,79 +5,90 @@
 
 from aqt import *
 from anki.hooks import wrap
+from aqt.browser import Browser
+
+from widgets import ButtonLineEdit
+import icons
 
 CONF_KEY_SAVED_FILTERS = 'ab_saved_filters'
 
-bSave = QPushButton(u" Save ")
-bRemove = QPushButton(u"Forget")
 
-class SavedFilter:
-    def __init__(self, name, query):
-        self.name = name
-        self.query = query
+def postFormCreation(self, Dialog):
+    """Hooked to run immediately after the form is created so we can
+    override the lineEdit inside the combobox before Anki begins to
+    edit it for itself."""
+    self.sf_save = ButtonLineEdit.ButtonLineEdit()
+    self.sf_save.buttonClicked.connect(lambda: onFavClicked(Dialog))
+    self.searchEdit.setLineEdit(self.sf_save)
 
-    
-def myBrowserInit(self, mw, _old):
-    bSave.connect(bSave, SIGNAL("clicked(bool)"), lambda: onSaveClicked(self))    
-    bRemove.connect(bRemove, SIGNAL("clicked(bool)"), lambda: onRemoveClicked(self))
-    
+
+def myBrowserInit(self, mw):
     if not mw.pm.profile.has_key(CONF_KEY_SAVED_FILTERS):
         mw.pm.profile[CONF_KEY_SAVED_FILTERS] = {}
 
-    _old(self, mw)
-   
-    
-    # Add our button to the right of the search box. We do this by moving
-    # every widget out of the gridlayout and into a new list. We then move
-    # everything back into the gridLayout in order and place our widget
-    # after the search box when it comes up.
-    gl = self.form.gridLayout
-    n_items = gl.count()
-    gl.addWidget(bSave, 0, n_items+1, 1, 1)
-    gl.addWidget(bRemove, 0, n_items+2, 1, 1)
+    # Flag for choice of saving or deleting on button click
+    self.sf_doSave = True
+    # Name of current saved filter (if any)
+    self.sf_name = None
     
     self.connect(self.form.searchEdit.lineEdit(),
-                 SIGNAL("textEdited(QString)"), lambda: txtChanged(self))
+                 SIGNAL("textEdited(QString)"), lambda: updateButton(self))
 
-def txtChanged(self):
-    updateButton(self)
     
-def updateButton(self, reset=True):        
-    txt = self.form.searchEdit.lineEdit().text()
+def updateButton(self, reset=True):
+    txt = unicode(self.form.searchEdit.lineEdit().text()).strip()
     d = self.mw.pm.profile[CONF_KEY_SAVED_FILTERS]
     
-    if txt in d.values():
-        bSave.setVisible(False)
-        bRemove.setVisible(True)
-    else:
-        bSave.setVisible(True)
-        bRemove.setVisible(False)
+    for key, value in d.items():
+        if txt == value:
+            self.sf_doSave = False
+            self.sf_name = key
+            self.form.sf_save.setIcon(icons.getQIcon("star_32.png"))
+            return
+        
+    self.sf_doSave = True
+    self.form.sf_save.setIcon(icons.getQIcon("star_off_32.png"))
 
-    
-def onSaveClicked(self):
+def onFavClicked(self):
+    if self.sf_doSave:
+        saveClicked(self)
+    else:
+        deleteClicked(self)
+
+def saveClicked(self):
     txt = unicode(self.form.searchEdit.lineEdit().text()).strip()
-    name, ok = QInputDialog.getText(self, 'Save filter', 'Filter name:')
+    dlg = QInputDialog(self)
+    dlg.setInputMode(QInputDialog.TextInput)
+    dlg.setLabelText("Filter name:")
+    dlg.setWindowTitle("Save filter")
+    dlg.resize(300,100)
+    ok = dlg.exec_()
+    name = dlg.textValue()
     if ok:
         self.mw.pm.profile[CONF_KEY_SAVED_FILTERS][name] = txt
         
     updateButton(self)
     self.setupTree()
 
-def onRemoveClicked(self):
-    txt = unicode(self.form.searchEdit.lineEdit().text()).strip()
-    d = self.mw.pm.profile[CONF_KEY_SAVED_FILTERS]
-    for name, filt in d.items():
-        if txt == filt:
-            d.pop(name, None)
-    updateButton(self)
-    self.setupTree()
+def deleteClicked(self):
+    msg = 'Delete saved filter "%s"?' % self.sf_name
+    ok = QMessageBox.question(self, 'Remove filter',
+                     msg, QMessageBox.Yes, QMessageBox.No)
+
+    if ok == QMessageBox.Yes:
+        self.mw.pm.profile[CONF_KEY_SAVED_FILTERS].pop(self.sf_name, None)
+        updateButton(self)
+        self.setupTree()
 
 
 def filterTree(self, root):
     root = self.CallbackItem(root, "Saved", None)
+    root.setIcon(0, QIcon(icons.getQIcon("star_dark_32.png")))
     for name, filt in self.mw.pm.profile[CONF_KEY_SAVED_FILTERS].items():
         self.CallbackItem(root, name, lambda s=filt: self.setFilter(s))
+        
 
-aqt.browser.Browser._systemTagTree = wrap(aqt.browser.Browser._systemTagTree, filterTree, "before")
-aqt.browser.Browser.__init__ = wrap(aqt.browser.Browser.__init__, myBrowserInit, "around")
-aqt.browser.Browser.onSearch = wrap(aqt.browser.Browser.onSearch, updateButton)
+aqt.forms.browser.Ui_Dialog.setupUi = wrap(aqt.forms.browser.Ui_Dialog.setupUi, postFormCreation)
+Browser._systemTagTree = wrap(Browser._systemTagTree, filterTree, "before")
+Browser.__init__ = wrap(Browser.__init__, myBrowserInit)
+Browser.onSearch = wrap(Browser.onSearch, updateButton)
