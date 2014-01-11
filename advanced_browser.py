@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-# Version: 1.3b1
+# Version: 1.3b2
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
 
-from anki.hooks import addHook, runHook
+from anki.hooks import addHook
 from aqt import mw
 
 from advancedbrowser.core import AdvancedBrowser
+
 from advancedbrowser import custom_fields
 from advancedbrowser import saved_filters
 
