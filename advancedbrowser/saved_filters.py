@@ -82,10 +82,11 @@ def deleteClicked(self):
 
 
 def filterTree(self, root):
-    root = self.CallbackItem(root, "Saved", None)
+    root = self.CallbackItem(root, "My Filters", None)
     root.setIcon(0, QIcon(icons.getQIcon("star_dark_32.png")))
     for name, filt in self.mw.pm.profile[CONF_KEY_SAVED_FILTERS].items():
-        self.CallbackItem(root, name, lambda s=filt: self.setFilter(s))
+        item = self.CallbackItem(root, name, lambda s=filt: self.setFilter(s))
+        item.setIcon(0, QIcon(icons.getQIcon("star_dark_32.png")))
         
 
 aqt.forms.browser.Ui_Dialog.setupUi = wrap(aqt.forms.browser.Ui_Dialog.setupUi, postFormCreation)
