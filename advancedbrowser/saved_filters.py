@@ -22,10 +22,13 @@ def postFormCreation(self, Dialog):
     self.searchEdit.setLineEdit(self.sf_save)
 
 
-def myBrowserInit(self, mw):
+def myBrowserInit(self, mw, _old):
+    # Ensure we create our key before we start using the add-on
     if not mw.pm.profile.has_key(CONF_KEY_SAVED_FILTERS):
         mw.pm.profile[CONF_KEY_SAVED_FILTERS] = {}
 
+    _old(self, mw)
+    
     # Flag for choice of saving or deleting on button click
     self.sf_doSave = True
     # Name of current saved filter (if any)
@@ -91,5 +94,5 @@ def filterTree(self, root):
 
 aqt.forms.browser.Ui_Dialog.setupUi = wrap(aqt.forms.browser.Ui_Dialog.setupUi, postFormCreation)
 Browser._systemTagTree = wrap(Browser._systemTagTree, filterTree, "before")
-Browser.__init__ = wrap(Browser.__init__, myBrowserInit)
+Browser.__init__ = wrap(Browser.__init__, myBrowserInit, "around")
 Browser.onSearch = wrap(Browser.onSearch, updateButton)
