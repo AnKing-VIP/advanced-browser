@@ -50,14 +50,15 @@ class CustomFields:
     def onAdvBrowserLoad(self, advBrowser):
         """Called when the Advanced Browser add-on has finished
         loading. Create and add all custom columns owned by this
-        module.
-        
-        """
+        module."""
 
         # Clear existing state
         self.fieldTypes = {}
         self.modelFieldPos = {}
         self.customColumns = []
+
+        # Convenience method to create lambdas without scope clobbering
+        def getOnSort(f): return lambda: f
 
         # First review
         def cFirstOnData(c, n, t):
@@ -134,6 +135,24 @@ class CustomFields:
         # Remove the built-in tags column.
         advBrowser.removeColumn("noteTags")
         
+        
+        # Overdue interval
+        def cOverdueIvl(c, n, t):
+            val = self.valueForOverdue(c.odid, c.queue, c.type, c.due)
+            if val:
+                return str(val) + " day" + ('s' if val > 1 else '')
+                
+        srt = ("(select valueForOverdue(odid, queue, type, due) "
+               "from cards where id = c.id)")
+
+        cc = advBrowser.newCustomColumn(
+            type = 'coverdueivl',
+            name = "Overdue Interval",
+            onData = cOverdueIvl,
+            onSort = getOnSort(srt)
+        )
+        self.customColumns.append(cc)
+                
         # Note fields
         self.buildKnownModels()
         
@@ -141,8 +160,6 @@ class CustomFields:
             field = self.fieldTypes[t]
             if field in c.note().keys():
                 return anki.utils.stripHTML(c.note()[field])
-    
-        def getOnSort(f): return lambda: f
         
         for type, name in self.fieldTypes.iteritems():
             srt = ("(select valueForField(mid, flds, '%s') "
@@ -161,9 +178,7 @@ class CustomFields:
         which columns to show.
         
         Currently, we show all "useful" columns in the top-level menu
-        and all note fields in a submenu.
-        
-        """
+        and all note fields in a submenu."""
         
         # Model might have changed. Ensure we only offer existing columns.
         self.buildKnownModels()
@@ -174,7 +189,7 @@ class CustomFields:
                 fldGroup.addItem(column)
             else:
                 contextMenu.addItem(column)
-
+                
     def valueForField(self, mid, flds, fldName):
         """Function called from SQLite to get the value of a field,
         given a field name and the model id for the note.
@@ -186,9 +201,7 @@ class CustomFields:
         "x1f". We split this and index into it according to a precomputed
         index for the model (mid) and field name (fldName).
         
-        fldName is the name of the field we are after.
-        
-        """
+        fldName is the name of the field we are after."""
     
         try:
             index = self.modelFieldPos.get(mid).get(fldName, None)
@@ -203,16 +216,27 @@ class CustomFields:
             print "_modelFieldPos" + self.modelFieldPos
             print "Error was: " + e.message
 
+    def valueForOverdue(self, odid, queue, type, due):
+        if odid or queue == 1:
+            return
+        elif queue == 0 or type == 0:
+            return
+        elif queue in (2,3) or (type == 2 and queue < 0):
+            diff = due - mw.col.sched.today
+            if diff < 0:
+                return diff * -1
+            else:
+                return
+            
     def myLoadCollection(self, _self):
         """Wrap collection load so we can add our custom DB function.
         We do this here instead of on startup because the collection
         might get closed/reopened while Anki is still open (e.g., after
-        sync), which clears the DB function we added.
-        
-        """
+        sync), which clears the DB function we added."""
         
         # Create a new SQL function that we can use in our queries.
         mw.col.db._db.create_function("valueForField", 3, self.valueForField)
+        mw.col.db._db.create_function("valueForOverdue", 4, self.valueForOverdue)
 
 
 cf = CustomFields()
