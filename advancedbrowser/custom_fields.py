@@ -7,6 +7,7 @@ import time
 from aqt import *
 from aqt.main import AnkiQt
 from anki.hooks import addHook, wrap
+from anki.utils import fmtTimeSpan
 
 
 class CustomFields:
@@ -60,6 +61,10 @@ class CustomFields:
         # Convenience method to create lambdas without scope clobbering
         def getOnSort(f): return lambda: f
 
+        # Dummy CardStats object so we can use the time() function without
+        # creating the object every time.
+        cs = anki.stats.CardStats(None, None)
+        
         # First review
         def cFirstOnData(c, n, t):
             first = mw.col.db.scalar(
@@ -152,7 +157,33 @@ class CustomFields:
             onSort = getOnSort(srt)
         )
         self.customColumns.append(cc)
-                
+
+
+        # Previous interval
+        def cPrevIvl(c, n, t):
+            ivl = mw.col.db.scalar(
+                "select ivl from revlog where cid = ? "
+                "order by id desc limit 1 offset 1", c.id)
+            if ivl is None:
+                return
+            elif ivl == 0:
+                return "0 days"
+            elif ivl > 0:
+                return fmtTimeSpan(ivl*86400)
+            else:
+                return cs.time(-ivl)
+        
+        srt = ("(select ivl from revlog where cid = c.id "
+               "order by id desc limit 1 offset 1)")
+        
+        cc = advBrowser.newCustomColumn(
+            type = 'cprevivl',
+            name = "Previous Interval",
+            onData = cPrevIvl,
+            onSort = getOnSort(srt)
+        )
+        self.customColumns.append(cc)
+        
         # Note fields
         self.buildKnownModels()
         
@@ -227,7 +258,7 @@ class CustomFields:
                 return diff * -1
             else:
                 return
-            
+    
     def myLoadCollection(self, _self):
         """Wrap collection load so we can add our custom DB function.
         We do this here instead of on startup because the collection
