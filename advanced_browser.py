@@ -5,9 +5,9 @@
 
 from anki.hooks import addHook
 from aqt import mw
-
 from advancedbrowser.core import AdvancedBrowser
 
+# Advanced Browser modules
 from advancedbrowser import custom_fields
 from advancedbrowser import saved_filters
 from advancedbrowser import collapsible_tree
@@ -16,10 +16,8 @@ from advancedbrowser import collapsible_tree
 #from advancedbrowser import internal_fields
 
 def onLoad():
-    # TODO: Remove this in next major version
-    # Remove any saved data from the internal_fields_in_browser add-on that
-    # this add-on replaces. Don't let them interfere with each other.
-    mw.col.conf.pop('ifib_activeCols', None)
+    # Nothing to do!
+    pass
 
 
 # Do any important work when the collection loads.
