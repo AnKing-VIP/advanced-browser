@@ -8,6 +8,7 @@ from aqt import *
 from aqt.main import AnkiQt
 from anki.hooks import addHook, wrap
 from anki.utils import fmtTimeSpan
+from anki.stats import CardStats
 
 
 class CustomFields:
@@ -63,7 +64,7 @@ class CustomFields:
 
         # Dummy CardStats object so we can use the time() function without
         # creating the object every time.
-        cs = anki.stats.CardStats(None, None)
+        cs = CardStats(None, None)
         
         # First review
         def cFirstOnData(c, n, t):
