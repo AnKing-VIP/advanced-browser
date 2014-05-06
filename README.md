@@ -9,7 +9,7 @@ An Anki add-on that adds advanced features to the card browser. This add-on is l
 Advanced Browser is an Anki add-on that aims to add useful features or enhance the usability of the card browser. Below is a list of features available at the moment.
 
 ###Note fields as columns
-This allows the addition of **any** field in your decks as a column that you can display and sort. This means you can have more than just ```Sort Field``` as a usable column.
+This allows the addition of **any** field in your decks as a column that you can display and sort. This means you can have more than just ```Sort Field``` as a usable column. You need to right-click the column bar to bring up the list of available columns.
 
 ![Note fields](https://raw.github.com/hssm/advanced-browser/master/docs/screenshot_info.png)
 
@@ -25,10 +25,6 @@ You can also add these extra columns:
 
 ![Useful columns](https://raw.github.com/hssm/advanced-browser/master/docs/context.png)
 
-###Save search queries (filters)
-If you regularly use filters that aren't part of the default list, you can now save them so you don't have to look up the syntax every time.
-
-![Saved filters](https://raw.github.com/hssm/advanced-browser/master/docs/saved_filters.png)
 
 ###Internal fields
 You can also show some fields used internally by Anki but probably aren't very useful for the typical user. These are disabled by default, but you can enable them by going to **Tools -> Add-ons -> advanced_browser -> Edit...** and uncommenting the line that loads the extension that offers those fields.

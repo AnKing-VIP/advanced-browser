@@ -9,8 +9,6 @@ from advancedbrowser.core import AdvancedBrowser
 
 # Advanced Browser modules
 from advancedbrowser import custom_fields
-from advancedbrowser import saved_filters
-from advancedbrowser import collapsible_tree
 
 # Uncomment the next line to include internal fields (card/note/model IDs, etc)
 #from advancedbrowser import internal_fields
