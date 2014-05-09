@@ -8,7 +8,6 @@ from operator import  itemgetter
 from aqt import *
 from aqt.browser import DataModel, Browser
 from anki.hooks import runHook
-from anki.find import Finder
 from advancedbrowser.contextmenu import ContextMenu
 from advancedbrowser.column import Column, CustomColumn
 
@@ -17,30 +16,47 @@ CONF_KEY = 'advbrowse_activeCols'
 class AdvancedDataModel(DataModel):
     
     def __init__(self, browser):
-        """Load any custom columns that were saved in a previous session."""
+        """Load our copy of the active columns and suppress the built-in one.
+        
+        This function runs after custom columns have been registered, so our
+        list of custom types has already been populated."""
         super(AdvancedDataModel, self).__init__(browser)
 
-        # Keep a copy of functions we are overriding since we still use them.
+        # Keep a reference of this function; we need the original later
         self._columnData = DataModel.columnData
 
-        # First, we make sure those columns are still valid. If not, we ignore
-        # them. This is to guard against the event that we remove or rename a
-        # column. Also make sure the sortType is set to a valid column.
+        # Keep a copy of the original active columns to restore on closing.
+        self.origActiveCols = list(self.activeCols)
         
         sortType = mw.col.conf['sortType']
-        validSortType = False
-        custCols = mw.col.conf.get(CONF_KEY, [])
+        reloadedCols = mw.col.conf.get(CONF_KEY, None)
+                
+        if reloadedCols is None:
+            # We've never used this add-on before. Our initial state will be
+            # whatever active columns are already set.
+            return
+
+        # Clear the active columns. We will set our own below.
+        self.activeCols = []
         
-        for custCol in custCols:
-            for type in self.browser.customTypes:
-                if custCol == type and custCol not in self.activeCols:
-                    self.activeCols.append(custCol)
-                if sortType == type:
-                    validSortType = True
-        
-        if not validSortType:
+        # Make sure the columns we are loading are still valid. If not, we
+        # just ignore them. This guards against the event that a column is
+        # removed or renamed.
+        #
+        # The list of valid columns are the built-in ones + our custom ones.
+        valids = [c[0] for c in browser.columns] + browser.customTypes.keys()
+
+        for col in reloadedCols:
+            # Still valid
+            if col in valids:
+                self.activeCols.append(col)
+
+        # Also make sure the sortType is valid
+        if sortType not in valids:
             mw.col.conf['sortType'] = 'noteFld'
-            # Guarantee that we always start with at least one column.
+            # If there is no sorted column, we add the 'Sort Field' column
+            # and sort on that. This method is one way to guarantee that we
+            # always start with at least one valid column.
             if 'noteFld' not in self.activeCols:
                 self.activeCols.append('noteFld')
 
@@ -297,30 +313,22 @@ class AdvancedBrowser(Browser):
         main.exec_(gpos)
 
     def closeEvent(self, evt):
-        """Remove our columns from self.model.activeCols when closing.
-        Otherwise, Anki would save them to the equivalent in the collection
-        conf, which might have ill effects elsewhere. We save our custom
-        types in a custom conf item instead."""
+        """Preserve our column state in a collection preference."""
+        
+        # After we save our columns, we restore activeCols to the original
+        # copy that Anki maintains and allow it to resume its own save
+        # routine unhindered by our unsupported columns.
+        # When the add-on resumes on next startup, we replace activecols
+        # again with our own version.
         
         #sortType = mw.col.conf['sortType']
         # TODO: should we avoid saving the sortType? We will continue to do
         # so unless a problem with doing so becomes evident.
-    
-        customCols = []
-        origCols = []
-        
-        for col in self.model.activeCols:
-            isOrig = True
-            for type in self.customTypes:
-                if col == type:
-                    customCols.append(col)
-                    isOrig = False
-                    break
-            if isOrig:
-                origCols.append(col)
-    
-        self.model.activeCols = origCols
-        mw.col.conf[CONF_KEY] = customCols
+
+        # Save ours
+        mw.col.conf[CONF_KEY] = self.model.activeCols
+        # Restore old
+        self.model.activeCols = self.model.origActiveCols
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
 
