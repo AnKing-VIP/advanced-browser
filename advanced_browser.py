@@ -15,7 +15,7 @@ from advancedbrowser import note_fields
 #from advancedbrowser import internal_fields
 
 def onLoad():
-    # Nothing to do!
+    # TODO: Transfer saved filters to built-in version.
     pass
 
 

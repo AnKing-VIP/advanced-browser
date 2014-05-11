@@ -22,7 +22,7 @@ class AdvancedDataModel(DataModel):
         list of custom types has already been populated."""
         super(AdvancedDataModel, self).__init__(browser)
 
-        # Keep a reference of this function; we need the original later
+        # Keep a reference to this function; we need the original later
         self._columnData = DataModel.columnData
 
         # Keep a copy of the original active columns to restore on closing.
