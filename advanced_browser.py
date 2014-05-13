@@ -15,9 +15,25 @@ from advancedbrowser import note_fields
 #from advancedbrowser import internal_fields
 
 def onLoad():
-    # TODO: Transfer saved filters to built-in version.
-    pass
+    # Move saved filters to built-in setting
+    transferSavedFilters()
 
+def transferSavedFilters():
+    """Courtesy upgrade of saved filter setting. Move them out of this
+    add-on and into the built-in setting."""
+    
+    d = mw.pm.profile.get('ab_saved_filters', {})
+    if d:
+        # Add conf if missing (i.e., first run)
+        if not mw.col.conf.has_key('savedFilters'):
+            mw.col.conf['savedFilters'] = {}
+
+        # Transfer filters to collection conf
+        for key, value in d.iteritems():
+            mw.col.conf['savedFilters'][key] = value
+        
+        # Remove local conf
+        mw.pm.profile.pop('ab_saved_filters')
 
 # Do any important work when the collection loads.
 addHook("profileLoaded", onLoad)
