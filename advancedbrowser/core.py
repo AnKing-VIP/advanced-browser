@@ -31,7 +31,7 @@ class AdvancedDataModel(DataModel):
         sortType = mw.col.conf['sortType']
         reloadedCols = mw.col.conf.get(CONF_KEY, None)
                 
-        if reloadedCols is None:
+        if not reloadedCols:
             # We've never used this add-on before. Our initial state will be
             # whatever active columns are already set.
             return
