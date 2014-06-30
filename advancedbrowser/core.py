@@ -250,9 +250,11 @@ class AdvancedBrowser(Browser):
             if type in self.customTypes:
                 self.customTypes.pop(type, None)
             
-            # Built-in list is a list of tuple.
+            # Built-in list is a list of tuples.
+            self.removedBuiltIns = []
             for tup in list(self.columns):
                 if tup[0] == type:
+                    self.removedBuiltIns.append(tup)
                     self.columns.remove(tup)
             
             # Remove it from the active columns if it's there.
@@ -329,6 +331,8 @@ class AdvancedBrowser(Browser):
         mw.col.conf[CONF_KEY] = self.model.activeCols
         # Restore old
         self.model.activeCols = self.model.origActiveCols
+        # Restore built-in columns we removed
+        self.columns.extend(self.removedBuiltIns or [])
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
 
