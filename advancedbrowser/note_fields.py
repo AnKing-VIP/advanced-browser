@@ -18,11 +18,13 @@ class NoteFields:
         # We build this dictionary once to avoid needlessly finding the
         # field order for every single row when sorting. It's
         # significantly faster that way.
-        # { mid -> {fldName -> pos}}
+        # {mid -> {fldName -> pos}}
         self.modelFieldPos = {}
 
-        # List of our columns
-        self.customColumns = []
+        # Dictionary of columns. A column can exist in multiple places, because
+        # different note types may have the same field name.
+        # {fld['name'] -> CustomColumn}}
+        self.customColumns = {}
 
         self.buildMappings()
 
@@ -33,18 +35,18 @@ class NoteFields:
             field = self.fieldTypes[t]
             if field in c.note().keys():
                 return anki.utils.stripHTML(c.note()[field])
-        
+
         for type, name in self.fieldTypes.iteritems():
             srt = ("(select valueForField(mid, flds, '%s') "
                    "from notes where id = c.nid)" % name)
-            
+
             cc = advBrowser.newCustomColumn(
-                type = type,
-                name = name,
-                onData = fldOnData,
-                onSort = getOnSort(srt)
+                type=type,
+                name=name,
+                onData=fldOnData,
+                onSort=getOnSort(srt)
             )
-            self.customColumns.append(cc)
+            self.customColumns[name] = cc
 
     def onBuildContextMenu(self, contextMenu):
         # Models might have changed so rebuild our mappings.
@@ -53,10 +55,14 @@ class NoteFields:
         
         # Create a new sub-menu for our columns
         fldGroup = contextMenu.newSubMenu("Fields")
-        for column in self.customColumns:
-            fldGroup.addItem(column)
+        # And a sub-menu for each note type
+        for model in mw.col.models.models.itervalues():
+            modelGroup = fldGroup.newSubMenu(model['name'])
+            for fld in model['flds']:
+                modelGroup.addItem(self.customColumns[fld['name']])
 
-    def buildMappings(self):        
+
+    def buildMappings(self):
         for model in mw.col.models.all():
             # For some reason, some mids return as unicode, so convert to int
             mid = int(model['id'])
@@ -70,10 +76,10 @@ class NoteFields:
             for field in model['flds']:
                 name = field['name']
                 ord = field['ord']
-                type = "_field_"+name  #prefix to avoid potential clashes
+                type = "_field_"+name  # prefix to avoid potential clashes
                 self.modelFieldPos[mid][name] = ord
                 self.modelFieldPos[mid32][name] = ord
-                if type not in self.fieldTypes:  #avoid dupes
+                if type not in self.fieldTypes:  # avoid dupes
                     self.fieldTypes[type] = name
 
     def valueForField(self, mid, flds, fldName):
@@ -102,7 +108,7 @@ class NoteFields:
             print "_modelFieldPos" + self.modelFieldPos
             print "Error was: " + e.message
 
-    def myLoadCollection(self, _self):        
+    def myLoadCollection(self, _self):
         # Create a new SQL function that we can use in our queries.
         mw.col.db._db.create_function("valueForField", 3, self.valueForField)
 
