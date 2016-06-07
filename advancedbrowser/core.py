@@ -60,6 +60,12 @@ class AdvancedDataModel(DataModel):
             if 'noteFld' not in self.activeCols:
                 self.activeCols.append('noteFld')
 
+    def restoreSelection(self):
+        """Workaround for annoying horizontal re-scrolling bug in qt"""
+        origH = self.browser.form.tableView.horizontalScrollBar().value()
+        super(AdvancedDataModel, self).restoreSelection()
+        self.browser.form.tableView.horizontalScrollBar().setValue(origH)
+
     def columnData(self, index):
         # Try to handle built-in Anki column
         returned = self._columnData(self, index)
@@ -260,6 +266,11 @@ class AdvancedBrowser(Browser):
             # Remove it from the active columns if it's there.
             if type in self.model.activeCols:
                 self.toggleField(type)
+
+    def setupTable(self):
+        """Some customizations to the table view"""
+        super(AdvancedBrowser, self).setupTable()
+        self.form.tableView.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
 
     def setupColumns(self):
         """Build a list of candidate columns. We extend the internal
