@@ -141,11 +141,9 @@ class AdvancedDataModel(DataModel):
                 sql = "select c.id from cards c, notes n where c.nid=n.id and "
             sql += preds
         elif cTypes[type].cacheSortValue or "select" in order.lower():
-            print "TEMP SORT TABLE PATH"
-            
             # Use a temporary table to store the results of the ORDER BY
             # clause for efficiency since we repeatedly access those values.
-    
+            print "TEMP SORT TABLE PATH"
             try:
                 if "n." not in preds:
                     tmpSql = ("create temp table tmp as select *, %s as srt "
@@ -169,6 +167,7 @@ case when tmp.srt glob '*[^0-9.]*' then tmp.srt else cast(tmp.srt AS real) end
 collate nocase""")
             
         else:
+            # This is used for the remaining basic columns like internal fields
             print "NORMAL SORT PATH"
             
             if "n." not in preds and "n." not in order:

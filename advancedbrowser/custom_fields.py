@@ -60,8 +60,8 @@ class CustomFields:
             onSort = lambda: "(select max(id) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
-    
-        
+
+
         # Average time
         def cAvgtimeOnData(c, n, t):
             avgtime = mw.col.db.scalar(
@@ -76,8 +76,8 @@ class CustomFields:
             onSort = lambda: "(select avg(time) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
-    
-    
+
+
         # Total time
         def cTottimeOnDAta(c, n, t):
             tottime = mw.col.db.scalar(
@@ -92,14 +92,18 @@ class CustomFields:
             onSort = lambda: "(select sum(time) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
-        
-        
+
+
         # Tags
         cc = advBrowser.newCustomColumn(
             type = 'ntags',
             name = 'Tags',
             onData = lambda c, n, t: " ".join(unicode(tag) for tag in n.tags),
-            onSort = lambda: "n.tags"
+            # Lazy shortcut. Treat the "Tags" column as if it were a note field
+            # (it is!) so we get all the benefits of our custom work on those
+            # fields.
+            onSort = lambda: "(select valueForField(mid, flds, 'Tags') "
+                             "from notes where id = c.nid)",
         )
         self.customColumns.append(cc)
         # Remove the built-in tags column.
