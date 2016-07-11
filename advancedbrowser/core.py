@@ -76,16 +76,15 @@ class AdvancedDataModel(DataModel):
             return self.browser.customTypes[type].onData(c, n, type)
     
     def search(self, txt, reset=True):
-        """This is a direct copy of DataModel.search but instead calls
-        our custom findCards instead of the built-in one."""
-        if reset:
-            self.beginReset()
-        self.cards = []
-        self.cards = self.myFindCards(txt)
-        if reset:
-            self.endReset()
+        """We swap out the col.findCards function with our custom myFindCards,
+        call the original search(), then put it back to its original version."""
+        orig = self.col.findCards
+        self.col.findCards = self.myFindCards
+        super(AdvancedDataModel, self).search(txt, reset)
+        self.col.findCards = orig
 
-    def myFindCards(self, query):
+
+    def myFindCards(self, query, order):
         """This function takes over the call chain of
         Collection.findCards -> Finder.findCards but only handles custom
         columns maintained by the add-on. If we find that the column
@@ -229,7 +228,7 @@ class AdvancedBrowser(Browser):
         # rewrite the order of the original __init__ method, which is
         # cumbersome and error-prone.
         self.__removeColumns()
-       
+
     def newCustomColumn(self, type, name, onData, onSort=None,
                  cacheSortValue=False):
         """Add a CustomColumn to the browser. See CustomColumn for a
