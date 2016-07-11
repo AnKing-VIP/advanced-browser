@@ -36,7 +36,7 @@ class NoteFields:
             if field in c.note().keys():
                 return anki.utils.stripHTML(c.note()[field])
 
-        for type, name in self.fieldTypes.iteritems():
+        for type, name in self.fieldTypes.items():
             srt = ("(select valueForField(mid, flds, '%s') "
                    "from notes where id = c.nid)" % name)
 
@@ -56,7 +56,7 @@ class NoteFields:
         # Create a new sub-menu for our columns
         fldGroup = contextMenu.newSubMenu("Fields")
         # And a sub-menu for each note type
-        for model in mw.col.models.models.itervalues():
+        for model in mw.col.models.models.values():
             modelGroup = fldGroup.newSubMenu(model['name'])
             for fld in model['flds']:
                 modelGroup.addItem(self.customColumns[fld['name']])
@@ -100,13 +100,13 @@ class NoteFields:
             if index is not None:
                 fieldsList = flds.split("\x1f", index+1)
                 return anki.utils.stripHTML(fieldsList[index])
-        except Exception, e:
-            print "Failed to get value for field."
-            print "Mid:" + (mid or 'None')
-            print "flds" + (flds or 'None')
-            print "fldName" + (fldName or 'None')
-            print "_modelFieldPos" + self.modelFieldPos
-            print "Error was: " + e.message
+        except Exception as ex:
+            print("Failed to get value for field.")
+            print("Mid: " + str(mid or 'None'))
+            print("flds: " + str(flds or 'None'))
+            print("fldName: " + str(fldName or 'None'))
+            print("_modelFieldPos: " + str(self.modelFieldPos))
+            print("Error was: ", ex)
 
     def myLoadCollection(self, _self):
         # Create a new SQL function that we can use in our queries.

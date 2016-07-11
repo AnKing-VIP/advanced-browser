@@ -44,7 +44,7 @@ class AdvancedDataModel(DataModel):
         # removed or renamed.
         #
         # The list of valid columns are the built-in ones + our custom ones.
-        valids = [c[0] for c in browser.columns] + browser.customTypes.keys()
+        valids = [c[0] for c in browser.columns] + list(browser.customTypes.keys())
 
         for col in reloadedCols:
             # Still valid
@@ -133,7 +133,7 @@ class AdvancedDataModel(DataModel):
         drop = False
         
         if not order:
-            print "NO SORT PATH"
+            print("NO SORT PATH")
     
             if "n." not in preds:
                 sql = "select c.id from cards c where "
@@ -143,7 +143,7 @@ class AdvancedDataModel(DataModel):
         elif cTypes[type].cacheSortValue or "select" in order.lower():
             # Use a temporary table to store the results of the ORDER BY
             # clause for efficiency since we repeatedly access those values.
-            print "TEMP SORT TABLE PATH"
+            print("TEMP SORT TABLE PATH")
             try:
                 if "n." not in preds:
                     tmpSql = ("create temp table tmp as select *, %s as srt "
@@ -153,12 +153,12 @@ class AdvancedDataModel(DataModel):
                               "from cards c, notes n where c.nid=n.id and %s"
                                % (order, preds))
                 
-                print "Temp sort table sql: ", tmpSql
+                print("Temp sort table sql: " + tmpSql)
                 self.col.db.execute(tmpSql, *args)
                 drop = True
                 args = {} # We've consumed them, so empty this.
-            except Exception, e:
-                print "Failed to create temp sort table: " + e.message
+            except Exception as ex:
+                print("Failed to create temp sort table: ", ex)
                 return []
     
             sql = ("""
@@ -168,7 +168,7 @@ collate nocase""")
             
         else:
             # This is used for the remaining basic columns like internal fields
-            print "NORMAL SORT PATH"
+            print("NORMAL SORT PATH")
             
             if "n." not in preds and "n." not in order:
                 sql = "select * from cards c where "
@@ -183,10 +183,10 @@ collate nocase """ %
                     (order, order, order, order, order))
     
         try:
-            print "sql :", sql
+            print("sql :" + sql)
             res = self.col.db.list(sql, *args)
-        except Exception, e:
-            print "Error finding cards:", e
+        except Exception as ex:
+            print("Error finding cards:", ex)
             return []
         finally:
             if drop:
@@ -195,7 +195,7 @@ collate nocase """ %
         if self.col.conf['sortBackwards']:
             res.reverse()
             
-        print "Search took: %dms" % ((time.time() - t)*1000)
+        print("Search took: %dms" % ((time.time() - t)*1000))
         return res
 
 class AdvancedBrowser(Browser):
@@ -302,8 +302,7 @@ class AdvancedBrowser(Browser):
             a = menu.addAction(name)
             a.setCheckable(True)
             a.setChecked(type in self.model.activeCols)
-            a.connect(a, SIGNAL("toggled(bool)"),
-                      lambda b, t=type: self.toggleField(t))
+            a.toggled.connect(lambda b, t=type: self.toggleField(t))
     
         # For some reason, sub menus aren't added if we don't keep a
         # reference to them until exec, so keep them in this list.

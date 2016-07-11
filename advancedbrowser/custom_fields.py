@@ -38,10 +38,10 @@ class CustomFields:
                 return time.strftime("%Y-%m-%d", time.localtime(first / 1000))
        
         cc = advBrowser.newCustomColumn(
-            type = 'cfirst',
-            name = 'First Review',
-            onData = cFirstOnData,
-            onSort = lambda: "(select min(id) from revlog where cid = c.id)"
+            type='cfirst',
+            name='First Review',
+            onData=cFirstOnData,
+            onSort=lambda: "(select min(id) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
 
@@ -54,10 +54,10 @@ class CustomFields:
                 return time.strftime("%Y-%m-%d", time.localtime(last / 1000))
        
         cc = advBrowser.newCustomColumn(
-            type = 'clast',
-            name = 'Last Review',
-            onData = cLastOnData,
-            onSort = lambda: "(select max(id) from revlog where cid = c.id)"
+            type='clast',
+            name='Last Review',
+            onData=cLastOnData,
+            onSort=lambda: "(select max(id) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
 
@@ -70,10 +70,10 @@ class CustomFields:
                 return str(round(avgtime / 1000, 1)) + "s"
         
         cc = advBrowser.newCustomColumn(
-            type = 'cavgtime',
-            name = 'Time (Average)',
-            onData = cAvgtimeOnData,
-            onSort = lambda: "(select avg(time) from revlog where cid = c.id)"
+            type='cavgtime',
+            name='Time (Average)',
+            onData=cAvgtimeOnData,
+            onSort=lambda: "(select avg(time) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
 
@@ -86,24 +86,24 @@ class CustomFields:
                 return str(round(tottime / 1000, 1)) + "s"
     
         cc = advBrowser.newCustomColumn(
-            type = 'ctottime',
-            name = 'Time (Total)',
-            onData = cTottimeOnDAta,
-            onSort = lambda: "(select sum(time) from revlog where cid = c.id)"
+            type='ctottime',
+            name='Time (Total)',
+            onData=cTottimeOnDAta,
+            onSort=lambda: "(select sum(time) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
 
 
         # Tags
         cc = advBrowser.newCustomColumn(
-            type = 'ntags',
-            name = 'Tags',
-            onData = lambda c, n, t: " ".join(unicode(tag) for tag in n.tags),
+            type='ntags',
+            name='Tags',
+            onData=lambda c, n, t: " ".join(n.tags),
             # Lazy shortcut. Treat the "Tags" column as if it were a note field
             # (it is!) so we get all the benefits of our custom work on those
             # fields.
-            onSort = lambda: "(select valueForField(mid, flds, 'Tags') "
-                             "from notes where id = c.nid)",
+            onSort=lambda: "(select valueForField(mid, flds, 'Tags') "
+                           "from notes where id = c.nid)",
         )
         self.customColumns.append(cc)
         # Remove the built-in tags column.
@@ -120,10 +120,10 @@ class CustomFields:
                "from cards where id = c.id)")
 
         cc = advBrowser.newCustomColumn(
-            type = 'coverdueivl',
-            name = "Overdue Interval",
-            onData = cOverdueIvl,
-            onSort = getOnSort(srt)
+            type='coverdueivl',
+            name="Overdue Interval",
+            onData=cOverdueIvl,
+            onSort=getOnSort(srt)
         )
         self.customColumns.append(cc)
 
@@ -146,10 +146,10 @@ class CustomFields:
                "order by id desc limit 1 offset 1)")
         
         cc = advBrowser.newCustomColumn(
-            type = 'cprevivl',
-            name = "Previous Interval",
-            onData = cPrevIvl,
-            onSort = getOnSort(srt)
+            type='cprevivl',
+            name="Previous Interval",
+            onData=cPrevIvl,
+            onSort=getOnSort(srt)
         )
         self.customColumns.append(cc)
         
