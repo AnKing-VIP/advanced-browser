@@ -60,12 +60,6 @@ class AdvancedDataModel(DataModel):
             if 'noteFld' not in self.activeCols:
                 self.activeCols.append('noteFld')
 
-    def restoreSelection(self):
-        """Workaround for annoying horizontal re-scrolling bug in qt"""
-        origH = self.browser.form.tableView.horizontalScrollBar().value()
-        super(AdvancedDataModel, self).restoreSelection()
-        self.browser.form.tableView.horizontalScrollBar().setValue(origH)
-
     def columnData(self, index):
         # Try to handle built-in Anki column
         returned = self._columnData(self, index)
