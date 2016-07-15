@@ -17,7 +17,7 @@ class AdvancedDataModel(DataModel):
     
     def __init__(self, browser):
         """Load our copy of the active columns and suppress the built-in one.
-        
+
         This function runs after custom columns have been registered, so our
         list of custom types has already been populated."""
         super(AdvancedDataModel, self).__init__(browser)
@@ -75,12 +75,12 @@ class AdvancedDataModel(DataModel):
         if type in self.browser.customTypes:
             return self.browser.customTypes[type].onData(c, n, type)
     
-    def search(self, txt, reset=True):
+    def search(self, txt):
         """We swap out the col.findCards function with our custom myFindCards,
         call the original search(), then put it back to its original version."""
         orig = self.col.findCards
         self.col.findCards = self.myFindCards
-        super(AdvancedDataModel, self).search(txt, reset)
+        super(AdvancedDataModel, self).search(txt)
         self.col.findCards = orig
 
 
