@@ -60,11 +60,52 @@ class AdvancedDataModel(DataModel):
             if 'noteFld' not in self.activeCols:
                 self.activeCols.append('noteFld')
 
+        # Model->flds cache, similar to self.cardObjs
+        self.modelFldObjs = {}
+
     def restoreSelection(self):
         """Workaround for annoying horizontal re-scrolling bug in qt"""
         origH = self.browser.form.tableView.horizontalScrollBar().value()
         super(AdvancedDataModel, self).restoreSelection()
         self.browser.form.tableView.horizontalScrollBar().setValue(origH)
+
+    def getFld(self, index):
+        """"
+        Field cache, similar to getCard().
+        This method only exists to make fetching field settings efficient in
+        order to determine if it is RTL.
+        """
+        model = self.getCard(index).note().model()
+        id = model['id']
+        fldName = self.activeCols[index.column()]
+        if fldName.startswith("_field_"):
+            fldName = fldName[7:]
+        else:
+            # This custom column is not a field column
+            return None
+        if id not in self.modelFldObjs:
+            self.modelFldObjs[id] = {}
+        if fldName not in self.modelFldObjs[id]:
+            flds = [f for f in model['flds'] if f['name'] == fldName]
+            if len(flds) == 0:
+                # This model does not have a field with that name
+                self.modelFldObjs[id][fldName] = None
+            else:
+                self.modelFldObjs[id][fldName] = flds[0]
+        return self.modelFldObjs[id][fldName]
+
+    def data(self, index, role):
+        if role == Qt.TextAlignmentRole:
+            col = self.activeCols[index.column()]
+            if col in self.browser.customTypes:
+                # If this is one of our columns, use custom alignment rules
+                align = Qt.AlignVCenter | Qt.AlignLeft
+                # Flip it if it's an RTL field.
+                fld = self.getFld(index)
+                if fld and fld['rtl']:
+                    align = Qt.AlignVCenter | Qt.AlignRight
+                return align
+        return super(AdvancedDataModel, self).data(index, role)
 
     def columnData(self, index):
         # Try to handle built-in Anki column
@@ -77,10 +118,10 @@ class AdvancedDataModel(DataModel):
         type = self.columnType(col)
         c = self.getCard(index)
         n = c.note()
-        
+
         if type in self.browser.customTypes:
             return self.browser.customTypes[type].onData(c, n, type)
-    
+
     def search(self, txt, reset=True):
         """This is a direct copy of DataModel.search but instead calls
         our custom findCards instead of the built-in one."""
