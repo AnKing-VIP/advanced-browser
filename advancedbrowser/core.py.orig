@@ -31,10 +31,22 @@ class AdvancedDataModel(DataModel):
         # Keep a copy of the original active columns to restore on closing.
         self.origActiveCols = list(self.activeCols)
 
+<<<<<<< HEAD
+        # Clear the active columns. We will set our own below.
+        self.activeCols = []
+        
+        # Make sure the columns we are loading are still valid. If not, we
+        # just ignore them. This guards against the event that a column is
+        # removed or renamed.
+        #
+        # The list of valid columns are the built-in ones + our custom ones.
+        valids = [c[0] for c in browser.columns] + list(browser.customTypes.keys())
+=======
         configuredCols = mw.col.conf.get(CONF_KEY, None)
         if configuredCols:
             # We've used this add-on before and have a configured list of columns.
             # Adjust activeCols to reflect it.
+>>>>>>> c60ea6b... Fix new installations of 1.5
 
             # Make sure the columns we are loading are still valid. If not, we
             # just ignore them. This guards against the event that a column is
