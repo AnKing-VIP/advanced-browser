@@ -25,43 +25,34 @@ class AdvancedDataModel(DataModel):
         # Keep a reference to this function; we need the original later
         self._columnData = DataModel.columnData
 
-        # Keep a copy of the original active columns to restore on closing.
-        self.origActiveCols = list(self.activeCols)
-        
-        sortType = mw.col.conf['sortType']
-        reloadedCols = mw.col.conf.get(CONF_KEY, None)
-                
-        if not reloadedCols:
-            # We've never used this add-on before. Our initial state will be
-            # whatever active columns are already set.
-            return
-
-        # Clear the active columns. We will set our own below.
-        self.activeCols = []
-        
-        # Make sure the columns we are loading are still valid. If not, we
-        # just ignore them. This guards against the event that a column is
-        # removed or renamed.
-        #
-        # The list of valid columns are the built-in ones + our custom ones.
-        valids = [c[0] for c in browser.columns] + browser.customTypes.keys()
-
-        for col in reloadedCols:
-            # Still valid
-            if col in valids:
-                self.activeCols.append(col)
-
-        # Also make sure the sortType is valid
-        if sortType not in valids:
-            mw.col.conf['sortType'] = 'noteFld'
-            # If there is no sorted column, we add the 'Sort Field' column
-            # and sort on that. This method is one way to guarantee that we
-            # always start with at least one valid column.
-            if 'noteFld' not in self.activeCols:
-                self.activeCols.append('noteFld')
-
         # Model->flds cache, similar to self.cardObjs
         self.modelFldObjs = {}
+
+        # Keep a copy of the original active columns to restore on closing.
+        self.origActiveCols = list(self.activeCols)
+
+        configuredCols = mw.col.conf.get(CONF_KEY, None)
+        if configuredCols:
+            # We've used this add-on before and have a configured list of columns.
+            # Adjust activeCols to reflect it.
+
+            # Make sure the columns we are loading are still valid. If not, we
+            # just ignore them. This guards against the event that a column is
+            # removed or renamed.
+            #
+            # The list of valid columns are the built-in ones + our custom ones.
+            valids = set([c[0] for c in browser.columns] + browser.customTypes.keys())
+
+            self.activeCols = [col for col in configuredCols if col in valids]
+
+            # Also make sure the sortType is valid
+            if mw.col.conf['sortType'] not in valids:
+                mw.col.conf['sortType'] = 'noteFld'
+                # If there is no sorted column, we add the 'Sort Field' column
+                # and sort on that. This method is one way to guarantee that we
+                # always start with at least one valid column.
+                if 'noteFld' not in self.activeCols:
+                    self.activeCols.append('noteFld')
 
     def restoreSelection(self):
         """Workaround for annoying horizontal re-scrolling bug in qt"""
