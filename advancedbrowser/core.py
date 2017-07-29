@@ -41,7 +41,7 @@ class AdvancedDataModel(DataModel):
             # removed or renamed.
             #
             # The list of valid columns are the built-in ones + our custom ones.
-            valids = set([c[0] for c in browser.columns] + browser.customTypes.keys())
+            valids = set([c[0] for c in browser.columns] + list(browser.customTypes.keys()))
 
             self.activeCols = [col for col in configuredCols if col in valids]
 
