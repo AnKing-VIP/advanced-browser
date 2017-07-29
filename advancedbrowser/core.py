@@ -268,6 +268,9 @@ class AdvancedBrowser(Browser):
         # cumbersome and error-prone.
         self.__removeColumns()
        
+        # Workaround for double-saving (see closeEvent)
+        self.saveEvent = False
+
     def newCustomColumn(self, type, name, onData, onSort=None,
                  cacheSortValue=False):
         """Add a CustomColumn to the browser. See CustomColumn for a
@@ -364,17 +367,20 @@ class AdvancedBrowser(Browser):
         # routine unhindered by our unsupported columns.
         # When the add-on resumes on next startup, we replace activecols
         # again with our own version.
-        
-        #sortType = mw.col.conf['sortType']
-        # TODO: should we avoid saving the sortType? We will continue to do
-        # so unless a problem with doing so becomes evident.
+        # NOTE: we use a flag to check if we have performed this action before
+        # as a workaround to this function being called twice and overriding
+        # the custom columns with the original columns.
 
-        # Save ours
-        mw.col.conf[CONF_KEY] = self.model.activeCols
-        # Restore old
-        self.model.activeCols = self.model.origActiveCols
-        # Restore built-in columns we removed
-        self.columns.extend(self.removedBuiltIns or [])
+        if not self.saveEvent:
+            # Save ours
+            mw.col.conf[CONF_KEY] = self.model.activeCols
+            # Restore old
+            self.model.activeCols = self.model.origActiveCols
+            # Restore built-in columns we removed
+            self.columns.extend(self.removedBuiltIns or [])
+            # Only save once
+            self.saveEvent = True
+
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
 
