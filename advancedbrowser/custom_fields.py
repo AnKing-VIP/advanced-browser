@@ -152,6 +152,22 @@ class CustomFields:
             onSort = getOnSort(srt)
         )
         self.customColumns.append(cc)
+
+
+        # Percent correct
+        def cPctCorrect(c, n, t):
+            if c.reps > 0:
+                return "{:2.0f}%".format(
+                    100 - ((c.lapses / float(c.reps)) * 100))
+            return "0%"
+
+        cc = advBrowser.newCustomColumn(
+            type = 'cpct',
+            name = 'Percent Correct',
+            onData = cPctCorrect,
+            onSort = lambda: "cast(c.lapses as real)/c.reps"
+        )
+        self.customColumns.append(cc)
         
     def onBuildContextMenu(self, contextMenu):
         """Build our part of the browser columns context menu."""
