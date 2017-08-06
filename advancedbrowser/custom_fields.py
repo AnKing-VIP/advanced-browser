@@ -65,9 +65,8 @@ class CustomFields:
         # Average time
         def cAvgtimeOnData(c, n, t):
             avgtime = mw.col.db.scalar(
-                "select avg(time) from revlog where cid = ?", c.id)
-            if avgtime:
-                return str(round(avgtime / 1000, 1)) + "s"
+                "select avg(time)/1000.0 from revlog where cid = ?", c.id)
+            return self.timeFmt(avgtime)
         
         cc = advBrowser.newCustomColumn(
             type = 'cavgtime',
@@ -79,20 +78,54 @@ class CustomFields:
 
 
         # Total time
-        def cTottimeOnDAta(c, n, t):
+        def cTottimeOnData(c, n, t):
             tottime = mw.col.db.scalar(
-                "select sum(time) from revlog where cid = ?", c.id)
-            if tottime:
-                return str(round(tottime / 1000, 1)) + "s"
+                "select sum(time)/1000.0 from revlog where cid = ?", c.id)
+            return self.timeFmt(tottime)
     
         cc = advBrowser.newCustomColumn(
             type = 'ctottime',
             name = 'Time (Total)',
-            onData = cTottimeOnDAta,
+            onData=cTottimeOnData,
             onSort = lambda: "(select sum(time) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
 
+        # Fastest time
+        def cFasttimeOnData(c, n, t):
+            tm = mw.col.db.scalar(
+                "select time/1000.0 from revlog where cid = ? "
+                "order by time asc limit 1", c.id)
+            return self.timeFmt(tm)
+
+        srt = ("(select time/1000.0 from revlog where cid = c.id "
+               "order by time asc limit 1)")
+
+        cc = advBrowser.newCustomColumn(
+            type='cfasttime',
+            name='Fastest Review',
+            onData=cFasttimeOnData,
+            onSort=getOnSort(srt)
+        )
+        self.customColumns.append(cc)
+
+        # Slowest time
+        def cSlowtimeOnData(c, n, t):
+            tm = mw.col.db.scalar(
+                "select time/1000.0 from revlog where cid = ? "
+                "order by time desc limit 1", c.id)
+            return self.timeFmt(tm)
+
+        srt = ("(select time/1000.0 from revlog where cid = c.id "
+               "order by time desc limit 1)")
+
+        cc = advBrowser.newCustomColumn(
+            type='cslowtime',
+            name='Slowest Review',
+            onData=cSlowtimeOnData,
+            onSort=getOnSort(srt)
+        )
+        self.customColumns.append(cc)
 
         # Tags
         cc = advBrowser.newCustomColumn(
@@ -153,7 +186,6 @@ class CustomFields:
         )
         self.customColumns.append(cc)
 
-
         # Percent correct
         def cPctCorrect(c, n, t):
             if c.reps > 0:
@@ -166,6 +198,24 @@ class CustomFields:
             name = 'Percent Correct',
             onData = cPctCorrect,
             onSort = lambda: "cast(c.lapses as real)/c.reps"
+        )
+        self.customColumns.append(cc)
+
+        # Previous duration
+        def cPrevDur(c, n, t):
+            time = mw.col.db.scalar(
+                "select time/1000.0 from revlog where cid = ? "
+                "order by id desc limit 1", c.id)
+            return self.timeFmt(time)
+
+        srt = ("(select time/1000.0 from revlog where cid = c.id "
+               "order by id desc limit 1)")
+
+        cc = advBrowser.newCustomColumn(
+            type='cprevdur',
+            name="Previous Duration",
+            onData=cPrevDur,
+            onSort=getOnSort(srt)
         )
         self.customColumns.append(cc)
         
@@ -187,6 +237,17 @@ class CustomFields:
                 return diff * -1
             else:
                 return
+
+    def timeFmt(self, tm):
+        # stole this from CardStats#time()
+        str = ""
+        if tm is None:
+            return str
+        if tm >= 60:
+            str = fmtTimeSpan((tm / 60) * 60, short=True, point=-1, unit=1)
+        if tm % 60 != 0 or not str:
+            str += fmtTimeSpan(tm % 60, point=2 if not str else -1, short=True)
+        return str
     
     def myLoadCollection(self, _self):
         """Wrap collection load so we can add our custom DB function.
