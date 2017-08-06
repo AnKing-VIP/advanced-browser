@@ -54,7 +54,7 @@ class NoteFields:
         self.buildMappings()
         
         # Create a new sub-menu for our columns
-        fldGroup = contextMenu.newSubMenu("Fields")
+        fldGroup = contextMenu.newSubMenu(" - Fields -")
         # And a sub-menu for each note type
         for model in mw.col.models.models.values():
             modelGroup = fldGroup.newSubMenu(model['name'])

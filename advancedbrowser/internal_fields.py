@@ -11,8 +11,8 @@ class InternalFields:
         self.cardColumns = []
     
     def onBuildContextMenu(self, contextMenu):
-        nGroup = contextMenu.newSubMenu("Note (internal)")
-        cGroup = contextMenu.newSubMenu("Card (internal)")
+        nGroup = contextMenu.newSubMenu("- Note (internal) -")
+        cGroup = contextMenu.newSubMenu("- Card (internal) -")
         
         for cc in self.noteColumns:
             nGroup.addItem(cc)
