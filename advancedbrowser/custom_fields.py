@@ -172,8 +172,9 @@ class CustomFields:
     def onBuildContextMenu(self, contextMenu):
         """Build our part of the browser columns context menu."""
 
+        group = contextMenu.newSubMenu("- Advanced -")
         for column in self.customColumns:
-            contextMenu.addItem(column)
+            group.addItem(column)
 
     def valueForOverdue(self, odid, queue, type, due):
         if odid or queue == 1:
