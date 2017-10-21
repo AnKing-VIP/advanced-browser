@@ -8,8 +8,8 @@ from operator import  itemgetter
 from aqt import *
 from aqt.browser import DataModel, Browser
 from anki.hooks import runHook
-from contextmenu import ContextMenu
-from column import Column, CustomColumn
+from .contextmenu import ContextMenu
+from .column import Column, CustomColumn
 
 CONF_KEY = 'advbrowse_activeCols'
 
