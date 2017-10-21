@@ -111,6 +111,7 @@ class NoteFields:
     def myLoadCollection(self, _self):
         # Create a new SQL function that we can use in our queries.
         mw.col.db._db.create_function("valueForField", 3, self.valueForField)
+        return True
 
 nf = NoteFields()
 addHook("advBrowserLoaded", nf.onAdvBrowserLoad)
