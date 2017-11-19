@@ -131,12 +131,8 @@ class CustomFields:
         cc = advBrowser.newCustomColumn(
             type='ntags',
             name='Tags',
-            onData=lambda c, n, t: " ".join(n.tags),
-            # Lazy shortcut. Treat the "Tags" column as if it were a note field
-            # (it is!) so we get all the benefits of our custom work on those
-            # fields.
-            onSort=lambda: "(select valueForField(mid, flds, 'Tags') "
-                           "from notes where id = c.nid)",
+            onData=lambda c,n,t: " ".join(n.tags),
+            onSort=lambda: "(select tags from notes where id = c.nid)"
         )
         self.customColumns.append(cc)
         # Remove the built-in tags column.

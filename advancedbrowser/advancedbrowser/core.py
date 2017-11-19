@@ -185,7 +185,7 @@ class AdvancedDataModel(DataModel):
             except Exception as ex:
                 print("Failed to create temp sort table: ", ex)
                 return []
-    
+
             sql = ("""
 select id, srt from tmp order by tmp.srt is null, tmp.srt is '',
 case when tmp.srt glob '*[^0-9.]*' then tmp.srt else cast(tmp.srt AS real) end
