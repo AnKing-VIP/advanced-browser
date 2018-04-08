@@ -25,6 +25,9 @@ You can also add these extra columns:
 
 ![Useful columns](https://raw.github.com/hssm/advanced-browser/master/docs/context.png)
 
+###Show only one card by note
+
+Seeing each individual cards is useless when you want to edit notes, and not to deal with each cards individually. You now have an option "unique card by note" in the menu. When this option is toggled, an arbitrary card is selectionned for each note, and only this card is shown.
 
 ###Internal fields
 You can also show some fields used internally by Anki but probably aren't very useful for the typical user. These are disabled by default, but you can enable them by going to **Tools -> Add-ons -> advanced_browser -> Edit...** and uncommenting the line that loads the extension that offers those fields.

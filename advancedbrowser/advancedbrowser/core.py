@@ -8,6 +8,7 @@ from operator import  itemgetter
 from aqt import *
 from aqt.browser import DataModel, Browser
 from anki.hooks import runHook
+from anki.cards import Card
 from .contextmenu import ContextMenu
 from .column import Column, CustomColumn
 
@@ -107,13 +108,30 @@ class AdvancedDataModel(DataModel):
         if type in self.browser.customTypes:
             return self.browser.customTypes[type].onData(c, n, type)
 
-    def search(self, txt):
+    def search(self, txt, reset=True):
         """We swap out the col.findCards function with our custom myFindCards,
-        call the original search(), then put it back to its original version."""
+        call the original search(), then put it back to its original version.
+
+        if the configuration uniqueNote holds, cards are filtered to keep only one card by note.
+        """
+        if reset:
+            self.beginReset()
         orig = self.col.findCards
         self.col.findCards = self.myFindCards
-        super(AdvancedDataModel, self).search(txt)
+        super(AdvancedDataModel, self).search(txt,reset=False)
+        if mw.col.conf.get("advbrowse_uniqueNote", False):
+            nids = set()
+            filtered_card = []
+            for cid in self.cards:
+                card = Card(mw.col, cid)
+                nid = card.nid
+                if nid not in nids:
+                    filtered_card.append(cid)
+                    nids.add(nid)
+            self.cards = filtered_card
         self.col.findCards = orig
+        if reset:
+            self.endReset()
 
 
     def myFindCards(self, query, order):
@@ -349,6 +367,16 @@ class AdvancedBrowser(Browser):
     
         # Start adding from the top
         addToSubgroup(main, contextMenu.items())
+        #Start uniqueNote
+        a = main.addAction("unique card by note")
+        a.setCheckable(True)
+        a.setChecked(mw.col.conf.get("advbrowse_uniqueNote", False))
+        def negateUniqueNote():
+            self.model.beginReset()
+            mw.col.conf["advbrowse_uniqueNote"] =  not  mw.col.conf.get("advbrowse_uniqueNote", False)
+            self.onSearch()
+            self.model.endReset()
+        a.connect(a, SIGNAL("toggled(bool)"),negateUniqueNote)
         main.exec_(gpos)
 
     def closeEvent(self, evt):
