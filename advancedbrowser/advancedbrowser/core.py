@@ -7,7 +7,7 @@ from operator import  itemgetter
 
 from aqt import *
 from aqt.browser import DataModel, Browser
-from anki.hooks import runHook
+from anki.hooks import runHook, addHook
 from anki.cards import Card
 from .contextmenu import ContextMenu
 from .column import Column, CustomColumn
@@ -371,11 +371,6 @@ class AdvancedBrowser(Browser):
         a = main.addAction("unique card by note")
         a.setCheckable(True)
         a.setChecked(mw.col.conf.get("advbrowse_uniqueNote", False))
-        def negateUniqueNote():
-            self.model.beginReset()
-            mw.col.conf["advbrowse_uniqueNote"] =  not  mw.col.conf.get("advbrowse_uniqueNote", False)
-            self.onSearch()
-            self.model.endReset()
         a.connect(a, SIGNAL("toggled(bool)"),negateUniqueNote)
         main.exec_(gpos)
 
@@ -404,9 +399,25 @@ class AdvancedBrowser(Browser):
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
 
+    def negateUniqueNote(self):
+        self.model.beginReset()
+        mw.col.conf["advbrowse_uniqueNote"] =  not  mw.col.conf.get("advbrowse_uniqueNote", False)
+        self.onSearch()
+        self.model.endReset()
+
 
 # Override DataModel with our subclass
 aqt.browser.DataModel = AdvancedDataModel
 
 # Make Anki load AdvancedBrowser instead of the original Browser
 aqt.dialogs._dialogs['Browser'] = [AdvancedBrowser, None]
+
+
+def setupMenu(browser):
+    a = QAction("Unique/each cards by note", browser)
+    a.setShortcut(QKeySequence("Ctrl+Alt+N")) 
+    browser.connect(a, SIGNAL("triggered()"), browser.negateUniqueNote)
+    browser.form.menuEdit.addAction(a)
+
+
+addHook("browser.setupMenus", setupMenu)
