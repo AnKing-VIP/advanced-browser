@@ -25,9 +25,12 @@ You can also add these extra columns:
 
 ![Useful columns](https://raw.github.com/hssm/advanced-browser/master/docs/context.png)
 
-###Show only one card by note
+###Show notes (and not cards)
 
-Seeing each individual cards is useless when you want to edit notes, and not to deal with each cards individually. You now have an option "unique card by note" in the menu. When this option is toggled, an arbitrary card is selectionned for each note, and only this card is shown.
+Seeing each individual cards is useless when you want to edit notes. You certainly need to consider individual cards if you want to see when they are due, whether they are new/suspended or not. But you don't need to see them while editing the content of the note.
+
+You now have an option "Only show notes" in the menu. When this option is toggled, you broswer show you note instead of cards. This toggle can be activated with the shortcut Ctrl+shift+n.  (Pay attention to the fact that buttons, such as «suspend», act on cards and note on notes. Therefore, avoid using this button while you use the option to see notes.).
+
 
 ###Internal fields
 You can also show some fields used internally by Anki but probably aren't very useful for the typical user. These are disabled by default, but you can enable them by going to **Tools -> Add-ons -> advanced_browser -> Edit...** and uncommenting the line that loads the extension that offers those fields.

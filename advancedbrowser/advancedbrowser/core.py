@@ -118,7 +118,7 @@ class AdvancedDataModel(DataModel):
             self.beginReset()
         orig = self.col.findCards
         self.col.findCards = self.myFindCards
-        super(AdvancedDataModel, self).search(txt,reset=False)
+        super(AdvancedDataModel, self).search(txt)
         if mw.col.conf.get("advbrowse_uniqueNote", False):
             nids = set()
             filtered_card = []
@@ -368,10 +368,10 @@ class AdvancedBrowser(Browser):
         # Start adding from the top
         addToSubgroup(main, contextMenu.items())
         #Start uniqueNote
-        a = main.addAction("unique card by note")
+        a = main.addAction("Only show notes")
         a.setCheckable(True)
         a.setChecked(mw.col.conf.get("advbrowse_uniqueNote", False))
-        a.connect(a, SIGNAL("toggled(bool)"),negateUniqueNote)
+        a.toggled.connect(self.toggleUniqueNote)
         main.exec_(gpos)
 
     def closeEvent(self, evt):
@@ -399,10 +399,10 @@ class AdvancedBrowser(Browser):
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
 
-    def negateUniqueNote(self):
+    def toggleUniqueNote(self):
         self.model.beginReset()
         mw.col.conf["advbrowse_uniqueNote"] =  not  mw.col.conf.get("advbrowse_uniqueNote", False)
-        self.onSearch()
+        self.onSearchActivated()
         self.model.endReset()
 
 
@@ -413,11 +413,3 @@ aqt.browser.DataModel = AdvancedDataModel
 aqt.dialogs._dialogs['Browser'] = [AdvancedBrowser, None]
 
 
-def setupMenu(browser):
-    a = QAction("Unique/each cards by note", browser)
-    a.setShortcut(QKeySequence("Ctrl+Alt+N")) 
-    browser.connect(a, SIGNAL("triggered()"), browser.negateUniqueNote)
-    browser.form.menuEdit.addAction(a)
-
-
-addHook("browser.setupMenus", setupMenu)
