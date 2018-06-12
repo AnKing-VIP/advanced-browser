@@ -108,14 +108,13 @@ class AdvancedDataModel(DataModel):
         if type in self.browser.customTypes:
             return self.browser.customTypes[type].onData(c, n, type)
 
-    def search(self, txt, reset=True):
+    def search(self, txt):
         """We swap out the col.findCards function with our custom myFindCards,
         call the original search(), then put it back to its original version.
 
         if the configuration uniqueNote holds, cards are filtered to keep only one card by note.
         """
-        if reset:
-            self.beginReset()
+        self.beginReset()
         orig = self.col.findCards
         self.col.findCards = self.myFindCards
         super(AdvancedDataModel, self).search(txt)
@@ -130,8 +129,7 @@ class AdvancedDataModel(DataModel):
                     nids.add(nid)
             self.cards = filtered_card
         self.col.findCards = orig
-        if reset:
-            self.endReset()
+        self.endReset()
 
 
     def myFindCards(self, query, order):
@@ -368,10 +366,10 @@ class AdvancedBrowser(Browser):
         # Start adding from the top
         addToSubgroup(main, contextMenu.items())
         #Start uniqueNote
-        a = main.addAction("Only show notes")
+        a = main.addAction("unique card by note")
         a.setCheckable(True)
         a.setChecked(mw.col.conf.get("advbrowse_uniqueNote", False))
-        a.toggled.connect(self.toggleUniqueNote)
+        a.toggled.connect(self.negateUniqueNote)
         main.exec_(gpos)
 
     def closeEvent(self, evt):
@@ -399,7 +397,7 @@ class AdvancedBrowser(Browser):
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
 
-    def toggleUniqueNote(self):
+    def negateUniqueNote(self):
         self.model.beginReset()
         mw.col.conf["advbrowse_uniqueNote"] =  not  mw.col.conf.get("advbrowse_uniqueNote", False)
         self.onSearchActivated()
