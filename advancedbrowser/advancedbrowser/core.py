@@ -7,7 +7,8 @@ from operator import  itemgetter
 
 from aqt import *
 from aqt.browser import DataModel, Browser
-from anki.hooks import runHook
+from anki.hooks import runHook, addHook
+from anki.cards import Card
 from .contextmenu import ContextMenu
 from .column import Column, CustomColumn
 
@@ -109,11 +110,26 @@ class AdvancedDataModel(DataModel):
 
     def search(self, txt):
         """We swap out the col.findCards function with our custom myFindCards,
-        call the original search(), then put it back to its original version."""
+        call the original search(), then put it back to its original version.
+
+        if the configuration uniqueNote holds, cards are filtered to keep only one card by note.
+        """
+        self.beginReset()
         orig = self.col.findCards
         self.col.findCards = self.myFindCards
         super(AdvancedDataModel, self).search(txt)
+        if mw.col.conf.get("advbrowse_uniqueNote", False):
+            nids = set()
+            filtered_card = []
+            for cid in self.cards:
+                card = Card(mw.col, cid)
+                nid = card.nid
+                if nid not in nids:
+                    filtered_card.append(cid)
+                    nids.add(nid)
+            self.cards = filtered_card
         self.col.findCards = orig
+        self.endReset()
 
 
     def myFindCards(self, query, order):
@@ -349,6 +365,11 @@ class AdvancedBrowser(Browser):
     
         # Start adding from the top
         addToSubgroup(main, contextMenu.items())
+        #Start uniqueNote
+        a = main.addAction("unique card by note")
+        a.setCheckable(True)
+        a.setChecked(mw.col.conf.get("advbrowse_uniqueNote", False))
+        a.toggled.connect(self.negateUniqueNote)
         main.exec_(gpos)
 
     def closeEvent(self, evt):
@@ -376,9 +397,17 @@ class AdvancedBrowser(Browser):
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
 
+    def negateUniqueNote(self):
+        self.model.beginReset()
+        mw.col.conf["advbrowse_uniqueNote"] =  not  mw.col.conf.get("advbrowse_uniqueNote", False)
+        self.onSearchActivated()
+        self.model.endReset()
+
 
 # Override DataModel with our subclass
 aqt.browser.DataModel = AdvancedDataModel
 
 # Make Anki load AdvancedBrowser instead of the original Browser
 aqt.dialogs._dialogs['Browser'] = [AdvancedBrowser, None]
+
+
