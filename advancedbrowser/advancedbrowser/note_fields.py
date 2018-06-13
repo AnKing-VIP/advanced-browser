@@ -34,7 +34,7 @@ class NoteFields:
         def fldOnData(c, n, t):
             field = self.fieldTypes[t]
             if field in c.note().keys():
-                return anki.utils.stripHTML(c.note()[field])
+                return anki.utils.stripHTMLMedia(c.note()[field])
 
         for type, name in self.fieldTypes.items():
             srt = ("(select valueForField(mid, flds, '%s') "
@@ -99,7 +99,7 @@ class NoteFields:
             index = self.modelFieldPos.get(mid).get(fldName, None)
             if index is not None:
                 fieldsList = flds.split("\x1f", index+1)
-                return anki.utils.stripHTML(fieldsList[index])
+                return anki.utils.stripHTMLMedia(fieldsList[index])
         except Exception as ex:
             print("Failed to get value for field.")
             print("Mid: " + str(mid or 'None'))
