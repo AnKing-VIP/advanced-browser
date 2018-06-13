@@ -338,10 +338,11 @@ class AdvancedBrowser(Browser):
             type, name = item
             if type not in self.customTypes:
                 contextMenu.addItem(Column(type, name))
-        
+
+
         # Now let clients do theirs.
         runHook("advBrowserBuildContext", contextMenu)
-        
+
         def addCheckableAction(menu, type, name):
             a = menu.addAction(name)
             a.setCheckable(True)
@@ -362,14 +363,15 @@ class AdvancedBrowser(Browser):
                     addToSubgroup(sub, item.items())
                 else:
                     addCheckableAction(menu, item.type, item.name)
-    
         # Start adding from the top
         addToSubgroup(main, contextMenu.items())
-        #Start uniqueNote
-        a = main.addAction("unique card by note")
+
+        # Add unique note toggle
+        a = main.addAction("- Only show notes -")
         a.setCheckable(True)
         a.setChecked(mw.col.conf.get("advbrowse_uniqueNote", False))
-        a.toggled.connect(self.negateUniqueNote)
+        a.toggled.connect(self.toggleUniqueNote)
+
         main.exec_(gpos)
 
     def closeEvent(self, evt):
@@ -397,7 +399,7 @@ class AdvancedBrowser(Browser):
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
 
-    def negateUniqueNote(self):
+    def toggleUniqueNote(self):
         self.model.beginReset()
         mw.col.conf["advbrowse_uniqueNote"] =  not  mw.col.conf.get("advbrowse_uniqueNote", False)
         self.onSearchActivated()
