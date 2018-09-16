@@ -6,7 +6,7 @@ import time
 from operator import  itemgetter
 
 from aqt import *
-from aqt.browser import DataModel, Browser
+from aqt.browser import DataModel, Browser, StatusDelegate
 from anki.hooks import runHook, addHook
 from anki.cards import Card
 from .contextmenu import ContextMenu
@@ -86,10 +86,6 @@ class AdvancedDataModel(DataModel):
             if col in self.browser.customTypes:
                 # If this is one of our columns, use custom alignment rules
                 align = Qt.AlignVCenter | Qt.AlignLeft
-                # Flip it if it's an RTL field.
-                fld = self.getFld(index)
-                if fld and fld['rtl']:
-                    align = Qt.AlignVCenter | Qt.AlignRight
                 return align
         return super(AdvancedDataModel, self).data(index, role)
 
@@ -239,6 +235,14 @@ collate nocase """ %
         print("Search took: %dms" % ((time.time() - t)*1000))
         return res
 
+class AdvancedStatusDelegate(StatusDelegate):
+    def paint(self, painter, option, index):
+        fld = self.browser.model.getFld(index)
+        if fld and fld['rtl']:
+            option.direction = Qt.RightToLeft
+        return super(AdvancedStatusDelegate, self).paint(painter, option, index)
+
+
 class AdvancedBrowser(Browser):
     """Maintains state for the add-on."""
     
@@ -314,6 +318,7 @@ class AdvancedBrowser(Browser):
         """Some customizations to the table view"""
         super(AdvancedBrowser, self).setupTable()
         self.form.tableView.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.form.tableView.setItemDelegate(AdvancedStatusDelegate(self, self.model))
 
     def setupColumns(self):
         """Build a list of candidate columns. We extend the internal
