@@ -274,7 +274,14 @@ class AdvancedBrowser(Browser):
         # and restore constructor.
         origInit(self, mw)
         Browser.__init__ = origInit
-        
+
+
+        tn = QAction(('- Only show notes -'), self)
+        tn.setShortcut(QKeySequence("Ctrl+Alt+N"))
+        self.addAction(tn)
+        tn.triggered.connect(self.toggleUniqueNote)
+
+
         # Remove excluded columns after the browser is built. Doing it here
         # is mostly a compromise in complexity. The alternative is to
         # rewrite the order of the original __init__ method, which is
@@ -374,6 +381,10 @@ class AdvancedBrowser(Browser):
         # Add unique note toggle
         a = main.addAction("- Only show notes -")
         a.setCheckable(True)
+        # This shortcut has no effect since it's attached to the context menu
+        # which needs to be open, but the visual indicator is still useful.
+        # The real shortcut is in init.
+        a.setShortcut(QKeySequence("Ctrl+Alt+N"))
         a.setChecked(mw.col.conf.get("advbrowse_uniqueNote", False))
         a.toggled.connect(self.toggleUniqueNote)
 

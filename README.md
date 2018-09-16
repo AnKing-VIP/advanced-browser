@@ -29,7 +29,7 @@ You can also add these extra columns:
 
 There is now a menu option to **Only show notes**. If you are only interested in editing the content of notes and don't care about the statistics of individual card reviews, you can enable the note browser mode.
 
-When this option is enabled, the browser will show a single row for each note regardless of how many cards a note may have generated. You can use `Ctrl+shift+n` as a shortcut to toggle this option.  (Pay attention to the fact that buttons, such as `suspend`, act on cards and not on notes. Therefore, avoid using this button while you use the option to see notes.)
+When this option is enabled, the browser will show a single row for each note regardless of how many cards a note may have generated. You can use *Ctrl+Alt+N* as a shortcut to toggle this option.  (Pay attention to the fact that buttons, such as «suspend», act on cards and not on notes. Therefore, avoid using this button while you use the option to see notes.)
 
 ![Note browser mode](https://raw.github.com/hssm/advanced-browser/master/docs/note_browser_toggle.png)
 
