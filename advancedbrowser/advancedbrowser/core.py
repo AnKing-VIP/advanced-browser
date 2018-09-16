@@ -388,6 +388,7 @@ class AdvancedBrowser(Browser):
         a.setChecked(mw.col.conf.get("advbrowse_uniqueNote", False))
         a.toggled.connect(self.toggleUniqueNote)
 
+
         main.exec_(gpos)
 
     def closeEvent(self, evt):
