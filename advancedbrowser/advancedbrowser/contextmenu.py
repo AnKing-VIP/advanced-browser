@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
-import itertools
+
 
 class ContextMenu:
     def __init__(self, subGroupName=None):
