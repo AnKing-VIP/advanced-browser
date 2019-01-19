@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
+import itertools
 
 class ContextMenu:
     def __init__(self, subGroupName=None):
@@ -19,5 +20,5 @@ class ContextMenu:
 
     def items(self):
         """Return a list of all items sorted by name."""
-        self._items.sort(key=lambda x: x.name)
+        self._items = list(sorted(set(self._items),key=lambda x: x.name))
         return self._items
