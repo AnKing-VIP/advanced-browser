@@ -5,6 +5,7 @@
 from aqt import *
 from aqt.main import AnkiQt
 from anki.hooks import addHook, wrap
+from .config import getEachFieldInSingleList
 
 class NoteFields:
     
@@ -55,11 +56,17 @@ class NoteFields:
         
         # Create a new sub-menu for our columns
         fldGroup = contextMenu.newSubMenu(" - Fields -")
-        # And a sub-menu for each note type
-        for model in mw.col.models.models.values():
-            modelGroup = fldGroup.newSubMenu(model['name'])
-            for fld in model['flds']:
-                modelGroup.addItem(self.customColumns[fld['name']])
+        if getEachFieldInSingleList():
+            # And an option for each fields
+            for model in mw.col.models.models.values():
+                for fld in model['flds']:
+                    fldGroup.addItem(self.customColumns[fld['name']])
+        else:
+            # And a sub-menu for each note type
+            for model in mw.col.models.models.values():
+                modelGroup = fldGroup.newSubMenu(model['name'])
+                for fld in model['flds']:
+                    modelGroup.addItem(self.customColumns[fld['name']])
 
 
     def buildMappings(self):

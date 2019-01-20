@@ -58,3 +58,6 @@ class CustomColumn(Column):
         self.onData = onData
         self.onSort = onSort if onSort else lambda: None
         self.cacheSortValue = cacheSortValue
+
+    def __hash__(self):
+        return hash(self.name)
