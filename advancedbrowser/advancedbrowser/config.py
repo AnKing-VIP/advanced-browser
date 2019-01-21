@@ -8,7 +8,7 @@ def getEachFieldInSingleList():
     if not found:
         found = True
         userOption = aqt.mw.addonManager.getConfig(__name__)
-        singleList = userOption.get("Each fields in a single list",False)
+        singleList = userOption.get("Use a single list for fields", False)
     return singleList
 
 def update(_):
