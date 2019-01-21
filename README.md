@@ -14,6 +14,8 @@ This allows the addition of **any** field in your decks as a column that you can
 ![Note fields](https://raw.github.com/hssm/advanced-browser/master/docs/screenshot_info.png)
 
 
+You can edit the configuration (using add-on manager) to see every single fields in a single context menu. You only have to change the option "Each fields in a single list" to ```true```.
+
 ### More useful columns
 
 You can also add these extra columns:
