@@ -26,27 +26,10 @@ class NoteFields:
         # {fld['name'] -> CustomColumn}}
         self.customColumns = {}
 
+        self.advBrowser = advBrowser
         self.buildMappings()
 
-        # Convenience method to create lambdas without scope clobbering
-        def getOnSort(f): return lambda: f
-                
-        def fldOnData(c, n, t):
-            field = self.fieldTypes[t]
-            if field in c.note().keys():
-                return anki.utils.stripHTMLMedia(c.note()[field])
 
-        for type, name in self.fieldTypes.items():
-            srt = ("(select valueForField(mid, flds, '%s') "
-                   "from notes where id = c.nid)" % name)
-
-            cc = advBrowser.newCustomColumn(
-                type=type,
-                name=name,
-                onData=fldOnData,
-                onSort=getOnSort(srt)
-            )
-            self.customColumns[name] = cc
 
     def onBuildContextMenu(self, contextMenu):
         # Models might have changed so rebuild our mappings.
@@ -81,6 +64,29 @@ class NoteFields:
                 self.modelFieldPos[mid32][name] = ord
                 if type not in self.fieldTypes:  # avoid dupes
                     self.fieldTypes[type] = name
+
+        # Convenience method to create lambdas without scope clobbering
+        def getOnSort(f):
+            return lambda: f
+
+        def fldOnData(c, n, t):
+            field = self.fieldTypes[t]
+            if field in c.note().keys():
+                return anki.utils.stripHTMLMedia(c.note()[field])
+
+        for type, name in self.fieldTypes.items():
+            if name not in self.customColumns:
+                srt = ("(select valueForField(mid, flds, '%s') "
+                       "from notes where id = c.nid)" % name)
+
+                cc = self.advBrowser.newCustomColumn(
+                    type=type,
+                    name=name,
+                    onData=fldOnData,
+                    onSort=getOnSort(srt)
+                )
+                self.customColumns[name] = cc
+        self.advBrowser.setupColumns()
 
     def valueForField(self, mid, flds, fldName):
         """Function called from SQLite to get the value of a field,
