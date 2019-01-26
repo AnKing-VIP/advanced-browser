@@ -8,12 +8,14 @@ from anki.hooks import addHook, wrap
 from .config import getEachFieldInSingleList
 
 class NoteFields:
-    
+
     def onAdvBrowserLoad(self, advBrowser):
         # Dictionary of field names indexed by "type" name. Used to
         # figure out if the requested column is a note field.
         # {type -> name}
         self.fieldTypes = {}
+
+        self.advBrowser = advBrowser
 
         # Dictionary of dictionaries to get position for field in model.
         # We build this dictionary once to avoid needlessly finding the
@@ -27,29 +29,48 @@ class NoteFields:
         # {fld['name'] -> CustomColumn}}
         self.customColumns = {}
 
-        self.advBrowser = advBrowser
         self.buildMappings()
 
+    def fldOnData(self,c, n, t):
+        field = self.fieldTypes[t]
+        if field in c.note().keys():
+            return anki.utils.stripHTMLMedia(c.note()[field])
 
+    def getCustomColumn(self, name):
+        # Convenience method to create lambdas without scope clobbering
+        def getOnSort(f): return lambda: f
+
+
+        srt = ("(select valueForField(mid, flds, '%s') "
+               "from notes where id = c.nid)" % name)
+        if name not in self.customColumns:
+            cc = self.advBrowser.newCustomColumn(
+                type="_field_"+name,
+                name=name,
+                onData=self.fldOnData,
+                onSort=getOnSort(srt)
+            )
+            self.customColumns[name] = cc
+        return self.customColumns[name]
 
     def onBuildContextMenu(self, contextMenu):
         # Models might have changed so rebuild our mappings.
         # E.g., a field or note type could have been deleted.
         self.buildMappings()
-        
+
         # Create a new sub-menu for our columns
         fldGroup = contextMenu.newSubMenu(" - Fields -")
         if getEachFieldInSingleList():
             # And an option for each fields
             for model in mw.col.models.models.values():
                 for fld in model['flds']:
-                    fldGroup.addItem(self.customColumns[fld['name']])
+                    fldGroup.addItem(self.getCustomColumn(fld['name']))
         else:
             # And a sub-menu for each note type
             for model in mw.col.models.models.values():
                 modelGroup = fldGroup.newSubMenu(model['name'])
                 for fld in model['flds']:
-                    modelGroup.addItem(self.customColumns[fld['name']])
+                    modelGroup.addItem(self.getCustomColumn(fld['name']))
 
 
     def buildMappings(self):
@@ -72,42 +93,19 @@ class NoteFields:
                 if type not in self.fieldTypes:  # avoid dupes
                     self.fieldTypes[type] = name
 
-        # Convenience method to create lambdas without scope clobbering
-        def getOnSort(f):
-            return lambda: f
-
-        def fldOnData(c, n, t):
-            field = self.fieldTypes[t]
-            if field in c.note().keys():
-                return anki.utils.stripHTMLMedia(c.note()[field])
-
-        for type, name in self.fieldTypes.items():
-            if name not in self.customColumns:
-                srt = ("(select valueForField(mid, flds, '%s') "
-                       "from notes where id = c.nid)" % name)
-
-                cc = self.advBrowser.newCustomColumn(
-                    type=type,
-                    name=name,
-                    onData=fldOnData,
-                    onSort=getOnSort(srt)
-                )
-                self.customColumns[name] = cc
-        self.advBrowser.setupColumns()
-
     def valueForField(self, mid, flds, fldName):
         """Function called from SQLite to get the value of a field,
         given a field name and the model id for the note.
-        
+
         mid is the model id. The model contains the definition of a note,
         including the names of all fields.
-        
+
         flds contains the text of all fields, delimited by the character
         "x1f". We split this and index into it according to a precomputed
         index for the model (mid) and field name (fldName).
-        
+
         fldName is the name of the field we are after."""
-    
+
         try:
             index = self.modelFieldPos.get(mid).get(fldName, None)
             if index is not None:
