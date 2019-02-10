@@ -1,4 +1,4 @@
 {
-  "Use a single list for fields":false
+  "Use a single list for fields":false,
+  "Show advanced fields": false
 }
-  
