@@ -28,6 +28,6 @@ def processAdvanced():
     fn = addHook if getUseAdvancedFields() else remHook
     fn("advBrowserLoaded", iff.onAdvBrowserLoad)
     fn("advBrowserBuildContext", iff.onBuildContextMenu)
-
+processAdvanced()
 
 mw.addonManager.setConfigUpdatedAction(__name__,update)
