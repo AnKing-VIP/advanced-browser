@@ -2,30 +2,30 @@
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
 
-from anki.hooks import addHook
+
 
 class InternalFields:
-    
+
     def __init__(self):
         self.noteColumns = []
         self.cardColumns = []
-    
+
     def onBuildContextMenu(self, contextMenu):
         nGroup = contextMenu.newSubMenu("- Note (internal) -")
         cGroup = contextMenu.newSubMenu("- Card (internal) -")
-        
+
         for cc in self.noteColumns:
             nGroup.addItem(cc)
         for cc in self.cardColumns:
             cGroup.addItem(cc)
-    
+
     def onAdvBrowserLoad(self, advBrowser):
         """Called when the Advanced Browser add-on has finished
         loading. Create and add all custom columns owned by this
         add-on here.
-        
+
         """
-        
+
         # Clear existing state
         self.noteColumns = []
         self.cardColumns = []
@@ -45,7 +45,7 @@ class InternalFields:
             onSort=lambda: "n.guid"
         )
         self.noteColumns.append(cc)
-        
+
         cc = advBrowser.newCustomColumn(
             type="nmid",
             name="Model ID",
@@ -53,7 +53,7 @@ class InternalFields:
             onSort=lambda: "n.mid"
         )
         self.noteColumns.append(cc)
-       
+
         cc = advBrowser.newCustomColumn(
             type="nusn",
             name="Note USN",
@@ -69,7 +69,7 @@ class InternalFields:
             onSort=lambda: "n.flds"
         )
         self.noteColumns.append(cc)
-        
+
         cc = advBrowser.newCustomColumn(
             type="nflags",
             name="Note Flags",
@@ -117,7 +117,7 @@ class InternalFields:
             onSort=lambda: "c.ord"
         )
         self.cardColumns.append(cc)
-        
+
         cc = advBrowser.newCustomColumn(
             type="cusn",
             name="Card USN",
@@ -168,6 +168,3 @@ class InternalFields:
 
 
 iff = InternalFields()
-
-addHook("advBrowserLoaded", iff.onAdvBrowserLoad)
-addHook("advBrowserBuildContext", iff.onBuildContextMenu)
