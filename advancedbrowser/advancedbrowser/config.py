@@ -15,19 +15,19 @@ def getUserOption():
 def getEachFieldInSingleList():
     return getUserOption().get("Use a single list for fields", False)
 
-def getUseAdvancedFields():
+def getUseInternalFields():
     return getUserOption().get("Show advanced fields", False)
 
 def update(_):
     global userOption
     userOption = None
-    processAdvanced()
+    processInternal()
 
 
-def processAdvanced():
-    fn = addHook if getUseAdvancedFields() else remHook
+def processInternal():
+    fn = addHook if getUseInternalFields() else remHook
     fn("advBrowserLoaded", iff.onAdvBrowserLoad)
     fn("advBrowserBuildContext", iff.onBuildContextMenu)
-processAdvanced()
+processInternal()
 
 mw.addonManager.setConfigUpdatedAction(__name__,update)
