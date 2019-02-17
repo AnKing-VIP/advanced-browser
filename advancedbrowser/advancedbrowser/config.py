@@ -16,7 +16,7 @@ def getEachFieldInSingleList():
     return getUserOption().get("Use a single list for fields", False)
 
 def getUseInternalFields():
-    return getUserOption().get("Show advanced fields", False)
+    return getUserOption().get("Show internal fields", False)
 
 def update(_):
     global userOption
