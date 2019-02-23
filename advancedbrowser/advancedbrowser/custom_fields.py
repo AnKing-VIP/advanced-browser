@@ -214,6 +214,18 @@ class CustomFields:
             onSort=getOnSort(srt)
         )
         self.customColumns.append(cc)
+
+        # Date (and time) created
+        def cDateTimeCrt(c, n, t):
+            return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(c.note().id/1000))
+
+        cc = advBrowser.newCustomColumn(
+            type = 'cdatetimecrt',
+            name = 'Created',
+            onData = cDateTimeCrt,
+            onSort = lambda: "n.id"
+        )
+        self.customColumns.append(cc)
         
     def onBuildContextMenu(self, contextMenu):
         """Build our part of the browser columns context menu."""
