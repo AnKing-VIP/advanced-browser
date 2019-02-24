@@ -114,12 +114,13 @@ class NoteFields:
                 fieldsList = flds.split("\x1f", index+1)
                 return anki.utils.stripHTMLMedia(fieldsList[index])
         except Exception as ex:
-            print("Failed to get value for field.")
-            print("Mid: " + str(mid or 'None'))
-            print("flds: " + str(flds or 'None'))
-            print("fldName: " + str(fldName or 'None'))
-            print("_modelFieldPos: " + str(self.modelFieldPos))
-            print("Error was: ", ex)
+            pass
+            # print("Failed to get value for field.")
+            # print("Mid: " + str(mid or 'None'))
+            # print("flds: " + str(flds or 'None'))
+            # print("fldName: " + str(fldName or 'None'))
+            # print("_modelFieldPos: " + str(self.modelFieldPos))
+            # print("Error was: ", ex)
 
     def myLoadCollection(self, _self):
         # Create a new SQL function that we can use in our queries.
