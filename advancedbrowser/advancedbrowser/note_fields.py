@@ -79,7 +79,7 @@ class NoteFields:
         def fldOnData(c, n, t):
             field = self.fieldTypes[t]
             if field in c.note().keys():
-                return anki.utils.stripHTMLMedia(c.note()[field])
+                return anki.utils.htmlToTextLine(c.note()[field])
 
         for type, name in self.fieldTypes.items():
             if name not in self.customColumns:
