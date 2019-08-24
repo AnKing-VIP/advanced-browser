@@ -47,8 +47,10 @@ class AdvancedDataModel(DataModel):
             self.activeCols = [col for col in configuredCols if col in valids]
 
             # Also make sure the sortType is valid
-            if mw.col.conf['sortType'] not in valids:
-                mw.col.conf['sortType'] = 'noteFld'
+            if 'adv_sortType' not in mw.col.conf:
+                mw.col.conf['adv_sortType'] = mw.col.conf['sortType']
+            if mw.col.conf['adv_sortType'] not in valids:
+                mw.col.conf['adv_sortType'] = 'noteFld'
                 # If there is no sorted column, we add the 'Sort Field' column
                 # and sort on that. This method is one way to guarantee that we
                 # always start with at least one valid column.
@@ -134,44 +136,44 @@ class AdvancedDataModel(DataModel):
         columns maintained by the add-on. If we find that the column
         to be sorted is a built-in column, we defer to the original
         Finder.findCards.
-        
+
         Our version differs in its approach by building a more
         efficiently sortable query for the cases where it makes sense
         to do so."""
-        
+
         finder = anki.find.Finder(self.col)
         cTypes = self.browser.customTypes
 
         # If the column is not a custom one handled by this add-on, do it
         # internally.
-        type = self.col.conf['sortType']
+        type = self.col.conf['adv_sortType']
         if type not in cTypes:
             return finder.findCards(query, order=True)
-        
+
         # We bypass _query() and _order and write our own combined version
         #
         # NOTE: the "order by x is null, x is '', x is X" pattern is to
         # ensure null values and empty strings are sorted after useful
         # values. The default is to place them first, which we don't want.
-        
+
         tokens = finder._tokenize(query)
         preds, args = finder._where(tokens)
         if preds is None:
             return []
-    
+
         if preds:
             preds = "(" + preds + ")"
         else:
             preds = "1"
-        
+
         order = cTypes[type].onSort()
-                
+
         t = time.time()
         drop = False
-        
+
         if not order:
             #print("NO SORT PATH")
-    
+
             if "n." not in preds:
                 sql = "select c.id from cards c where "
             else:
@@ -421,11 +423,24 @@ class AdvancedBrowser(Browser):
         self.onSearchActivated()
         self.model.endReset()
 
+    def _onSortChanged(self, idx, ord):
+        type = self.model.activeCols[idx]
+        if self.col.conf['adv_sortType'] != type:
+            self.col.conf['adv_sortType'] = type
+            # default to descending for non-text fields
+            if type == "noteFld":
+                ord = not ord
+            self.col.conf['sortBackwards'] = ord
+            self.search()
+        else:
+            if self.col.conf['sortBackwards'] != ord:
+                self.col.conf['sortBackwards'] = ord
+                self.model.reverse()
+        self.setSortIndicator()
+
 
 # Override DataModel with our subclass
 aqt.browser.DataModel = AdvancedDataModel
 
 # Make Anki load AdvancedBrowser instead of the original Browser
 aqt.dialogs._dialogs['Browser'] = [AdvancedBrowser, None]
-
-
