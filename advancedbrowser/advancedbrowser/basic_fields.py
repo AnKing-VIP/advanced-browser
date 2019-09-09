@@ -102,6 +102,11 @@ class BasicFields:
             template = templates[ord]
             return template['name']
 
+    def onBuildContextMenu(self, contextMenu):
+        for cc in self.customColumns:
+            contextMenu.addItem(cc)
+
 bf = BasicFields()
 addHook("advBrowserLoaded", bf.onAdvBrowserLoad)
+addHook("advBrowserBuildContext", bf.onBuildContextMenu)
 AnkiQt.loadCollection = wrap(AnkiQt.loadCollection, bf.myLoadCollection)
