@@ -305,13 +305,13 @@ class AdvancedBrowser(Browser):
         self.columnsToRemove.append(type)
 
     def __removeColumns(self):
+        self.removedBuiltIns = []
         for type in self.columnsToRemove:
             # Remove from ours
             if type in self.customTypes:
                 self.customTypes.pop(type, None)
 
             # Built-in list is a list of tuples.
-            self.removedBuiltIns = []
             for tup in list(self.columns):
                 if tup[0] == type:
                     self.removedBuiltIns.append(tup)
