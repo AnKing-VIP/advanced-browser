@@ -15,7 +15,7 @@ from .column import Column, CustomColumn
 CONF_KEY = 'advbrowse_activeCols'
 
 class AdvancedDataModel(DataModel):
-    
+
     def __init__(self, browser):
         """Load our copy of the active columns and suppress the built-in one.
 
@@ -47,10 +47,8 @@ class AdvancedDataModel(DataModel):
             self.activeCols = [col for col in configuredCols if col in valids]
 
             # Also make sure the sortType is valid
-            if 'adv_sortType' not in mw.col.conf:
-                mw.col.conf['adv_sortType'] = mw.col.conf['sortType']
-            if mw.col.conf['adv_sortType'] not in valids:
-                mw.col.conf['adv_sortType'] = 'noteFld'
+            if mw.col.conf['sortType'] not in valids:
+                mw.col.conf['sortType'] = 'noteFld'
                 # If there is no sorted column, we add the 'Sort Field' column
                 # and sort on that. This method is one way to guarantee that we
                 # always start with at least one valid column.
@@ -96,7 +94,7 @@ class AdvancedDataModel(DataModel):
         returned = self._columnData(self, index)
         if returned:
             return returned
-        
+
         # If Anki can't handle it, it must be one of ours.
         col = index.column()
         type = self.columnType(col)
@@ -146,7 +144,7 @@ class AdvancedDataModel(DataModel):
 
         # If the column is not a custom one handled by this add-on, do it
         # internally.
-        type = self.col.conf['adv_sortType']
+        type = self.col.conf['sortType']
         if type not in cTypes:
             return finder.findCards(query, order=True)
 
@@ -191,7 +189,7 @@ class AdvancedDataModel(DataModel):
                     tmpSql = ("create temp table tmp as select *, %s as srt "
                               "from cards c, notes n where c.nid=n.id and %s"
                                % (order, preds))
-                
+
                 #print("Temp sort table sql: " + tmpSql)
                 self.col.db.execute(tmpSql, *args)
                 drop = True
@@ -204,23 +202,23 @@ class AdvancedDataModel(DataModel):
 select id, srt from tmp order by tmp.srt is null, tmp.srt is '',
 case when tmp.srt glob '*[^0-9.]*' then tmp.srt else cast(tmp.srt AS real) end
 collate nocase""")
-            
+
         else:
             # This is used for the remaining basic columns like internal fields
             #print("NORMAL SORT PATH")
-            
+
             if "n." not in preds and "n." not in order:
                 sql = "select * from cards c where "
             else:
                 sql = "select * from cards c, notes n where c.nid=n.id and "
-        
+
             sql += preds
             sql += ("""
 order by %s is null, %s is '',
 case when (%s) glob '*[^0-9.]*' then (%s) else cast((%s) AS real) end
 collate nocase """ %
                     (order, order, order, order, order))
-    
+
         try:
             #print("sql :" + sql)
             res = self.col.db.list(sql, *args)
@@ -230,10 +228,10 @@ collate nocase """ %
         finally:
             if drop:
                 self.col.db.execute("drop table tmp")
-    
+
         if self.col.conf['sortBackwards']:
             res.reverse()
-            
+
         #print("Search took: %dms" % ((time.time() - t)*1000))
         return res
 
@@ -247,12 +245,12 @@ class AdvancedStatusDelegate(StatusDelegate):
 
 class AdvancedBrowser(Browser):
     """Maintains state for the add-on."""
-    
+
     def newBrowserInit(self, mw):
         """Init stub to allow us to construct a Browser without doing
         the setup until we need to."""
         QMainWindow.__init__(self, None, Qt.Window)
-    
+
     def __init__(self, mw):
         # Override Browser __init_. We manually invoke the original after
         # we use our stub one. This is to work around the fact that super
@@ -261,17 +259,17 @@ class AdvancedBrowser(Browser):
         origInit = Browser.__init__
         Browser.__init__ = self.newBrowserInit
         super(AdvancedBrowser, self).__init__(mw)
-        
+
         # A list of columns to exclude when building the final column list.
         self.columnsToRemove = []
-        
+
         # CustomColumn objects maintained by this add-on.
         # {type -> CustomColumn}
         self.customTypes = {}
-        
+
         # Let add-ons add or remove columns now.
         runHook("advBrowserLoaded", self)
-        
+
         # Build the actual browser, which now has our state in it,
         # and restore constructor.
         origInit(self, mw)
@@ -300,7 +298,7 @@ class AdvancedBrowser(Browser):
         cc = CustomColumn(type, name, onData, onSort, cacheSortValue)
         self.customTypes[cc.type] = cc
         return cc
-    
+
     def removeColumn(self, type):
         """Remove a column from the columns list so that it will not appear
         in the browser. Applies to built-in or custom columns."""
@@ -311,14 +309,14 @@ class AdvancedBrowser(Browser):
             # Remove from ours
             if type in self.customTypes:
                 self.customTypes.pop(type, None)
-            
+
             # Built-in list is a list of tuples.
             self.removedBuiltIns = []
             for tup in list(self.columns):
                 if tup[0] == type:
                     self.removedBuiltIns.append(tup)
                     self.columns.remove(tup)
-            
+
             # Remove it from the active columns if it's there.
             if type in self.model.activeCols:
                 self.toggleField(type)
@@ -337,16 +335,16 @@ class AdvancedBrowser(Browser):
             self.columns.append((self.customTypes[type].type,
                                  self.customTypes[type].name))
         self.columns.sort(key=itemgetter(1))
-    
+
     def onHeaderContext(self, pos):
         """Override the original onHeaderContext. We are responsible for
         building the entire menu, so we include the original columns as
         well."""
-        
+
         gpos = self.form.tableView.mapToGlobal(pos)
         main = QMenu()
         contextMenu = ContextMenu()
-        
+
         # We are also a client and we need to add the built-in columns first.
         for item in self.columns:
             type, name = item
@@ -362,7 +360,7 @@ class AdvancedBrowser(Browser):
             a.setCheckable(True)
             a.setChecked(type in self.model.activeCols)
             a.toggled.connect(lambda b, t=type: self.toggleField(t))
-    
+
         # For some reason, sub menus aren't added if we don't keep a
         # reference to them until exec, so keep them in this list.
         tmp = []
@@ -394,7 +392,7 @@ class AdvancedBrowser(Browser):
 
     def closeEvent(self, evt):
         """Preserve our column state in a collection preference."""
-        
+
         # After we save our columns, we restore activeCols to the original
         # copy that Anki maintains and allow it to resume its own save
         # routine unhindered by our unsupported columns.
@@ -425,8 +423,8 @@ class AdvancedBrowser(Browser):
 
     def _onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
-        if self.col.conf['adv_sortType'] != type:
-            self.col.conf['adv_sortType'] = type
+        if self.col.conf['sortType'] != type:
+            self.col.conf['sortType'] = type
             # default to descending for non-text fields
             if type == "noteFld":
                 ord = not ord
