@@ -67,6 +67,14 @@ class BasicFields:
            )
         self.customColumns.append(cc)
 
+        cc = advBrowser.newCustomColumn(
+            type="cardEase",
+            name="Ease",
+            onData=lambda card, n, t: if card.type == CARD_NEW else  f"{card.factor/10}%",
+            onSort=lambda:f"c.type == {CARD_NEW}, c.factor"
+           )
+        self.customColumns.append(cc)
+
     def myLoadCollection(self, _self):
         """Wrap collection load so we can add our custom DB function.
         We do this here instead of on startup because the collection
