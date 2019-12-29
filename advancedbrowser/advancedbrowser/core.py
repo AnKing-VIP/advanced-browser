@@ -92,7 +92,7 @@ class AdvancedDataModel(DataModel):
     def columnData(self, index):
         # Try to handle built-in Anki column
         returned = self._columnData(self, index)
-        if returned:
+        if returned is not None:
             return returned
 
         # If Anki can't handle it, it must be one of ours.
@@ -423,6 +423,8 @@ class AdvancedBrowser(Browser):
 
     def _onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
+        if type in ("question", "answer:"):
+            return super()._onSortChanged(idx, ord)
         if self.col.conf['sortType'] != type:
             self.col.conf['sortType'] = type
             # default to descending for non-text fields

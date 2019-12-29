@@ -2,13 +2,16 @@
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
 
-# Basic fields which are not sortable in anki
+# Built-in columns which are not sortable by default are made sortable here.
+#
+# Question/Answer columns are too slow so they are not handled.
+# Note: the onData function of the columns is None as the data will still
+# be fetched from the original source and that function is never reached.
 
 from aqt import mw
 from aqt.main import AnkiQt
 from anki.consts import *
 from anki.hooks import addHook, wrap
-from anki.utils import htmlToTextLine
 
 class BasicFields:
 
@@ -24,55 +27,41 @@ class BasicFields:
         cc = advBrowser.newCustomColumn(
             type="template",
             name="Card",
-            onData=lambda card, n, t: card.templateName() + (f" {card.ord+1}" if card.model()['type'] == MODEL_CLOZE else ""),
-            onSort=lambda:"nameByMidOrd(n.mid, c.ord)",
+            onData=None,
+            onSort=lambda: "nameByMidOrd(n.mid, c.ord)",
         )
         self.customColumns.append(cc)
+
         cc = advBrowser.newCustomColumn(
             type="noteTags",
             name="Tags",
-            onData=lambda card, n, t: " ".join(card.note().tags),
-            onSort=lambda:"n.tags",
+            onData=None,
+            onSort=lambda: "n.tags",
         )
         self.customColumns.append(cc)
+
         cc = advBrowser.newCustomColumn(
             type="note",
             name="Note",
-            onData=lambda card, n, t: card.model()['name'],
-            onSort=lambda:"nameByMid(n.mid)",
+            onData=None,
+            onSort=lambda: "nameByMid(n.mid)",
         )
         self.customColumns.append(cc)
 
         cc = advBrowser.newCustomColumn(
             type="deck",
             name="Deck",
-            onData=lambda card, n, t: f"{mw.col.decks.name(card.did)} ({mw.col.decks.name(card.odid)})" if card.odid else mw.col.decks.name(card.did),
-            onSort=lambda:"nameForDeck(c.did)",
-           )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
-            type="question",
-            name="Question",
-            onData=lambda card, n, t: htmlToTextLine(card.q(browser=True)),
-            onSort=lambda:"questionContentByCid(c.id)"
-           )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
-            type="answer",
-            name="Answer",
-            onData=lambda card, n, t: htmlToTextLine(card.a()),
-            onSort=lambda:"answerContentByCid(c.id)"
+            onData=None,
+            onSort=lambda: "nameForDeck(c.did)",
            )
         self.customColumns.append(cc)
 
         cc = advBrowser.newCustomColumn(
             type="cardEase",
             name="Ease",
-            onData=lambda card, n, t: if card.type == CARD_NEW else  f"{card.factor/10}%",
-            onSort=lambda:f"c.type == {CARD_NEW}, c.factor"
-           )
+            onData=None,
+            onSort=lambda: "factorByType(c.factor, c.type)"
+        )
         self.customColumns.append(cc)
 
     def myLoadCollection(self, _self):
@@ -82,11 +71,10 @@ class BasicFields:
         sync), which clears the DB function we added."""
 
         # Create a new SQL function that we can use in our queries.
-        mw.col.db._db.create_function("answerContentByCid", 1, lambda cid: htmlToTextLine(mw.col.getCard(cid).a()))
-        mw.col.db._db.create_function("questionContentByCid", 1, lambda cid: htmlToTextLine(mw.col.getCard(cid).q(browser=True)))
         mw.col.db._db.create_function("nameForDeck", 1, self.nameForDeck)
         mw.col.db._db.create_function("nameByMid", 1, self.nameByMid)
         mw.col.db._db.create_function("nameByMidOrd", 2, self.nameByMidOrd)
+        mw.col.db._db.create_function("factorByType", 2, self.factorByType)
 
     @staticmethod
     def nameForDeck(did):
@@ -109,6 +97,12 @@ class BasicFields:
         else:
             template = templates[ord]
             return template['name']
+
+    @staticmethod
+    def factorByType(factor, type):
+        if type == 0:
+            return -1
+        return factor
 
     def onBuildContextMenu(self, contextMenu):
         for cc in self.customColumns:
