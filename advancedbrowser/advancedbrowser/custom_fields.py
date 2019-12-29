@@ -27,16 +27,16 @@ class CustomFields:
         # Dummy CardStats object so we can use the time() function without
         # creating the object every time.
         cs = CardStats(None, None)
-        
+
         # -- Columns -- #
-        
+
         # First review
         def cFirstOnData(c, n, t):
             first = mw.col.db.scalar(
                 "select min(id) from revlog where cid = ?", c.id)
             if first:
                 return time.strftime("%Y-%m-%d", time.localtime(first / 1000))
-       
+
         cc = advBrowser.newCustomColumn(
             type='cfirst',
             name='First Review',
@@ -52,7 +52,7 @@ class CustomFields:
                 "select max(id) from revlog where cid = ?", c.id)
             if last:
                 return time.strftime("%Y-%m-%d", time.localtime(last / 1000))
-       
+
         cc = advBrowser.newCustomColumn(
             type='clast',
             name='Last Review',
@@ -67,7 +67,7 @@ class CustomFields:
             avgtime = mw.col.db.scalar(
                 "select avg(time)/1000.0 from revlog where cid = ?", c.id)
             return self.timeFmt(avgtime)
-        
+
         cc = advBrowser.newCustomColumn(
             type='cavgtime',
             name='Time (Average)',
@@ -82,7 +82,7 @@ class CustomFields:
             tottime = mw.col.db.scalar(
                 "select sum(time)/1000.0 from revlog where cid = ?", c.id)
             return self.timeFmt(tottime)
-    
+
         cc = advBrowser.newCustomColumn(
             type='ctottime',
             name='Time (Total)',
@@ -127,24 +127,12 @@ class CustomFields:
         )
         self.customColumns.append(cc)
 
-        # Tags
-        cc = advBrowser.newCustomColumn(
-            type='ntags',
-            name='Tags',
-            onData=lambda c,n,t: " ".join(n.tags),
-            onSort=lambda: "(select tags from notes where id = c.nid)"
-        )
-        self.customColumns.append(cc)
-        # Remove the built-in tags column.
-        advBrowser.removeColumn("noteTags")
-        
-        
         # Overdue interval
         def cOverdueIvl(c, n, t):
             val = self.valueForOverdue(c.odid, c.queue, c.type, c.due)
             if val:
                 return str(val) + " day" + ('s' if val > 1 else '')
-                
+
         srt = ("(select valueForOverdue(odid, queue, type, due) "
                "from cards where id = c.id)")
 
@@ -170,10 +158,10 @@ class CustomFields:
                 return fmtTimeSpan(ivl*86400)
             else:
                 return cs.time(-ivl)
-        
+
         srt = ("(select ivl from revlog where cid = c.id "
                "order by id desc limit 1 offset 1)")
-        
+
         cc = advBrowser.newCustomColumn(
             type='cprevivl',
             name="Previous Interval",
@@ -226,7 +214,7 @@ class CustomFields:
             onSort = lambda: "n.id"
         )
         self.customColumns.append(cc)
-        
+
     def onBuildContextMenu(self, contextMenu):
         """Build our part of the browser columns context menu."""
 
@@ -256,13 +244,13 @@ class CustomFields:
         if tm % 60 != 0 or not str:
             str += fmtTimeSpan(tm % 60, point=2 if not str else -1, short=True)
         return str
-    
+
     def myLoadCollection(self, _self):
         """Wrap collection load so we can add our custom DB function.
         We do this here instead of on startup because the collection
         might get closed/reopened while Anki is still open (e.g., after
         sync), which clears the DB function we added."""
-        
+
         # Create a new SQL function that we can use in our queries.
         mw.col.db._db.create_function("valueForOverdue", 4, self.valueForOverdue)
 
