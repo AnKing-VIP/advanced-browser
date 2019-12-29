@@ -1,4 +1,5 @@
 {
   "Use a single list for fields":false,
-  "Show internal fields": false
+  "Show internal fields": false,
+  "Keyboard shortcut for note browser mode": "Ctrl+Alt+N"
 }

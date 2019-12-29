@@ -11,6 +11,7 @@ from anki.hooks import runHook, addHook
 from anki.cards import Card
 from .contextmenu import ContextMenu
 from .column import Column, CustomColumn
+from . import config
 
 CONF_KEY = 'advbrowse_activeCols'
 
@@ -277,7 +278,7 @@ class AdvancedBrowser(Browser):
 
 
         tn = QAction(('- Only show notes -'), self)
-        tn.setShortcut(QKeySequence("Ctrl+Alt+N"))
+        tn.setShortcut(QKeySequence(config.getNoteModeShortcut()))
         self.addAction(tn)
         tn.triggered.connect(self.toggleUniqueNote)
 
@@ -384,7 +385,7 @@ class AdvancedBrowser(Browser):
         # This shortcut has no effect since it's attached to the context menu
         # which needs to be open, but the visual indicator is still useful.
         # The real shortcut is in init.
-        a.setShortcut(QKeySequence("Ctrl+Alt+N"))
+        a.setShortcut(QKeySequence(config.getNoteModeShortcut()))
         a.setChecked(mw.col.conf.get("advbrowse_uniqueNote", False))
         a.toggled.connect(self.toggleUniqueNote)
 

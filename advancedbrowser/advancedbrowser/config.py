@@ -18,6 +18,9 @@ def getEachFieldInSingleList():
 def getUseInternalFields():
     return getUserOption().get("Show internal fields", False)
 
+def getNoteModeShortcut():
+    return getUserOption().get("Keyboard shortcut for note browser mode", "Ctrl+Alt+N")
+
 def update(_):
     global userOption
     userOption = None
