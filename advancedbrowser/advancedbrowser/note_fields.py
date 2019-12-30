@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
+import re
 
 from aqt import *
 from aqt.main import AnkiQt
@@ -79,7 +80,7 @@ class NoteFields:
         def fldOnData(c, n, t):
             field = self.fieldTypes[t]
             if field in c.note().keys():
-                return anki.utils.htmlToTextLine(c.note()[field])
+                return NoteFields.htmlToTextLine(c.note()[field])
 
         for type, name in self.fieldTypes.items():
             if name not in self.customColumns:
@@ -94,6 +95,18 @@ class NoteFields:
                 )
                 self.customColumns[name] = cc
         self.advBrowser.setupColumns()
+
+    # based on the one in utils.py, but keep media file names
+    def htmlToTextLine(s):
+        s = s.replace("<br>", " ")
+        s = s.replace("<br />", " ")
+        s = s.replace("<div>", " ")
+        s = s.replace("\n", " ")
+        s = re.sub(r"\[sound:([^]]+)\]", "\\1", s) # this line is different
+        s = re.sub(r"\[\[type:[^]]+\]\]", "", s)
+        s = anki.utils.stripHTMLMedia(s)
+        s = s.strip()
+        return s
 
     def valueForField(self, mid, flds, fldName):
         """Function called from SQLite to get the value of a field,
@@ -112,7 +125,7 @@ class NoteFields:
             index = self.modelFieldPos.get(mid).get(fldName, None)
             if index is not None:
                 fieldsList = flds.split("\x1f", index+1)
-                return anki.utils.stripHTMLMedia(fieldsList[index])
+                return NoteFields.htmlToTextLine(fieldsList[index])
         except Exception as ex:
             pass
             # print("Failed to get value for field.")
