@@ -119,17 +119,20 @@ class AdvancedDataModel(DataModel):
         self.col.findCards = self.myFindCards
         super(AdvancedDataModel, self).search(txt)
         if self.browser.mw.col.conf.get("advbrowse_uniqueNote", False):
-            nids = set()
-            filtered_card = []
-            for cid in self.cards:
-                card = self.browser.mw.col.getCard(cid)
-                nid = card.nid
-                if nid not in nids:
-                    filtered_card.append(cid)
-                    nids.add(nid)
-            self.cards = filtered_card
+            self.one_card_by_note()
         self.col.findCards = orig
         self.endReset()
+
+    def one_card_by_note(self):
+        nids = set()
+        filtered_card = []
+        for cid in self.cards:
+            card = self.browser.mw.col.getCard(cid)
+            nid = card.nid
+            if nid not in nids:
+                filtered_card.append(cid)
+                nids.add(nid)
+        self.cards = filtered_card
 
     def myFindCards(self, query, order):
         """This function takes over the call chain of
