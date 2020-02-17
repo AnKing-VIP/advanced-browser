@@ -4,11 +4,11 @@
 
 import time
 
+from anki.hooks import addHook, wrap
+from anki.stats import CardStats
+from anki.utils import fmtTimeSpan
 from aqt import *
 from aqt.main import AnkiQt
-from anki.hooks import addHook, wrap
-from anki.utils import fmtTimeSpan
-from anki.stats import CardStats
 
 
 class CustomFields:

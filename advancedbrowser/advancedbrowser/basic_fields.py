@@ -8,10 +8,10 @@
 # Note: the onData function of the columns is None as the data will still
 # be fetched from the original source and that function is never reached.
 
-from aqt import mw
-from aqt.main import AnkiQt
 from anki.consts import *
 from anki.hooks import addHook, wrap
+from aqt import mw
+from aqt.main import AnkiQt
 
 
 class BasicFields:

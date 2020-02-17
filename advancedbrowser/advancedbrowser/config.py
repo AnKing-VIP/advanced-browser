@@ -1,8 +1,8 @@
 import aqt
-from aqt import mw
-from .internal_fields import iff
 from anki.hooks import addHook, remHook
+from aqt import mw
 
+from .internal_fields import iff
 
 singleList = False
 userOption = None

@@ -5,13 +5,14 @@
 import time
 from operator import itemgetter
 
-from aqt import *
-from aqt.browser import DataModel, Browser, StatusDelegate
-from anki.hooks import runHook, addHook
 from anki.cards import Card
-from .contextmenu import ContextMenu
-from .column import Column, CustomColumn
+from anki.hooks import addHook, runHook
+from aqt import *
+from aqt.browser import Browser, DataModel, StatusDelegate
+
 from . import config
+from .column import Column, CustomColumn
+from .contextmenu import ContextMenu
 
 CONF_KEY = 'advbrowse_activeCols'
 

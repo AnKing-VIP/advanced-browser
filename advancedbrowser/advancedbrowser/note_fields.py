@@ -3,9 +3,10 @@
 # https://github.com/hssm/advanced-browser
 import re
 
+from anki.hooks import addHook, wrap
 from aqt import *
 from aqt.main import AnkiQt
-from anki.hooks import addHook, wrap
+
 from .config import getEachFieldInSingleList
 
 
