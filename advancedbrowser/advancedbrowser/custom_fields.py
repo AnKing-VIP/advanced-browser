@@ -10,6 +10,7 @@ from anki.hooks import addHook, wrap
 from anki.utils import fmtTimeSpan
 from anki.stats import CardStats
 
+
 class CustomFields:
 
     def onAdvBrowserLoad(self, advBrowser):
@@ -45,8 +46,8 @@ class CustomFields:
         )
         self.customColumns.append(cc)
 
-
         # Last review
+
         def cLastOnData(c, n, t):
             last = mw.col.db.scalar(
                 "select max(id) from revlog where cid = ?", c.id)
@@ -61,8 +62,8 @@ class CustomFields:
         )
         self.customColumns.append(cc)
 
-
         # Average time
+
         def cAvgtimeOnData(c, n, t):
             avgtime = mw.col.db.scalar(
                 "select avg(time)/1000.0 from revlog where cid = ?", c.id)
@@ -76,8 +77,8 @@ class CustomFields:
         )
         self.customColumns.append(cc)
 
-
         # Total time
+
         def cTottimeOnData(c, n, t):
             tottime = mw.col.db.scalar(
                 "select sum(time)/1000.0 from revlog where cid = ?", c.id)
@@ -144,8 +145,8 @@ class CustomFields:
         )
         self.customColumns.append(cc)
 
-
         # Previous interval
+
         def cPrevIvl(c, n, t):
             ivl = mw.col.db.scalar(
                 "select ivl from revlog where cid = ? "
@@ -178,10 +179,10 @@ class CustomFields:
             return "0%"
 
         cc = advBrowser.newCustomColumn(
-            type = 'cpct',
-            name = 'Percent Correct',
-            onData = cPctCorrect,
-            onSort = lambda: "cast(c.lapses as real)/c.reps"
+            type='cpct',
+            name='Percent Correct',
+            onData=cPctCorrect,
+            onSort=lambda: "cast(c.lapses as real)/c.reps"
         )
         self.customColumns.append(cc)
 
@@ -208,10 +209,10 @@ class CustomFields:
             return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(c.note().id/1000))
 
         cc = advBrowser.newCustomColumn(
-            type = 'cdatetimecrt',
-            name = 'Created',
-            onData = cDateTimeCrt,
-            onSort = lambda: "n.id"
+            type='cdatetimecrt',
+            name='Created',
+            onData=cDateTimeCrt,
+            onSort=lambda: "n.id"
         )
         self.customColumns.append(cc)
 
@@ -227,7 +228,7 @@ class CustomFields:
             return
         elif queue == 0 or type == 0:
             return
-        elif queue in (2,3) or (type == 2 and queue < 0):
+        elif queue in (2, 3) or (type == 2 and queue < 0):
             diff = due - mw.col.sched.today
             if diff < 0:
                 return diff * -1
@@ -252,7 +253,8 @@ class CustomFields:
         sync), which clears the DB function we added."""
 
         # Create a new SQL function that we can use in our queries.
-        mw.col.db._db.create_function("valueForOverdue", 4, self.valueForOverdue)
+        mw.col.db._db.create_function(
+            "valueForOverdue", 4, self.valueForOverdue)
 
 
 cf = CustomFields()

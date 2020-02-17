@@ -3,7 +3,7 @@
 # https://github.com/hssm/advanced-browser
 
 import time
-from operator import  itemgetter
+from operator import itemgetter
 
 from aqt import *
 from aqt.browser import DataModel, Browser, StatusDelegate
@@ -14,6 +14,7 @@ from .column import Column, CustomColumn
 from . import config
 
 CONF_KEY = 'advbrowse_activeCols'
+
 
 class AdvancedDataModel(DataModel):
 
@@ -43,7 +44,8 @@ class AdvancedDataModel(DataModel):
             # removed or renamed.
             #
             # The list of valid columns are the built-in ones + our custom ones.
-            valids = set([c[0] for c in browser.columns] + list(browser.customTypes.keys()))
+            valids = set([c[0] for c in browser.columns] +
+                         list(browser.customTypes.keys()))
 
             self.activeCols = [col for col in configuredCols if col in valids]
 
@@ -128,7 +130,6 @@ class AdvancedDataModel(DataModel):
         self.col.findCards = orig
         self.endReset()
 
-
     def myFindCards(self, query, order):
         """This function takes over the call chain of
         Collection.findCards -> Finder.findCards but only handles custom
@@ -189,12 +190,12 @@ class AdvancedDataModel(DataModel):
                 else:
                     tmpSql = ("create temp table tmp as select *, %s as srt "
                               "from cards c, notes n where c.nid=n.id and %s"
-                               % (order, preds))
+                              % (order, preds))
 
                 #print("Temp sort table sql: " + tmpSql)
                 self.col.db.execute(tmpSql, *args)
                 drop = True
-                args = {} # We've consumed them, so empty this.
+                args = {}  # We've consumed them, so empty this.
             except Exception as ex:
                 #print("Failed to create temp sort table: ", ex)
                 return []
@@ -236,6 +237,7 @@ collate nocase """ %
         #print("Search took: %dms" % ((time.time() - t)*1000))
         return res
 
+
 class AdvancedStatusDelegate(StatusDelegate):
     def paint(self, painter, option, index):
         fld = self.browser.model.getFld(index)
@@ -276,12 +278,10 @@ class AdvancedBrowser(Browser):
         origInit(self, mw)
         Browser.__init__ = origInit
 
-
         tn = QAction(('- Only show notes -'), self)
         tn.setShortcut(QKeySequence(config.getNoteModeShortcut()))
         self.addAction(tn)
         tn.triggered.connect(self.toggleUniqueNote)
-
 
         # Remove excluded columns after the browser is built. Doing it here
         # is mostly a compromise in complexity. The alternative is to
@@ -293,7 +293,7 @@ class AdvancedBrowser(Browser):
         self.saveEvent = False
 
     def newCustomColumn(self, type, name, onData, onSort=None,
-                 cacheSortValue=False):
+                        cacheSortValue=False):
         """Add a CustomColumn to the browser. See CustomColumn for a
         detailed description of the parameters."""
         cc = CustomColumn(type, name, onData, onSort, cacheSortValue)
@@ -325,8 +325,10 @@ class AdvancedBrowser(Browser):
     def setupTable(self):
         """Some customizations to the table view"""
         super(AdvancedBrowser, self).setupTable()
-        self.form.tableView.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.form.tableView.setItemDelegate(AdvancedStatusDelegate(self, self.model))
+        self.form.tableView.setHorizontalScrollMode(
+            QAbstractItemView.ScrollPerPixel)
+        self.form.tableView.setItemDelegate(
+            AdvancedStatusDelegate(self, self.model))
 
     def setupColumns(self):
         """Build a list of candidate columns. We extend the internal
@@ -352,7 +354,6 @@ class AdvancedBrowser(Browser):
             if type not in self.customTypes:
                 contextMenu.addItem(Column(type, name))
 
-
         # Now let clients do theirs.
         runHook("advBrowserBuildContext", contextMenu)
 
@@ -366,6 +367,7 @@ class AdvancedBrowser(Browser):
         # reference to them until exec, so keep them in this list.
         tmp = []
         # Recursively add each item/group.
+
         def addToSubgroup(menu, items):
             for item in items:
                 # TODO: this isn't great :(
@@ -418,7 +420,8 @@ class AdvancedBrowser(Browser):
 
     def toggleUniqueNote(self):
         self.model.beginReset()
-        mw.col.conf["advbrowse_uniqueNote"] =  not  mw.col.conf.get("advbrowse_uniqueNote", False)
+        mw.col.conf["advbrowse_uniqueNote"] = not mw.col.conf.get(
+            "advbrowse_uniqueNote", False)
         self.onSearchActivated()
         self.model.endReset()
 
