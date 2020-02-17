@@ -122,7 +122,7 @@ class AdvancedDataModel(DataModel):
             nids = set()
             filtered_card = []
             for cid in self.cards:
-                card = Card(self.browser.mw.col, cid)
+                card = self.browser.mw.col.getCard(cid)
                 nid = card.nid
                 if nid not in nids:
                     filtered_card.append(cid)
