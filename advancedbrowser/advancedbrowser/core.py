@@ -35,7 +35,7 @@ class AdvancedDataModel(DataModel):
         # Keep a copy of the original active columns to restore on closing.
         self.origActiveCols = list(self.activeCols)
 
-        configuredCols = mw.col.conf.get(CONF_KEY, None)
+        configuredCols = self.browser.mw.col.conf.get(CONF_KEY, None)
         if configuredCols:
             # We've used this add-on before and have a configured list of columns.
             # Adjust activeCols to reflect it.
@@ -51,8 +51,8 @@ class AdvancedDataModel(DataModel):
             self.activeCols = [col for col in configuredCols if col in valids]
 
             # Also make sure the sortType is valid
-            if mw.col.conf['sortType'] not in valids:
-                mw.col.conf['sortType'] = 'noteFld'
+            if self.browser.mw.col.conf['sortType'] not in valids:
+                self.browser.mw.col.conf['sortType'] = 'noteFld'
                 # If there is no sorted column, we add the 'Sort Field' column
                 # and sort on that. This method is one way to guarantee that we
                 # always start with at least one valid column.
@@ -118,11 +118,11 @@ class AdvancedDataModel(DataModel):
         orig = self.col.findCards
         self.col.findCards = self.myFindCards
         super(AdvancedDataModel, self).search(txt)
-        if mw.col.conf.get("advbrowse_uniqueNote", False):
+        if self.browser.mw.col.conf.get("advbrowse_uniqueNote", False):
             nids = set()
             filtered_card = []
             for cid in self.cards:
-                card = Card(mw.col, cid)
+                card = Card(self.browser.mw.col, cid)
                 nid = card.nid
                 if nid not in nids:
                     filtered_card.append(cid)
@@ -389,7 +389,7 @@ class AdvancedBrowser(Browser):
         # which needs to be open, but the visual indicator is still useful.
         # The real shortcut is in init.
         a.setShortcut(QKeySequence(config.getNoteModeShortcut()))
-        a.setChecked(mw.col.conf.get("advbrowse_uniqueNote", False))
+        a.setChecked(self.mw.col.conf.get("advbrowse_uniqueNote", False))
         a.toggled.connect(self.toggleUniqueNote)
 
         main.exec_(gpos)
@@ -408,7 +408,7 @@ class AdvancedBrowser(Browser):
 
         if not self.saveEvent:
             # Save ours
-            mw.col.conf[CONF_KEY] = self.model.activeCols
+            self.mw.col.conf[CONF_KEY] = self.model.activeCols
             # Restore old
             self.model.activeCols = self.model.origActiveCols
             # Restore built-in columns we removed
@@ -421,7 +421,7 @@ class AdvancedBrowser(Browser):
 
     def toggleUniqueNote(self):
         self.model.beginReset()
-        mw.col.conf["advbrowse_uniqueNote"] = not mw.col.conf.get(
+        self.mw.col.conf["advbrowse_uniqueNote"] = not self.mw.col.conf.get(
             "advbrowse_uniqueNote", False)
         self.onSearchActivated()
         self.model.endReset()
