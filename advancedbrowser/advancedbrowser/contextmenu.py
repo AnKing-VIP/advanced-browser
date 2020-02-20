@@ -20,5 +20,5 @@ class ContextMenu:
 
     def items(self):
         """Return a list of all items sorted by name."""
-        self._items = list(sorted(set(self._items),key=lambda x: x.name))
+        self._items = list(sorted(set(self._items), key=lambda x: x.name))
         return self._items

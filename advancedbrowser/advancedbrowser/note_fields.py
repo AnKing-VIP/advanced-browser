@@ -3,13 +3,15 @@
 # https://github.com/hssm/advanced-browser
 import re
 
+from anki.hooks import addHook, wrap
 from aqt import *
 from aqt.main import AnkiQt
-from anki.hooks import addHook, wrap
+
 from .config import getEachFieldInSingleList
 
+
 class NoteFields:
-    
+
     def onAdvBrowserLoad(self, advBrowser):
         # Dictionary of field names indexed by "type" name. Used to
         # figure out if the requested column is a note field.
@@ -31,13 +33,11 @@ class NoteFields:
         self.advBrowser = advBrowser
         self.buildMappings()
 
-
-
     def onBuildContextMenu(self, contextMenu):
         # Models might have changed so rebuild our mappings.
         # E.g., a field or note type could have been deleted.
         self.buildMappings()
-        
+
         # Create a new sub-menu for our columns
         fldGroup = contextMenu.newSubMenu(" - Fields -")
         if getEachFieldInSingleList():
@@ -51,7 +51,6 @@ class NoteFields:
                 modelGroup = fldGroup.newSubMenu(model['name'])
                 for fld in model['flds']:
                     modelGroup.addItem(self.customColumns[fld['name']])
-
 
     def buildMappings(self):
         for model in mw.col.models.all():
@@ -102,7 +101,7 @@ class NoteFields:
         s = s.replace("<br />", " ")
         s = s.replace("<div>", " ")
         s = s.replace("\n", " ")
-        s = re.sub(r"\[sound:([^]]+)\]", "\\1", s) # this line is different
+        s = re.sub(r"\[sound:([^]]+)\]", "\\1", s)  # this line is different
         s = re.sub(r"\[\[type:[^]]+\]\]", "", s)
         s = anki.utils.stripHTMLMedia(s)
         s = s.strip()
@@ -111,16 +110,16 @@ class NoteFields:
     def valueForField(self, mid, flds, fldName):
         """Function called from SQLite to get the value of a field,
         given a field name and the model id for the note.
-        
+
         mid is the model id. The model contains the definition of a note,
         including the names of all fields.
-        
+
         flds contains the text of all fields, delimited by the character
         "x1f". We split this and index into it according to a precomputed
         index for the model (mid) and field name (fldName).
-        
+
         fldName is the name of the field we are after."""
-    
+
         try:
             index = self.modelFieldPos.get(mid).get(fldName, None)
             if index is not None:
@@ -139,6 +138,7 @@ class NoteFields:
         # Create a new SQL function that we can use in our queries.
         mw.col.db._db.create_function("valueForField", 3, self.valueForField)
         return True
+
 
 nf = NoteFields()
 addHook("advBrowserLoaded", nf.onAdvBrowserLoad)

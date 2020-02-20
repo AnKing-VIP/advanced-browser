@@ -3,7 +3,6 @@
 # https://github.com/hssm/advanced-browser
 
 
-
 class InternalFields:
 
     def __init__(self):

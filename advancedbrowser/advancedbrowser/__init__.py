@@ -1,7 +1,3 @@
-from .core import AdvancedBrowser
-
 # Advanced Browser modules
-from . import custom_fields
-from . import basic_fields
-from . import note_fields
-from . import config
+from . import basic_fields, config, custom_fields, note_fields
+from .core import AdvancedBrowser

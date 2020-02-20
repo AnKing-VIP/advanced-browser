@@ -8,10 +8,11 @@
 # Note: the onData function of the columns is None as the data will still
 # be fetched from the original source and that function is never reached.
 
-from aqt import mw
-from aqt.main import AnkiQt
 from anki.consts import *
 from anki.hooks import addHook, wrap
+from aqt import mw
+from aqt.main import AnkiQt
+
 
 class BasicFields:
 
@@ -53,7 +54,7 @@ class BasicFields:
             name="Deck",
             onData=None,
             onSort=lambda: "nameForDeck(c.did)",
-           )
+        )
         self.customColumns.append(cc)
 
         cc = advBrowser.newCustomColumn(
@@ -93,7 +94,7 @@ class BasicFields:
         templates = model['tmpls']
         if model['type'] == MODEL_CLOZE:
             template = templates[0]
-            return templates[0]['name']+ f" {ord+1}"
+            return templates[0]['name'] + f" {ord+1}"
         else:
             template = templates[ord]
             return template['name']
@@ -107,6 +108,7 @@ class BasicFields:
     def onBuildContextMenu(self, contextMenu):
         for cc in self.customColumns:
             contextMenu.addItem(cc)
+
 
 bf = BasicFields()
 addHook("advBrowserLoaded", bf.onAdvBrowserLoad)
