@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Advanced browser",
+  "properties": {
+    "Use a single list for fields": {
+      "type": "boolean",
+      "default": false
+    },
+    "Show internal fields": {
+      "type": "boolean",
+      "default": false
+    },
+    "Keyboard shortcut for note browser mode": {
+      "type": "string",
+      "pattern": "^((([Cc][Tt][Rr][Ll]|[Aa][Ll][Tt]|[Ss][Hh][Ii][Ff][Tt])\\+){0,3}[a-zA-Z0-9])?$",
+      "default": "Ctrl+Alt+N"
+    }
+  }
+}
