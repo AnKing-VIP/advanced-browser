@@ -9,6 +9,7 @@ from anki.cards import Card
 from anki.hooks import addHook, runHook
 from aqt import *
 from aqt.browser import Browser, DataModel, StatusDelegate
+from PyQt5 import QtWidgets
 
 from . import config
 from .column import Column, CustomColumn
@@ -251,6 +252,14 @@ collate nocase """ %
         #print("Search took: %dms" % ((time.time() - t)*1000))
         return res
 
+    def flags(self, index):
+        s = super().flags(index)
+        if config.getSelectable():
+            s = s | Qt.ItemIsEditable
+        return s
+
+    def setData(self, index, value, role):
+        return False
 
 class AdvancedStatusDelegate(StatusDelegate):
     def paint(self, painter, option, index):
@@ -305,6 +314,8 @@ class AdvancedBrowser(Browser):
 
         # Workaround for double-saving (see closeEvent)
         self.saveEvent = False
+        if config.getSelectable():
+            self.form.tableView.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked)
 
     def newCustomColumn(self, type, name, onData, onSort=None,
                         cacheSortValue=False):
