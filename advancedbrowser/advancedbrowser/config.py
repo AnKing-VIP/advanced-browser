@@ -26,6 +26,9 @@ def getUseInternalFields():
 def getNoteModeShortcut():
     return getUserOption().get("Keyboard shortcut for note browser mode", "Ctrl+Alt+N")
 
+def getSelectable():
+    return getUserOption().get("Table content is selectable", False)
+
 
 def update(_):
     global userOption
