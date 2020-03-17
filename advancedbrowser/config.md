@@ -6,4 +6,7 @@ The configuration options are:
 
 * "Show internal fields": Enable even more columns that map to database fields related to the cards and notes (dev option)
 
-* "Table content is selectable": Allows to select a table content by double clicking on it. Then you can copy it. Note that editing it is useless.
+* "Table content": Either:
+  * "No interaction": the table content can't be interacted with
+  * "Selectable": it can be selected. All edition will be ignored
+  * "Editable": Allow to edit some values directly in the table. Not all.

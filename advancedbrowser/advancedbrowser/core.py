@@ -5,11 +5,12 @@
 import time
 from operator import itemgetter
 
+from PyQt5 import QtWidgets
+
 from anki.cards import Card
 from anki.hooks import addHook, runHook
 from aqt import *
 from aqt.browser import Browser, DataModel, StatusDelegate
-from PyQt5 import QtWidgets
 
 from . import config
 from .column import Column, CustomColumn
@@ -259,7 +260,23 @@ collate nocase """ %
         return s
 
     def setData(self, index, value, role):
-        return False
+        if role not in (Qt.DisplayRole, Qt.EditRole):
+            return False
+        old_value = self.columnData(index)
+        if value == old_value:
+            return False
+        col = index.column()
+        c = self.getCard(index)
+
+        type = self.columnType(col)
+        if type in self.browser.customTypes:
+            r = self.browser.customTypes[type].setData(c, value)
+            if r is True:
+                self.dataChanged.emit(index, index, [role])
+            return r
+        else:
+            return False
+
 
 class AdvancedStatusDelegate(StatusDelegate):
     def paint(self, painter, option, index):
@@ -315,13 +332,15 @@ class AdvancedBrowser(Browser):
         # Workaround for double-saving (see closeEvent)
         self.saveEvent = False
         if config.getSelectable():
-            self.form.tableView.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked)
+            self.form.tableView.setEditTriggers(
+                QtWidgets.QAbstractItemView.DoubleClicked)
 
     def newCustomColumn(self, type, name, onData, onSort=None,
-                        cacheSortValue=False):
+                        setData=None, cacheSortValue=False):
         """Add a CustomColumn to the browser. See CustomColumn for a
         detailed description of the parameters."""
-        cc = CustomColumn(type, name, onData, onSort, cacheSortValue)
+        cc = CustomColumn(type, name, onData, onSort,
+                          cacheSortValue, setData=setData)
         self.customTypes[cc.type] = cc
         return cc
 

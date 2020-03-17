@@ -8,11 +8,13 @@
 # Note: the onData function of the columns is None as the data will still
 # be fetched from the original source and that function is never reached.
 
+from anki.cards import Card
 from anki.consts import *
 from anki.hooks import addHook, wrap
 from anki.lang import _
 from aqt import mw
 from aqt.main import AnkiQt
+from aqt.utils import askUser
 
 
 class BasicFields:
@@ -26,19 +28,54 @@ class BasicFields:
         # use this to build our part of the context menu.
         self.customColumns = []
 
+        def setData(c: Card, value: str):
+            n = c.note()
+            m = n.model()
+            if m["type"] == MODEL_CLOZE:
+                tmpl = m["tmpls"][0]
+                tmpl_name = tmpl["name"]
+                if not value.startswith(tmpl_name):
+                    return False
+                value = value[len(tmpl_name):]
+                try:
+                    c.ord = int(value)-1
+                except ValueError:
+                    return False
+            else:
+                value = value.strip().lower()
+                right_tmpl = None
+                for tmpl in m["tmpls"]:
+                    if tmpl["name"].strip().lower() == value:
+                        right_tmpl = tmpl
+                        break
+                if right_tmpl is None:
+                    return False
+                c.ord = right_tmpl["ord"]
+            c.flush()
+            return True
+
         cc = advBrowser.newCustomColumn(
             type="template",
             name="Card",
             onData=None,
             onSort=lambda: "nameByMidOrd(n.mid, c.ord)",
+            setData=setData,
         )
         self.customColumns.append(cc)
+
+        def setData(c: Card, value: str):
+            n = c.note()
+            n.setTagsFromStr(value)
+            n.flush()
+            advBrowser.editor.loadNote()
+            return True
 
         cc = advBrowser.newCustomColumn(
             type="noteTags",
             name="Tags",
             onData=None,
             onSort=lambda: "n.tags",
+            setData=setData,
         )
         self.customColumns.append(cc)
 
@@ -58,13 +95,45 @@ class BasicFields:
         )
         self.customColumns.append(cc)
 
+        def setData(c: Card, value: str):
+            value = value.strip()
+            if value.endswith("%"):
+                value = value[:-1]
+            try:
+                f = float(value)
+            except ValueError:
+                return False
+            c.factor = f * 10
+            c.flush()
+            return True
+
         cc = advBrowser.newCustomColumn(
             type="cardEase",
             name="Ease",
             onData=None,
-            onSort=lambda: "factorByType(c.factor, c.type)"
+            onSort=lambda: "factorByType(c.factor, c.type)",
+            setData=setData,
         )
         self.customColumns.append(cc)
+
+        def setData(c: Card, value: str):
+            if not c.odid:
+                # only accept to change odid if there is already one
+                return False
+            new_deck = c.col.decks.byName(value)
+            if new_deck is None:
+                if not askUser(
+                        _("%s does not exists, do you want to create this deck ?") % value,
+                        parent=advBrowser,
+                        defaultno=True):
+                    return False
+                new_id = c.col.decks.id(value)
+                new_deck = c.col.decks.get(new_id)
+            if new_deck["dyn"] == DECK_DYN:
+                return False
+            c.odid = new_deck["id"]
+            c.flush()
+            return True
 
         cc = advBrowser.newCustomColumn(
             type="odeck",

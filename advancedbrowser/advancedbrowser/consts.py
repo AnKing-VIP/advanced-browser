@@ -1,0 +1,21 @@
+"""Some values that are in anki/consts (in master) but not yet in 2.1.21"""
+
+# Kind of decks
+DECK_STD = 0
+DECK_DYN = 1
+
+# Queue types
+QUEUE_TYPE_MANUALLY_BURIED = -3
+QUEUE_TYPE_SIBLING_BURIED = -2
+QUEUE_TYPE_SUSPENDED = -1
+QUEUE_TYPE_NEW = 0
+QUEUE_TYPE_LRN = 1
+QUEUE_TYPE_REV = 2
+QUEUE_TYPE_DAY_LEARN_RELEARN = 3
+QUEUE_TYPE_PREVIEW = 4
+
+# Card types
+CARD_TYPE_NEW = 0
+CARD_TYPE_LRN = 1
+CARD_TYPE_REV = 2
+CARD_TYPE_RELEARNING = 3

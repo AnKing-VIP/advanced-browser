@@ -18,7 +18,7 @@ class CustomColumn(Column):
     """A custom browser column."""
 
     def __init__(self, type, name, onData, onSort=None,
-                 cacheSortValue=False):
+                 cacheSortValue=False, setData=None):
         """type = Internally used key to identify the column.
 
         name = Name of column, visible to the user.
@@ -59,6 +59,12 @@ class CustomColumn(Column):
         self.onData = onData
         self.onSort = onSort if onSort else lambda: None
         self.cacheSortValue = cacheSortValue
+        self._setData = setData
+
+    def setData(self, *args, **kwargs):
+        if self._setData is None:
+            return False
+        return self._setData(*args, **kwargs)
 
     def __hash__(self):
         return hash(self.name)

@@ -31,6 +31,8 @@ You can also add these extra columns:
 ### Copying table content
 By setting "Table content is selectable" to true, you'll be able to select table content by double clicking on it. This way, you can copy it. Note that editing the content has no effect.
 
+### Editing table
+You can edit the content of some elements of the tables. You need to activate this feature in the configuration before being able to use it, because it may be dangerous if you don't really know what you're doing. Please see the document [edition in table](edition in table.md) to see what editing each column does.
 
 ### Note browser mode (show a single card per note type)
 

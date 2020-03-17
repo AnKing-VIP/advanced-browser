@@ -4,11 +4,17 @@
 
 import time
 
+from anki.cards import Card
 from anki.hooks import addHook, wrap
+from anki.lang import _
 from anki.stats import CardStats
 from anki.utils import fmtTimeSpan
 from aqt import *
 from aqt.main import AnkiQt
+from aqt.utils import askUser
+
+from .consts import (CARD_TYPE_LRN, CARD_TYPE_NEW, DECK_DYN, DECK_STD,
+                     QUEUE_TYPE_NEW)
 
 
 class CustomFields:
@@ -42,7 +48,7 @@ class CustomFields:
             type='cfirst',
             name='First Review',
             onData=cFirstOnData,
-            onSort=lambda: "(select min(id) from revlog where cid = c.id)"
+            onSort=lambda: "(select min(id) from revlog where cid = c.id)",
         )
         self.customColumns.append(cc)
 
@@ -216,11 +222,42 @@ class CustomFields:
         )
         self.customColumns.append(cc)
 
+        def setData(c: Card, value: str):
+            old_deck = c.col.decks.get(c.did)
+            new_deck = c.col.decks.byName(value)
+            if new_deck is None:
+                if not askUser(
+                        _("%s does not exists, do you want to create this deck ?") % value,
+                        parent=advBrowser,
+                        defaultno=True):
+                    return False
+                new_id = c.col.decks.id(value)
+                new_deck = c.col.decks.get(new_id)
+            if new_deck["dyn"] == DECK_DYN and old_deck["dyn"] == DECK_STD:
+                # ensuring that if the deck is dynamic, then a
+                # standard odid is set
+                c.col.sched._moveToDyn(new_deck["id"], [c.id])
+            else:
+                c.did = new_deck["id"]
+                if new_deck["dyn"] == DECK_STD and old_deck["dyn"] == DECK_DYN:
+                    # code similar to sched.emptyDyn
+                    if c.type == CARD_TYPE_LRN:
+                        c.queue = QUEUE_TYPE_NEW
+                        c.type = CARD_TYPE_NEW
+                    else:
+                        c.queue = c.type
+                    c.due = c.odue
+                    c.odue = 0
+                    c.odid = 0
+                c.flush()
+            return True
+
         cc = advBrowser.newCustomColumn(
             type="cdeck",
             name="Current Deck",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.did),
             onSort=lambda: "nameForDeck(c.did)",
+            setData=setData,
         )
         self.customColumns.append(cc)
 

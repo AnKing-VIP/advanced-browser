@@ -3,9 +3,11 @@
 # https://github.com/hssm/advanced-browser
 import re
 
+from anki.cards import Card
 from anki.hooks import addHook, wrap
 from aqt import *
 from aqt.main import AnkiQt
+from aqt.utils import showWarning
 
 from .config import getEachFieldInSingleList
 
@@ -81,6 +83,18 @@ class NoteFields:
             if field in c.note().keys():
                 return NoteFields.htmlToTextLine(c.note()[field])
 
+        def setData_(name):
+            def setData(c: Card, value: str):
+                n = c.note()
+                if not name in n:
+                    showWarning(_("""The field "%s" does not belong to the note type "%s".""") % (
+                        name, m["name"]))
+                    return False
+                self.advBrowser.editor.loadNote()
+                n[name] = value
+                return True
+            return setData
+
         for type, name in self.fieldTypes.items():
             if name not in self.customColumns:
                 srt = ("(select valueForField(mid, flds, '%s') "
@@ -90,7 +104,8 @@ class NoteFields:
                     type=type,
                     name=name,
                     onData=fldOnData,
-                    onSort=getOnSort(srt)
+                    onSort=getOnSort(srt),
+                    setData=setData_(name),
                 )
                 self.customColumns[name] = cc
         self.advBrowser.setupColumns()
