@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
-
+from anki.lang import _
 
 class InternalFields:
 
@@ -128,15 +128,29 @@ class InternalFields:
         cc = advBrowser.newCustomColumn(
             type="ctype",
             name="Card Type",
-            onData=lambda c, n, t: c.type,
-            onSort=lambda: "c.type"
+            onSort=lambda: "c.type",
+            onData=lambda c, n, t: {
+                0: _("New"),
+                1: _("Lrn"),
+                2: _("Rev"),
+                3: _("Relearning"),
+            }.get(c.type, c.type),
         )
         self.cardColumns.append(cc)
 
         cc = advBrowser.newCustomColumn(
             type="cqueue",
             name="Card Queue",
-            onData=lambda c, n, t: c.queue,
+            onData=lambda c, n, t: {
+                -3: _("Manually buried"),
+                -2: _("Sibling buried"),
+                -1: _("Type suspended"),
+                0: _("New"),
+                1: _("Lrn"),
+                2: _("Rev"),
+                3: _("Day learn relearn"),
+                4: _("Preview"),
+            }.get(c.queue, c.queue),
             onSort=lambda: "c.queue"
         )
         self.cardColumns.append(cc)
