@@ -10,6 +10,7 @@
 
 from anki.consts import *
 from anki.hooks import addHook, wrap
+from anki.lang import _
 from aqt import mw
 from aqt.main import AnkiQt
 
@@ -65,6 +66,14 @@ class BasicFields:
         )
         self.customColumns.append(cc)
 
+        cc = advBrowser.newCustomColumn(
+            type="odeck",
+            name="Original Deck",
+            onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.odid),
+            onSort=lambda: "nameForOriginalDeck(c.odid)",
+        )
+        self.customColumns.append(cc)
+
     def myLoadCollection(self, _self):
         """Wrap collection load so we can add our custom DB function.
         We do this here instead of on startup because the collection
@@ -76,10 +85,19 @@ class BasicFields:
         mw.col.db._db.create_function("nameByMid", 1, self.nameByMid)
         mw.col.db._db.create_function("nameByMidOrd", 2, self.nameByMidOrd)
         mw.col.db._db.create_function("factorByType", 2, self.factorByType)
+        mw.col.db._db.create_function(
+            "nameForOriginalDeck", 1, self.nameForOriginalDeck)
 
     @staticmethod
     def nameForDeck(did):
         deck = mw.col.decks.get(did)
+        if deck:
+            return deck['name']
+        return _("[no deck]")
+
+    @staticmethod
+    def nameForOriginalDeck(odid):
+        deck = mw.col.decks.get(odid)
         if deck:
             return deck['name']
         return _("[no deck]")
