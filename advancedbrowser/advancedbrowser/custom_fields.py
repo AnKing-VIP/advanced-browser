@@ -216,6 +216,14 @@ class CustomFields:
         )
         self.customColumns.append(cc)
 
+        cc = advBrowser.newCustomColumn(
+            type="cdeck",
+            name="Current Deck",
+            onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.did),
+            onSort=lambda: "nameForDeck(c.did)",
+        )
+        self.customColumns.append(cc)
+
     def onBuildContextMenu(self, contextMenu):
         """Build our part of the browser columns context menu."""
 
