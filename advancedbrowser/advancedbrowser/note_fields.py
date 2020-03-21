@@ -134,13 +134,7 @@ class NoteFields:
             # print("_modelFieldPos: " + str(self.modelFieldPos))
             # print("Error was: ", ex)
 
-    def myLoadCollection(self, _self):
-        # Create a new SQL function that we can use in our queries.
-        mw.col.db._db.create_function("valueForField", 3, self.valueForField)
-        return True
-
 
 nf = NoteFields()
 addHook("advBrowserLoaded", nf.onAdvBrowserLoad)
 addHook("advBrowserBuildContext", nf.onBuildContextMenu)
-AnkiQt.loadCollection = wrap(AnkiQt.loadCollection, nf.myLoadCollection)

@@ -134,7 +134,8 @@ class CustomFields:
             if val:
                 return str(val) + " day" + ('s' if val > 1 else '')
 
-        srt = ("(select valueForOverdue(odid, queue, type, due) "
+        # fixme: this will need to be converted into an sql case statement
+        srt = ("(select due " #valueForOverdue(odid, queue, type, due) "
                "from cards where id = c.id)")
 
         cc = advBrowser.newCustomColumn(
@@ -216,11 +217,12 @@ class CustomFields:
         )
         self.customColumns.append(cc)
 
+        # fixme: sorting
         cc = advBrowser.newCustomColumn(
             type="cdeck",
             name="Current Deck",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.did),
-            onSort=lambda: "nameForDeck(c.did)",
+            onSort=lambda: "c.did" # "nameForDeck(c.did)",
         )
         self.customColumns.append(cc)
 
@@ -254,18 +256,7 @@ class CustomFields:
             str += fmtTimeSpan(tm % 60, point=2 if not str else -1, short=True)
         return str
 
-    def myLoadCollection(self, _self):
-        """Wrap collection load so we can add our custom DB function.
-        We do this here instead of on startup because the collection
-        might get closed/reopened while Anki is still open (e.g., after
-        sync), which clears the DB function we added."""
-
-        # Create a new SQL function that we can use in our queries.
-        mw.col.db._db.create_function(
-            "valueForOverdue", 4, self.valueForOverdue)
-
 
 cf = CustomFields()
 addHook("advBrowserLoaded", cf.onAdvBrowserLoad)
 addHook("advBrowserBuildContext", cf.onBuildContextMenu)
-AnkiQt.loadCollection = wrap(AnkiQt.loadCollection, cf.myLoadCollection)
