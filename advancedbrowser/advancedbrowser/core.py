@@ -460,24 +460,6 @@ class AdvancedBrowser(Browser):
         self.onSearchActivated()
         self.model.endReset()
 
-    def _onSortChanged(self, idx, ord):
-        type = self.model.activeCols[idx]
-        if type in ("question", "answer:"):
-            return super()._onSortChanged(idx, ord)
-        if self.col.conf['sortType'] != type:
-            self.col.conf['sortType'] = type
-            # default to descending for non-text fields
-            if type == "noteFld":
-                ord = not ord
-            self.col.conf['sortBackwards'] = ord
-            self.search()
-        else:
-            if self.col.conf['sortBackwards'] != ord:
-                self.col.conf['sortBackwards'] = ord
-                self.model.reverse()
-        self.setSortIndicator()
-
-
 # Override DataModel with our subclass
 aqt.browser.DataModel = AdvancedDataModel
 
