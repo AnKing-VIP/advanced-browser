@@ -30,6 +30,8 @@ class NoteFields:
         # {fld['name'] -> CustomColumn}}
         self.customColumns = {}
 
+        self.fieldsToMidOrdPairs = {}
+
         self.advBrowser = advBrowser
         self.buildMappings()
 
@@ -71,6 +73,7 @@ class NoteFields:
                 self.modelFieldPos[mid32][name] = ord
                 if type not in self.fieldTypes:  # avoid dupes
                     self.fieldTypes[type] = name
+                self.fieldsToMidOrdPairs.setdefault(name, []).append((mid,ord))
 
         # Convenience method to create lambdas without scope clobbering
         def getOnSort(f):
@@ -83,9 +86,7 @@ class NoteFields:
 
         for type, name in self.fieldTypes.items():
             if name not in self.customColumns:
-                srt = ("(select valueForField(mid, flds, '%s') "
-                       "from notes where id = c.nid)" % name)
-
+                srt = self.getSortClause(name)
                 cc = self.advBrowser.newCustomColumn(
                     type=type,
                     name=name,
@@ -94,6 +95,19 @@ class NoteFields:
                 )
                 self.customColumns[name] = cc
         self.advBrowser.setupColumns()
+
+    def getSortClause(self, fieldName: str) -> str:
+        def tuple_to_str(tup) -> str:
+            (ntid, ord) = tup
+            return f"when n.mid = {ntid} then field_at_index(n.flds, {ord})"
+
+        tups = self.fieldsToMidOrdPairs.get(fieldName, [])
+        if not tups:
+            # no such field
+            return "false"
+        
+        whenBody = " ".join(map(tuple_to_str, tups))
+        return f"(case {whenBody} else false end)"
 
     # based on the one in utils.py, but keep media file names
     def htmlToTextLine(s):
