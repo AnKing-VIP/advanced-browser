@@ -27,38 +27,6 @@ class BasicFields:
         self.customColumns = []
 
         cc = advBrowser.newCustomColumn(
-            type="template",
-            name="Card",
-            onData=None,
-            onSort=lambda: "nameByMidOrd(n.mid, c.ord)",
-        )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
-            type="noteTags",
-            name="Tags",
-            onData=None,
-            onSort=lambda: "n.tags",
-        )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
-            type="note",
-            name="Note",
-            onData=None,
-            onSort=lambda: "nameByMid(n.mid)",
-        )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
-            type="deck",
-            name="Deck",
-            onData=None,
-            onSort=lambda: "nameForDeck(c.did)",
-        )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
             type="cardEase",
             name="Ease",
             onData=None,
