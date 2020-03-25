@@ -25,9 +25,6 @@ class CustomFields:
         # Convenience method to create lambdas without scope clobbering
         def getOnSort(f): return lambda: f
 
-        # Dummy CardStats object so we can use the time() function without
-        # creating the object every time.
-        cs = CardStats(None, None)
 
         # -- Columns -- #
 
@@ -159,7 +156,7 @@ class CustomFields:
             elif ivl > 0:
                 return fmtTimeSpan(ivl*86400)
             else:
-                return cs.time(-ivl)
+                return fmtTimeSpan(-ivl)
 
         srt = ("(select ivl from revlog where cid = c.id "
                "order by id desc limit 1 offset 1)")
