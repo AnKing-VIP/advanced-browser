@@ -9,6 +9,8 @@ from anki.cards import Card
 from anki.hooks import addHook, runHook
 from aqt import *
 from aqt.browser import Browser, DataModel, StatusDelegate
+from aqt import gui_hooks
+from aqt.browser import SearchContext
 
 from . import config
 from .column import Column, CustomColumn
@@ -25,6 +27,8 @@ class AdvancedDataModel(DataModel):
         This function runs after custom columns have been registered, so our
         list of custom types has already been populated."""
         super(AdvancedDataModel, self).__init__(browser)
+
+        gui_hooks.browser_will_search.append(self.willSearch)
 
         # Keep a reference to this function; we need the original later
         self._columnData = DataModel.columnData
@@ -108,7 +112,7 @@ class AdvancedDataModel(DataModel):
         if type in self.browser.customTypes:
             return self.browser.customTypes[type].onData(c, n, type)
 
-    def search(self, txt):
+    def search_disabled(self, txt):
         """We swap out the col.findCards function with our custom myFindCards,
         call the original search(), then put it back to its original version.
 
@@ -122,6 +126,23 @@ class AdvancedDataModel(DataModel):
             self.one_card_by_note()
         self.col.findCards = orig
         self.endReset()
+
+    def willSearch(self, ctx: SearchContext):
+        # If the column is not a custom one handled by this add-on, do it
+        # internally.
+        cTypes = self.browser.customTypes
+        type = self.col.conf['sortType']
+        if type not in cTypes:
+            return
+
+        order = cTypes[type].onSort()
+        if not order:
+            ctx.order = None
+        elif cTypes[type].cacheSortValue or "select" in order.lower():
+            # fixme: doesn't cache
+            ctx.order = order
+        else:
+            ctx.order = order
 
     def one_card_by_note(self):
         nids = set()
@@ -438,24 +459,6 @@ class AdvancedBrowser(Browser):
             "advbrowse_uniqueNote", False)
         self.onSearchActivated()
         self.model.endReset()
-
-    def _onSortChanged(self, idx, ord):
-        type = self.model.activeCols[idx]
-        if type in ("question", "answer:"):
-            return super()._onSortChanged(idx, ord)
-        if self.col.conf['sortType'] != type:
-            self.col.conf['sortType'] = type
-            # default to descending for non-text fields
-            if type == "noteFld":
-                ord = not ord
-            self.col.conf['sortBackwards'] = ord
-            self.search()
-        else:
-            if self.col.conf['sortBackwards'] != ord:
-                self.col.conf['sortBackwards'] = ord
-                self.model.reverse()
-        self.setSortIndicator()
-
 
 # Override DataModel with our subclass
 aqt.browser.DataModel = AdvancedDataModel

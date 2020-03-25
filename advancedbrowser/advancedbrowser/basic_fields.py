@@ -27,101 +27,22 @@ class BasicFields:
         self.customColumns = []
 
         cc = advBrowser.newCustomColumn(
-            type="template",
-            name="Card",
-            onData=None,
-            onSort=lambda: "nameByMidOrd(n.mid, c.ord)",
-        )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
-            type="noteTags",
-            name="Tags",
-            onData=None,
-            onSort=lambda: "n.tags",
-        )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
-            type="note",
-            name="Note",
-            onData=None,
-            onSort=lambda: "nameByMid(n.mid)",
-        )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
-            type="deck",
-            name="Deck",
-            onData=None,
-            onSort=lambda: "nameForDeck(c.did)",
-        )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
             type="cardEase",
             name="Ease",
             onData=None,
-            onSort=lambda: "factorByType(c.factor, c.type)"
+            onSort=lambda: "(case when type = 0 then -1 else factor end)"
         )
         self.customColumns.append(cc)
 
+        # fixme: to sort on this column, will need to write to a temp table
+        # then sort based on that table, like in Anki's Rust code
         cc = advBrowser.newCustomColumn(
             type="odeck",
             name="Original Deck",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.odid),
-            onSort=lambda: "nameForOriginalDeck(c.odid)",
+            onSort=lambda: "c.odid",
         )
         self.customColumns.append(cc)
-
-    def myLoadCollection(self, _self):
-        """Wrap collection load so we can add our custom DB function.
-        We do this here instead of on startup because the collection
-        might get closed/reopened while Anki is still open (e.g., after
-        sync), which clears the DB function we added."""
-
-        # Create a new SQL function that we can use in our queries.
-        mw.col.db._db.create_function("nameForDeck", 1, self.nameForDeck)
-        mw.col.db._db.create_function("nameByMid", 1, self.nameByMid)
-        mw.col.db._db.create_function("nameByMidOrd", 2, self.nameByMidOrd)
-        mw.col.db._db.create_function("factorByType", 2, self.factorByType)
-        mw.col.db._db.create_function(
-            "nameForOriginalDeck", 1, self.nameForOriginalDeck)
-
-    @staticmethod
-    def nameForDeck(did):
-        deck = mw.col.decks.get(did)
-        if deck:
-            return deck['name']
-        return _("[no deck]")
-
-    @staticmethod
-    def nameForOriginalDeck(odid):
-        deck = mw.col.decks.get(odid)
-        if deck:
-            return deck['name']
-        return _("[no deck]")
-
-    @staticmethod
-    def nameByMid(mid):
-        return mw.col.models.get(mid)['name']
-
-    @staticmethod
-    def nameByMidOrd(mid, ord):
-        model = mw.col.models.get(mid)
-        templates = model['tmpls']
-        if model['type'] == MODEL_CLOZE:
-            template = templates[0]
-            return templates[0]['name'] + f" {ord+1}"
-        else:
-            template = templates[ord]
-            return template['name']
-
-    @staticmethod
-    def factorByType(factor, type):
-        if type == 0:
-            return -1
-        return factor
 
     def onBuildContextMenu(self, contextMenu):
         for cc in self.customColumns:
@@ -131,4 +52,3 @@ class BasicFields:
 bf = BasicFields()
 addHook("advBrowserLoaded", bf.onAdvBrowserLoad)
 addHook("advBrowserBuildContext", bf.onBuildContextMenu)
-AnkiQt.loadCollection = wrap(AnkiQt.loadCollection, bf.myLoadCollection)
