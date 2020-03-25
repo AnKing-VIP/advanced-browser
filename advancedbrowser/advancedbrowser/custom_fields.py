@@ -201,7 +201,7 @@ class CustomFields:
 
         cc = advBrowser.newCustomColumn(
             type='cdatetimecrt',
-            name='Created',
+            name='Created (full)',
             onData=cDateTimeCrt,
             onSort=lambda: "n.id"
         )
@@ -210,7 +210,7 @@ class CustomFields:
         # fixme: sorting
         cc = advBrowser.newCustomColumn(
             type="cdeck",
-            name="Current Deck",
+            name="Current Deck (filtered)",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.did),
             onSort=lambda: "c.did" # "nameForDeck(c.did)",
         )
