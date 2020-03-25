@@ -5,11 +5,8 @@
 import time
 
 from anki.hooks import addHook, wrap
-from anki.stats import CardStats
-from anki.utils import fmtTimeSpan
 from aqt import *
-from aqt.main import AnkiQt
-
+from anki.rsbackend import FormatTimeSpanContext
 
 class CustomFields:
 
@@ -44,7 +41,6 @@ class CustomFields:
         self.customColumns.append(cc)
 
         # Last review
-
         def cLastOnData(c, n, t):
             last = mw.col.db.scalar(
                 "select max(id) from revlog where cid = ?", c.id)
@@ -60,11 +56,10 @@ class CustomFields:
         self.customColumns.append(cc)
 
         # Average time
-
         def cAvgtimeOnData(c, n, t):
             avgtime = mw.col.db.scalar(
                 "select avg(time)/1000.0 from revlog where cid = ?", c.id)
-            return self.timeFmt(avgtime)
+            return mw.col.backend.format_time_span(avgtime)
 
         cc = advBrowser.newCustomColumn(
             type='cavgtime',
@@ -75,11 +70,10 @@ class CustomFields:
         self.customColumns.append(cc)
 
         # Total time
-
         def cTottimeOnData(c, n, t):
             tottime = mw.col.db.scalar(
                 "select sum(time)/1000.0 from revlog where cid = ?", c.id)
-            return self.timeFmt(tottime)
+            return mw.col.backend.format_time_span(tottime)
 
         cc = advBrowser.newCustomColumn(
             type='ctottime',
@@ -94,7 +88,7 @@ class CustomFields:
             tm = mw.col.db.scalar(
                 "select time/1000.0 from revlog where cid = ? "
                 "order by time asc limit 1", c.id)
-            return self.timeFmt(tm)
+            return mw.col.backend.format_time_span(tm)
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
                "order by time asc limit 1)")
@@ -112,7 +106,7 @@ class CustomFields:
             tm = mw.col.db.scalar(
                 "select time/1000.0 from revlog where cid = ? "
                 "order by time desc limit 1", c.id)
-            return self.timeFmt(tm)
+            return mw.col.backend.format_time_span(tm)
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
                "order by time desc limit 1)")
@@ -129,7 +123,7 @@ class CustomFields:
         def cOverdueIvl(c, n, t):
             val = self.valueForOverdue(c.odid, c.queue, c.type, c.due)
             if val:
-                return str(val) + " day" + ('s' if val > 1 else '')
+                return mw.col.backend.format_time_span(val, context=FormatTimeSpanContext.INTERVALS)
 
         # fixme: this will need to be converted into an sql case statement
         srt = ("(select due " #valueForOverdue(odid, queue, type, due) "
@@ -144,7 +138,6 @@ class CustomFields:
         self.customColumns.append(cc)
 
         # Previous interval
-
         def cPrevIvl(c, n, t):
             ivl = mw.col.db.scalar(
                 "select ivl from revlog where cid = ? "
@@ -154,9 +147,9 @@ class CustomFields:
             elif ivl == 0:
                 return "0 days"
             elif ivl > 0:
-                return fmtTimeSpan(ivl*86400)
+                return mw.col.backend.format_time_span(ivl*86400, context=FormatTimeSpanContext.INTERVALS)
             else:
-                return fmtTimeSpan(-ivl)
+                return mw.col.backend.format_time_span(-ivl, context=FormatTimeSpanContext.INTERVALS)
 
         srt = ("(select ivl from revlog where cid = c.id "
                "order by id desc limit 1 offset 1)")
@@ -189,7 +182,7 @@ class CustomFields:
             time = mw.col.db.scalar(
                 "select time/1000.0 from revlog where cid = ? "
                 "order by id desc limit 1", c.id)
-            return self.timeFmt(time)
+            return mw.col.backend.format_time_span(time)
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
                "order by id desc limit 1)")
@@ -242,16 +235,6 @@ class CustomFields:
             else:
                 return
 
-    def timeFmt(self, tm):
-        # stole this from CardStats#time()
-        str = ""
-        if tm is None:
-            return str
-        if tm >= 60:
-            str = fmtTimeSpan((tm / 60) * 60, short=True, point=-1, unit=1)
-        if tm % 60 != 0 or not str:
-            str += fmtTimeSpan(tm % 60, point=2 if not str else -1, short=True)
-        return str
 
 
 cf = CustomFields()

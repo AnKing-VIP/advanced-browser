@@ -10,9 +10,6 @@
 
 from anki.consts import *
 from anki.hooks import addHook, wrap
-from anki.lang import _
-from aqt import mw
-from aqt.main import AnkiQt
 
 
 class BasicFields:
