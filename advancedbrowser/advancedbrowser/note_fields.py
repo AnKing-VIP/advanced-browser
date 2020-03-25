@@ -5,7 +5,6 @@ import re
 
 from anki.hooks import addHook, wrap
 from aqt import *
-from aqt.main import AnkiQt
 
 from .config import getEachFieldInSingleList
 
@@ -120,33 +119,6 @@ class NoteFields:
         s = anki.utils.stripHTMLMedia(s)
         s = s.strip()
         return s
-
-    def valueForField(self, mid, flds, fldName):
-        """Function called from SQLite to get the value of a field,
-        given a field name and the model id for the note.
-
-        mid is the model id. The model contains the definition of a note,
-        including the names of all fields.
-
-        flds contains the text of all fields, delimited by the character
-        "x1f". We split this and index into it according to a precomputed
-        index for the model (mid) and field name (fldName).
-
-        fldName is the name of the field we are after."""
-
-        try:
-            index = self.modelFieldPos.get(mid).get(fldName, None)
-            if index is not None:
-                fieldsList = flds.split("\x1f", index+1)
-                return NoteFields.htmlToTextLine(fieldsList[index])
-        except Exception as ex:
-            pass
-            # print("Failed to get value for field.")
-            # print("Mid: " + str(mid or 'None'))
-            # print("flds: " + str(flds or 'None'))
-            # print("fldName: " + str(fldName or 'None'))
-            # print("_modelFieldPos: " + str(self.modelFieldPos))
-            # print("Error was: ", ex)
 
 
 nf = NoteFields()
