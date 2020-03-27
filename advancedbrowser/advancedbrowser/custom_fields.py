@@ -230,9 +230,9 @@ class CustomFields:
         elif queue == QUEUE_TYPE_NEW or type == CARD_TYPE_NEW:
             return
         elif queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (type == CARD_TYPE_REV and queue < 0):
-            diff = due - mw.col.sched.today
-            if diff < 0:
-                return diff * -1
+            diff = mw.col.sched.today - due
+            if diff > 0:
+                return diff
             else:
                 return
 
