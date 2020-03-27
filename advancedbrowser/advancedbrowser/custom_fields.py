@@ -127,8 +127,17 @@ class CustomFields:
                 return mw.col.backend.format_time_span(val, context=FormatTimeSpanContext.INTERVALS)
 
         # fixme: this will need to be converted into an sql case statement
-        srt = ("(select due "  # valueForOverdue(odid, queue, type, due) "
-               "from cards where id = c.id)")
+        srt = (f"""
+        select
+          (case
+             when odid then null
+             when queue = {QUEUE_TYPE_LRN} then null
+             when queue = {QUEUE_TYPE_NEW} then null
+             when type = {CARD_TYPE_NEW} then null
+             when {mw.col.sched.today} - due <= 0 then null
+             when (queue = {QUEUE_TYPE_REV} or queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} or (type = {CARD_TYPE_REV} and queue < 0)) then ({mw.col.sched.today} - due)
+          )
+        where id = c.id""")
 
         cc = advBrowser.newCustomColumn(
             type='coverdueivl',
