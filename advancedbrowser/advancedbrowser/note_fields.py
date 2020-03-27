@@ -106,7 +106,7 @@ class NoteFields:
             return "false"
         
         whenBody = " ".join(map(tuple_to_str, tups))
-        return f"(case {whenBody} else false end)"
+        return f"(case {whenBody} else false end) collate nocase asc nulls last"
 
     # based on the one in utils.py, but keep media file names
     def htmlToTextLine(s):
