@@ -27,7 +27,7 @@ class BasicFields:
             type="cardEase",
             name="Ease",
             onData=None,
-            onSort=lambda: "(case when type = 0 then -1 else factor end)"
+            onSort=lambda: f"(case when type = {CARD_TYPE_NEW} then -1 else factor end)"
         )
         self.customColumns.append(cc)
 
