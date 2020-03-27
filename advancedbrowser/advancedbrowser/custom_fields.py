@@ -5,8 +5,9 @@
 import time
 
 from anki.hooks import addHook, wrap
-from aqt import *
 from anki.rsbackend import FormatTimeSpanContext
+from aqt import *
+
 
 class CustomFields:
 
@@ -22,10 +23,10 @@ class CustomFields:
         # Convenience method to create lambdas without scope clobbering
         def getOnSort(f): return lambda: f
 
-
         # -- Columns -- #
 
         # First review
+
         def cFirstOnData(c, n, t):
             first = mw.col.db.scalar(
                 "select min(id) from revlog where cid = ?", c.id)
@@ -126,7 +127,7 @@ class CustomFields:
                 return mw.col.backend.format_time_span(val, context=FormatTimeSpanContext.INTERVALS)
 
         # fixme: this will need to be converted into an sql case statement
-        srt = ("(select due " #valueForOverdue(odid, queue, type, due) "
+        srt = ("(select due "  # valueForOverdue(odid, queue, type, due) "
                "from cards where id = c.id)")
 
         cc = advBrowser.newCustomColumn(
@@ -212,7 +213,7 @@ class CustomFields:
             type="cdeck",
             name="Current Deck (filtered)",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.did),
-            onSort=lambda: "c.did" # "nameForDeck(c.did)",
+            onSort=lambda: "c.did"  # "nameForDeck(c.did)",
         )
         self.customColumns.append(cc)
 
@@ -234,7 +235,6 @@ class CustomFields:
                 return diff * -1
             else:
                 return
-
 
 
 cf = CustomFields()
