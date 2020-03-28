@@ -111,17 +111,6 @@ class AdvancedDataModel(DataModel):
         if type in self.browser.customTypes:
             return self.browser.customTypes[type].onData(c, n, type)
 
-    def search_disabled(self, txt):
-        """We swap out the col.findCards function with our custom myFindCards,
-        call the original search(), then put it back to its original version.
-        """
-        self.beginReset()
-        orig = self.col.findCards
-        self.col.findCards = self.myFindCards
-        super(AdvancedDataModel, self).search(txt)
-        self.col.findCards = orig
-        self.endReset()
-
     def willSearch(self, ctx: SearchContext):
         # If the column is not a custom one handled by this add-on, do it
         # internally.
