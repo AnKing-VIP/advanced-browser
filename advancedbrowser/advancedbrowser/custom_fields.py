@@ -124,7 +124,7 @@ class CustomFields:
         def cOverdueIvl(c, n, t):
             val = self.valueForOverdue(c.odid, c.queue, c.type, c.due)
             if val:
-                return mw.col.backend.format_time_span(val, context=FormatTimeSpanContext.INTERVALS)
+                return mw.col.backend.format_time_span(val * 24 * 60 * 60, context=FormatTimeSpanContext.INTERVALS)
 
         # fixme: this will need to be converted into an sql case statement
         srt = (f"""
