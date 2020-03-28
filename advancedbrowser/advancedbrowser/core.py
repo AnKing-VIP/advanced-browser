@@ -111,21 +111,6 @@ class AdvancedDataModel(DataModel):
         if type in self.browser.customTypes:
             return self.browser.customTypes[type].onData(c, n, type)
 
-    def search_disabled(self, txt):
-        """We swap out the col.findCards function with our custom myFindCards,
-        call the original search(), then put it back to its original version.
-
-        if the configuration uniqueNote holds, cards are filtered to keep only one card by note.
-        """
-        self.beginReset()
-        orig = self.col.findCards
-        self.col.findCards = self.myFindCards
-        super(AdvancedDataModel, self).search(txt)
-        if self.browser.mw.col.conf.get("advbrowse_uniqueNote", False):
-            self.one_card_by_note()
-        self.col.findCards = orig
-        self.endReset()
-
     def willSearch(self, ctx: SearchContext):
         # If the column is not a custom one handled by this add-on, do it
         # internally.
@@ -142,27 +127,6 @@ class AdvancedDataModel(DataModel):
             ctx.order = order
         else:
             ctx.order = order
-
-    def one_card_by_note(self):
-        nids = set()
-        filtered_card = []
-        selected_card = self.browser.mw.reviewer.card
-        selected_cid = selected_card.id if selected_card else 0
-        selected_nid = selected_card.nid if selected_card else 0
-        idx_of_selected_note = None
-        # position of the unique card of note currently in reviewer
-        for cid in self.cards:
-            card = self.browser.mw.col.getCard(cid)
-            nid = card.nid
-            if nid not in nids:
-                filtered_card.append(cid)
-                nids.add(nid)
-                if nid == selected_nid:
-                    idx_of_selected_note = len(filtered_card) - 1
-            elif cid == selected_cid:  # nid in nids
-                filtered_card.pop(idx_of_selected_note)
-                filtered_card.append(cid)
-        self.cards = filtered_card
 
     def myFindCards(self, query, order):
         """This function takes over the call chain of
@@ -312,11 +276,6 @@ class AdvancedBrowser(Browser):
         origInit(self, mw)
         Browser.__init__ = origInit
 
-        tn = QAction(('- Only show notes -'), self)
-        tn.setShortcut(QKeySequence(config.getNoteModeShortcut()))
-        self.addAction(tn)
-        tn.triggered.connect(self.toggleUniqueNote)
-
         # Remove excluded columns after the browser is built. Doing it here
         # is mostly a compromise in complexity. The alternative is to
         # rewrite the order of the original __init__ method, which is
@@ -415,16 +374,6 @@ class AdvancedBrowser(Browser):
         # Start adding from the top
         addToSubgroup(main, contextMenu.items())
 
-        # Add unique note toggle
-        a = main.addAction("- Only show notes -")
-        a.setCheckable(True)
-        # This shortcut has no effect since it's attached to the context menu
-        # which needs to be open, but the visual indicator is still useful.
-        # The real shortcut is in init.
-        a.setShortcut(QKeySequence(config.getNoteModeShortcut()))
-        a.setChecked(self.mw.col.conf.get("advbrowse_uniqueNote", False))
-        a.toggled.connect(self.toggleUniqueNote)
-
         main.exec_(gpos)
 
     def closeEvent(self, evt):
@@ -451,14 +400,6 @@ class AdvancedBrowser(Browser):
 
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
-
-    def toggleUniqueNote(self):
-        self.model.beginReset()
-        self.mw.col.conf["advbrowse_uniqueNote"] = not self.mw.col.conf.get(
-            "advbrowse_uniqueNote", False)
-        self.onSearchActivated()
-        self.model.endReset()
-
 
 # Override DataModel with our subclass
 aqt.browser.DataModel = AdvancedDataModel
