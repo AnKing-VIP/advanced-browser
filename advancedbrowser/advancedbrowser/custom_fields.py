@@ -222,7 +222,7 @@ class CustomFields:
             type="cdeck",
             name="Current Deck (filtered)",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.did),
-            onSort=lambda: "c.did"  # "nameForDeck(c.did)",
+            onSort=lambda: "c.did", # "nameForDeck(c.did)"
         )
         self.customColumns.append(cc)
 
