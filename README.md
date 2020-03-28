@@ -28,6 +28,12 @@ You can also add these extra columns:
 
 ![Useful columns](https://raw.github.com/hssm/advanced-browser/master/docs/context.png)
 
+### Copying table content
+By setting "Table content is selectable" to true, you'll be able to select table content by double clicking on it. This way, you can copy it. Note that editing the content has no effect.
+
+### Editing table
+You can edit the content of some elements of the tables. You need to activate this feature in the configuration before being able to use it, because it may be dangerous if you don't really know what you're doing. Please see the document [edition in table](edition in table.md) to see what editing each column does.
+
 ### Note browser mode (show a single card per note type)
 
 There is now a menu option to **Only show notes**. If you are only interested in editing the content of notes and don't care about the statistics of individual card reviews, you can enable the note browser mode.
