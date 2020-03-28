@@ -3,6 +3,7 @@
 # https://github.com/hssm/advanced-browser
 from anki.lang import _
 
+
 class InternalFields:
 
     def __init__(self):

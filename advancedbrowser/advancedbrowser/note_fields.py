@@ -72,7 +72,8 @@ class NoteFields:
                 self.modelFieldPos[mid32][name] = ord
                 if type not in self.fieldTypes:  # avoid dupes
                     self.fieldTypes[type] = name
-                self.fieldsToMidOrdPairs.setdefault(name, []).append((mid,ord))
+                self.fieldsToMidOrdPairs.setdefault(
+                    name, []).append((mid, ord))
 
         # Convenience method to create lambdas without scope clobbering
         def getOnSort(f):
@@ -104,9 +105,9 @@ class NoteFields:
         if not tups:
             # no such field
             return "false"
-        
+
         whenBody = " ".join(map(tuple_to_str, tups))
-        return f"(case {whenBody} else false end)"
+        return f"(case {whenBody} else false end) collate nocase asc nulls last"
 
     # based on the one in utils.py, but keep media file names
     def htmlToTextLine(s):
