@@ -4,6 +4,7 @@
 
 import time
 
+from anki.consts import *
 from anki.hooks import addHook, wrap
 from anki.rsbackend import FormatTimeSpanContext
 from aqt import *
