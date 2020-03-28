@@ -5,8 +5,9 @@
 import time
 
 from anki.hooks import addHook, wrap
-from aqt import *
 from anki.rsbackend import FormatTimeSpanContext
+from aqt import *
+
 
 class CustomFields:
 
@@ -22,10 +23,10 @@ class CustomFields:
         # Convenience method to create lambdas without scope clobbering
         def getOnSort(f): return lambda: f
 
-
         # -- Columns -- #
 
         # First review
+
         def cFirstOnData(c, n, t):
             first = mw.col.db.scalar(
                 "select min(id) from revlog where cid = ?", c.id)
@@ -126,8 +127,17 @@ class CustomFields:
                 return mw.col.backend.format_time_span(val, context=FormatTimeSpanContext.INTERVALS)
 
         # fixme: this will need to be converted into an sql case statement
-        srt = ("(select due " #valueForOverdue(odid, queue, type, due) "
-               "from cards where id = c.id)")
+        srt = (f"""
+        select
+          (case
+             when odid then null
+             when queue = {QUEUE_TYPE_LRN} then null
+             when queue = {QUEUE_TYPE_NEW} then null
+             when type = {CARD_TYPE_NEW} then null
+             when {mw.col.sched.today} - due <= 0 then null
+             when (queue = {QUEUE_TYPE_REV} or queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} or (type = {CARD_TYPE_REV} and queue < 0)) then ({mw.col.sched.today} - due)
+          )
+        where id = c.id""")
 
         cc = advBrowser.newCustomColumn(
             type='coverdueivl',
@@ -212,7 +222,7 @@ class CustomFields:
             type="cdeck",
             name="Current Deck (filtered)",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.did),
-            onSort=lambda: "c.did" # "nameForDeck(c.did)",
+            onSort=lambda: "c.did"  # "nameForDeck(c.did)",
         )
         self.customColumns.append(cc)
 
@@ -224,17 +234,18 @@ class CustomFields:
             group.addItem(column)
 
     def valueForOverdue(self, odid, queue, type, due):
-        if odid or queue == 1:
+        if odid or queue == QUEUE_TYPE_LRN:
             return
-        elif queue == 0 or type == 0:
+        elif queue == QUEUE_TYPE_NEW or type == CARD_TYPE_NEW:
             return
-        elif queue in (2, 3) or (type == 2 and queue < 0):
-            diff = due - mw.col.sched.today
-            if diff < 0:
-                return diff * -1
+        else:
+            diff = mw.col.sched.today - due
+            if diff <= 0:
+                return
+            if queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (type == CARD_TYPE_REV and queue < 0):
+                return diff
             else:
                 return
-
 
 
 cf = CustomFields()

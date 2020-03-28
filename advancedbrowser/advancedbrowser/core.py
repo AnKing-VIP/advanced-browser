@@ -8,9 +8,8 @@ from operator import itemgetter
 from anki.cards import Card
 from anki.hooks import addHook, runHook
 from aqt import *
-from aqt.browser import Browser, DataModel, StatusDelegate
 from aqt import gui_hooks
-from aqt.browser import SearchContext
+from aqt.browser import Browser, DataModel, SearchContext, StatusDelegate
 
 from . import config
 from .column import Column, CustomColumn
@@ -459,6 +458,7 @@ class AdvancedBrowser(Browser):
             "advbrowse_uniqueNote", False)
         self.onSearchActivated()
         self.model.endReset()
+
 
 # Override DataModel with our subclass
 aqt.browser.DataModel = AdvancedDataModel
