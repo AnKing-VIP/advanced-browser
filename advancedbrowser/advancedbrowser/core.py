@@ -276,11 +276,6 @@ class AdvancedBrowser(Browser):
         origInit(self, mw)
         Browser.__init__ = origInit
 
-        tn = QAction(('- Only show notes -'), self)
-        tn.setShortcut(QKeySequence(config.getNoteModeShortcut()))
-        self.addAction(tn)
-        tn.triggered.connect(self.toggleUniqueNote)
-
         # Remove excluded columns after the browser is built. Doing it here
         # is mostly a compromise in complexity. The alternative is to
         # rewrite the order of the original __init__ method, which is
