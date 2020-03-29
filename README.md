@@ -36,11 +36,7 @@ You can edit the content of some elements of the tables. You need to activate th
 
 ### Note browser mode (show a single card per note type)
 
-There is now a menu option to **Only show notes**. If you are only interested in editing the content of notes and don't care about the statistics of individual card reviews, you can enable the note browser mode.
-
-When this option is enabled, the browser will show a single row for each note regardless of how many cards a note may have generated. You can use *Ctrl+Alt+N* as a shortcut to toggle this option.  (Pay attention to the fact that buttons, such as «suspend», act on cards and not on notes. Therefore, avoid using this button while you use the option to see notes.)
-
-![Note browser mode](https://raw.github.com/hssm/advanced-browser/master/docs/note_browser_toggle.png)
+This used to be an option of this add-on. This feature has been moved to the add-on [Browser have one line by note](https://ankiweb.net/shared/info/797076357).
 
 ### Internal fields
 You can also show some fields used internally by Anki but probably aren't very useful for the typical user. These are disabled by default, but you can enable them by going to **Tools -> Add-ons -> advanced_browser -> Edit...** and uncommenting the line that loads the extension that offers those fields.
