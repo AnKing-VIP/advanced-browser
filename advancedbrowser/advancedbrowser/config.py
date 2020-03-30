@@ -28,7 +28,7 @@ def getNoteModeShortcut():
 
 
 def getSelectable():
-    return getUserOption().get("Table content is selectable", False)
+    return getUserOption().get("Table content", "No interaction")
 
 
 def update(_):
