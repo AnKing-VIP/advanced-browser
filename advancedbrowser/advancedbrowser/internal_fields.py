@@ -7,9 +7,7 @@ from anki.lang import _
 from anki.utils import intTime, splitFields
 from aqt.utils import askUser, showWarning
 
-from .consts import (CARD_TYPE_LRN, CARD_TYPE_NEW, DECK_DYN, DECK_STD,
-                     QUEUE_TYPE_NEW)
-from anki.consts import MODEL_STD
+from anki.consts import *
 
 
 
