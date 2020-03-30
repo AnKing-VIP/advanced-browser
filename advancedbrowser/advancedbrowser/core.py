@@ -240,7 +240,7 @@ collate nocase """ %
 
     def flags(self, index):
         s = super().flags(index)
-        if config.getSelectable():
+        if config.getSelectable() != "No interaction":
             s = s | Qt.ItemIsEditable
         return s
 
@@ -311,7 +311,7 @@ class AdvancedBrowser(Browser):
 
         # Workaround for double-saving (see closeEvent)
         self.saveEvent = False
-        if config.getSelectable():
+        if config.getSelectable() == "Editable":
             self.form.tableView.setEditTriggers(
                 QtWidgets.QAbstractItemView.DoubleClicked)
 
