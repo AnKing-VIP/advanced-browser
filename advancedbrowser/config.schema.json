@@ -11,11 +11,6 @@
       "type": "boolean",
       "default": false
     },
-    "Keyboard shortcut for note browser mode": {
-      "type": "string",
-      "pattern": "^((([Cc][Tt][Rr][Ll]|[Aa][Ll][Tt]|[Ss][Hh][Ii][Ff][Tt])\\+){0,3}[a-zA-Z0-9])?$",
-      "default": "Ctrl+Alt+N"
-    },
     "Table content": {
       "type": "string",
       "enum": ["Editable", "Selectable", "No interaction"],
