@@ -22,14 +22,15 @@ Advanced Browser is an Anki add-on that allows you to add a variety of new, sort
 ### How to use
 Right click on any of the currently visible columns and a menu will appear. Some new menu items will now appear in the list.
 
-- The *- Fields -* menu item contains a list of your note types. Each note type reveals a sub-menu with each of its fields that can be enabled as columns. If a field name exists in another note type, it will be enable as well, and sorting by this column will consider all of the note types together as one.
+- The **- Fields -** menu item contains a list of your note types. Each note type reveals a sub-menu with each of its fields that can be enabled as columns. If a field name exists in another note type, it will be enable as well, and sorting by this column will consider all of the note types together as one.
+
 ![Useful columns](https://raw.github.com/hssm/advanced-browser/master/docs/context_note.png)
 
-If you prefer to see every field in a single list instead of grouping fields by note type, you can toggle the behaviour by editing the configuration item ```Use a single list for fields`` using Anki's add-on manager and setting it to ```true```:
+If you prefer to see every field in a single list instead of grouping fields by note type, you can toggle the behaviour by editing the configuration item ```Use a single list for fields``` using Anki's add-on manager and setting it to ```true```:
 ![Useful columns](https://raw.github.com/hssm/advanced-browser/master/docs/context_flat.png)
 
 
-- The *- Advanced -* menu item offers some columns with interesting statistics about each card.
+- The **- Advanced -** menu item offers some columns with interesting statistics about each card.
 ![Useful columns](https://raw.github.com/hssm/advanced-browser/master/docs/context_stats.png)
 
 
