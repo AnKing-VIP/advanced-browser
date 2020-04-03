@@ -54,14 +54,14 @@ class BasicFields:
             c.flush()
             return True
 
-        cc = advBrowser.newCustomColumn(
-            type="template",
-            name="Card",
-            onData=None,
-            onSort=lambda: "nameByMidOrd(n.mid, c.ord)",
-            setData=setData,
-        )
-        self.customColumns.append(cc)
+        # cc = advBrowser.newCustomColumn(
+        #     type="template",
+        #     name="Card",
+        #     onData=None,
+        #     onSort=lambda: "nameByMidOrd(n.mid, c.ord)",
+        #     setData=setData,
+        # )
+        # self.customColumns.append(cc)
 
         def setData(c: Card, value: str):
             n = c.note()
@@ -79,21 +79,21 @@ class BasicFields:
         )
         self.customColumns.append(cc)
 
-        cc = advBrowser.newCustomColumn(
-            type="note",
-            name="Note",
-            onData=None,
-            onSort=lambda: "nameByMid(n.mid)",
-        )
-        self.customColumns.append(cc)
-
-        cc = advBrowser.newCustomColumn(
-            type="deck",
-            name="Deck",
-            onData=None,
-            onSort=lambda: "nameForDeck(c.did)",
-        )
-        self.customColumns.append(cc)
+        # cc = advBrowser.newCustomColumn(
+        #     type="note",
+        #     name="Note",
+        #     onData=None,
+        #     onSort=lambda: "nameByMid(n.mid)",
+        # )
+        # self.customColumns.append(cc)
+        #
+        # cc = advBrowser.newCustomColumn(
+        #     type="deck",
+        #     name="Deck",
+        #     onData=None,
+        #     onSort=lambda: "nameForDeck(c.did)",
+        # )
+        # self.customColumns.append(cc)
 
         def setData(c: Card, value: str):
             value = value.strip()
@@ -143,6 +143,7 @@ class BasicFields:
             name="Original Deck",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.odid),
             onSort=lambda: "c.odid",
+            setData=setData,
         )
         self.customColumns.append(cc)
 
