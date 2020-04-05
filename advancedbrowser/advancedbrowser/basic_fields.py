@@ -74,7 +74,7 @@ class BasicFields:
             type="noteTags",
             name="Tags",
             onData=None,
-            onSort=lambda: "n.tags",
+            onSort=lambda: "(case when trim(n.tags) = '' then null else n.tags end) asc nulls last",
             setData=setData,
         )
         self.customColumns.append(cc)
