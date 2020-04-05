@@ -6,13 +6,12 @@ import time
 from operator import itemgetter
 
 from PyQt5 import QtWidgets
-
+from PyQt5 import QtWidgets
 from anki.cards import Card
 from anki.hooks import addHook, runHook
 from aqt import *
 from aqt import gui_hooks
 from aqt.browser import Browser, DataModel, SearchContext, StatusDelegate
-from PyQt5 import QtWidgets
 
 from . import config
 from .column import Column, CustomColumn
@@ -125,10 +124,10 @@ class AdvancedDataModel(DataModel):
         order = cTypes[type].onSort()
         if not order:
             ctx.order = None
-        elif cTypes[type].cacheSortValue or "select" in order.lower():
-            # fixme: doesn't cache
-            ctx.order = order
         else:
+            if self.col.conf["sortBackwards"]:
+                order = order.replace(" asc ", " desc ")
+                ctx.order = order
             ctx.order = order
 
     def flags(self, index):
@@ -324,6 +323,13 @@ class AdvancedBrowser(Browser):
 
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
+
+    def _onSortChanged(self, idx, ord):
+        type = self.model.activeCols[idx]
+        if type in self.customTypes:
+            if self.col.conf["sortType"] == type:
+                self.col.conf["sortType"] = ""
+        super(AdvancedBrowser, self)._onSortChanged(idx, ord)
 
 # Override DataModel with our subclass
 aqt.browser.DataModel = AdvancedDataModel
