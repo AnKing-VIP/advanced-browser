@@ -18,7 +18,7 @@ class CustomColumn(Column):
     """A custom browser column."""
 
     def __init__(self, type, name, onData, onSort=None,
-                 cacheSortValue=False, setData=None):
+                 sortTableFunction=False, setData=None):
         """type = Internally used key to identify the column.
 
         name = Name of column, visible to the user.
@@ -47,18 +47,13 @@ class CustomColumn(Column):
             # Sort by first review date
             return "(select min(id) from revlog where cid = c.id)"
 
-        cacheSortValue = Whether to store the result of the ORDER BY
-        clause in a temporary table and have it re-used. Set this to
-        True if your ORDER BY clause contains a complex function or
-        nested query. This behaviour is enabled automatically if onSort
-        returns a string containing "select".
 
         """
         self.type = type
         self.name = name
         self.onData = onData
         self.onSort = onSort if onSort else lambda: None
-        self.cacheSortValue = cacheSortValue
+        self.sortTableFunction = sortTableFunction
         self._setData = setData
 
     def setData(self, *args, **kwargs):

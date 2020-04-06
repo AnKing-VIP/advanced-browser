@@ -121,14 +121,19 @@ class AdvancedDataModel(DataModel):
         if type not in cTypes:
             return
 
-        order = cTypes[type].onSort()
+        cc = cTypes[type]
+        order = cc.onSort()
         if not order:
             ctx.order = None
         else:
             if self.col.conf["sortBackwards"]:
                 order = order.replace(" asc ", " desc ")
-                ctx.order = order
             ctx.order = order
+
+        # If this column relies on a temporary table for sorting, build it now
+        if cc.sortTableFunction:
+            cc.sortTableFunction()
+
 
     def flags(self, index):
         s = super().flags(index)
@@ -208,11 +213,11 @@ class AdvancedBrowser(Browser):
                 QtWidgets.QAbstractItemView.DoubleClicked)
 
     def newCustomColumn(self, type, name, onData, onSort=None,
-                        setData=None, cacheSortValue=False):
+                        setData=None, sortTableFunction=False):
         """Add a CustomColumn to the browser. See CustomColumn for a
         detailed description of the parameters."""
         cc = CustomColumn(type, name, onData, onSort,
-                          cacheSortValue, setData=setData)
+                          sortTableFunction, setData=setData)
         self.customTypes[cc.type] = cc
         return cc
 

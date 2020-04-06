@@ -79,21 +79,40 @@ class BasicFields:
         )
         self.customColumns.append(cc)
 
-        # cc = advBrowser.newCustomColumn(
-        #     type="note",
-        #     name="Note",
-        #     onData=None,
-        #     onSort=lambda: "nameByMid(n.mid)",
-        # )
-        # self.customColumns.append(cc)
-        #
-        # cc = advBrowser.newCustomColumn(
-        #     type="deck",
-        #     name="Deck",
-        #     onData=None,
-        #     onSort=lambda: "nameForDeck(c.did)",
-        # )
-        # self.customColumns.append(cc)
+        def sortTableFunction():
+            col = advBrowser.mw.col
+            col.db.execute("drop table if exists tmp")
+            col.db.execute("create temp table tmp (k int primary key, v text)")
+            for model in col.models.all():
+                advBrowser.mw.col.db.execute(
+                    "insert into tmp values (?,?)", model['id'], model['name']
+                )
+
+        cc = advBrowser.newCustomColumn(
+            type="note",
+            name="Note",
+            onData=None,
+            sortTableFunction=sortTableFunction,
+            onSort=lambda: "(select v from tmp where k = n.mid) collate nocase",
+        )
+        self.customColumns.append(cc)
+
+        def sortTableFunction():
+            col = advBrowser.mw.col
+            col.db.execute("drop table if exists tmp")
+            col.db.execute("create temp table tmp (k int primary key, v text)")
+            for deck in col.decks.all():
+                advBrowser.mw.col.db.execute(
+                    "insert into tmp values (?,?)", deck['id'], deck['name']
+                )
+        cc = advBrowser.newCustomColumn(
+            type="deck",
+            name="Deck",
+            onData=None,
+            sortTableFunction=sortTableFunction,
+            onSort=lambda: "(select v from tmp where k = c.did) collate nocase",
+        )
+        self.customColumns.append(cc)
 
         def setData(c: Card, value: str):
             value = value.strip()
