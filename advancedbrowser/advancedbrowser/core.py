@@ -127,7 +127,7 @@ class AdvancedDataModel(DataModel):
             ctx.order = None
         else:
             if self.col.conf["sortBackwards"]:
-                order = order.replace(" asc ", " desc ")
+                order = order.replace(" asc", " desc")
             ctx.order = order
 
         # If this column relies on a temporary table for sorting, build it now
