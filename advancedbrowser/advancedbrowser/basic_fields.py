@@ -54,14 +54,33 @@ class BasicFields:
             c.flush()
             return True
 
-        # cc = advBrowser.newCustomColumn(
-        #     type="template",
-        #     name="Card",
-        #     onData=None,
-        #     onSort=lambda: "nameByMidOrd(n.mid, c.ord)",
-        #     setData=setData,
-        # )
-        # self.customColumns.append(cc)
+        def sortTableFunction():
+            col = advBrowser.mw.col
+            col.db.execute("drop table if exists tmp")
+            col.db.execute("create temporary table tmp (mid int, ord int, v text, primary key (mid, ord)) without rowid;")
+
+            for model in col.models.all():
+                templates = model['tmpls']
+                for template in templates:
+                    ord = template['ord']
+                    if model['type'] == MODEL_CLOZE:
+                        name = templates[0]['name'] + f" {ord + 1}"
+                    else:
+                        name = template['name']
+
+                    advBrowser.mw.col.db.execute(
+                        "insert into tmp values (?,?,?)", model['id'], ord, name
+                    )
+
+        cc = advBrowser.newCustomColumn(
+            type="template",
+            name="Card",
+            onData=None,
+            sortTableFunction=sortTableFunction,
+            onSort=lambda: "(select v from tmp where mid = n.mid and ord = c.ord) collate nocase asc",
+            setData=setData,
+        )
+        self.customColumns.append(cc)
 
         def setData(c: Card, value: str):
             n = c.note()
@@ -93,11 +112,11 @@ class BasicFields:
             name="Note",
             onData=None,
             sortTableFunction=sortTableFunction,
-            onSort=lambda: "(select v from tmp where k = n.mid) collate nocase",
+            onSort=lambda: "(select v from tmp where k = n.mid) collate nocase asc",
         )
         self.customColumns.append(cc)
 
-        def sortTableFunction():
+        def sortTableFunctionDeckName():
             col = advBrowser.mw.col
             col.db.execute("drop table if exists tmp")
             col.db.execute("create temp table tmp (k int primary key, v text)")
@@ -109,8 +128,8 @@ class BasicFields:
             type="deck",
             name="Deck",
             onData=None,
-            sortTableFunction=sortTableFunction,
-            onSort=lambda: "(select v from tmp where k = c.did) collate nocase",
+            sortTableFunction=sortTableFunctionDeckName,
+            onSort=lambda: "(select v from tmp where k = c.did) collate nocase asc",
         )
         self.customColumns.append(cc)
 
@@ -161,7 +180,8 @@ class BasicFields:
             type="odeck",
             name="Original Deck",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.odid),
-            onSort=lambda: "c.odid",
+            sortTableFunction=sortTableFunctionDeckName,
+            onSort=lambda: "(select v from tmp where k = c.odid) collate nocase asc",
             setData=setData,
         )
         self.customColumns.append(cc)

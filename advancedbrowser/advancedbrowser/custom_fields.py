@@ -133,7 +133,6 @@ class CustomFields:
             if val:
                 return mw.col.backend.format_time_span(val * 24 * 60 * 60, context=FormatTimeSpanContext.INTERVALS)
 
-        # fixme: this will need to be converted into an sql case statement
         srt = (f"""
         select
           (case
@@ -255,11 +254,20 @@ class CustomFields:
                 c.flush()
             return True
 
+        def sortTableFunction():
+            col = advBrowser.mw.col
+            col.db.execute("drop table if exists tmp")
+            col.db.execute("create temp table tmp (k int primary key, v text)")
+            for deck in col.decks.all():
+                advBrowser.mw.col.db.execute(
+                    "insert into tmp values (?,?)", deck['id'], deck['name']
+                )
         cc = advBrowser.newCustomColumn(
             type="cdeck",
             name="Current Deck (filtered)",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.did),
-            onSort=lambda: "c.did", # "nameForDeck(c.did)"
+            sortTableFunction=sortTableFunction,
+            onSort=lambda: "(select v from tmp where k = c.did) collate nocase asc",
             setData=setData,
         )
         self.customColumns.append(cc)
