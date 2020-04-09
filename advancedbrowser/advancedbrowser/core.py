@@ -30,6 +30,7 @@ class AdvancedDataModel(DataModel):
         super(AdvancedDataModel, self).__init__(browser)
 
         gui_hooks.browser_will_search.append(self.willSearch)
+        gui_hooks.browser_did_search.append(self.didSearch)
 
         # Keep a reference to this function; we need the original later
         self._columnData = DataModel.columnData
@@ -133,6 +134,11 @@ class AdvancedDataModel(DataModel):
         # If this column relies on a temporary table for sorting, build it now
         if cc.sortTableFunction:
             cc.sortTableFunction()
+
+        self.time = time.time()
+
+    def didSearch(self, ctx: SearchContext):
+        print("Search took: %dms" % ((time.time() - self.time)*1000))
 
 
     def flags(self, index):
