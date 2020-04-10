@@ -77,10 +77,6 @@ class NoteFields:
                 self.fieldsToMidOrdPairs.setdefault(
                     name, []).append((mid, ord))
 
-        # Convenience method to create lambdas without scope clobbering
-        def getOnSort(f):
-            return lambda: f
-
         def fldOnData(c, n, t):
             field = self.fieldTypes[t]
             if field in c.note().keys():
@@ -120,14 +116,10 @@ class NoteFields:
                         "insert into tmp values (?,?)", vals
                     )
 
-
-                sql = ("""
-                select id, srt from tmp order by tmp.srt is null, tmp.srt is '',
-                case when tmp.srt glob '*[^0-9.]*' then tmp.srt else cast(tmp.srt AS real) end
-                collate nocase""")
+                select = "(select fld from tmp where nid = n.id)"
                 srt = (
-                    """
-                    (select fld from tmp where nid = n.id)
+                    f"""
+                    case when {select} glob '*[^0-9.]*' then {select} else cast({select} AS real) end
                     collate nocase asc nulls last
                     """
                 )
