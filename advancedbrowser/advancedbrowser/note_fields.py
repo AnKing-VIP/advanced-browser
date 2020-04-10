@@ -100,12 +100,44 @@ class NoteFields:
 
         for type, name in self.fieldTypes.items():
             if name not in self.customColumns:
-                srt = self.getSortClause(name)
+                def sortTableFunction(name=name):
+                    col = mw.col
+                    vals = []
+                    col.db.execute("drop table if exists tmp")
+                    col.db.execute(
+                        "create temp table tmp (nid int primary key, fld text)")
+                    for mid, ord in self.fieldsToMidOrdPairs.get(name):
+                        notes = mw.col.db.all(
+                            f"select id, field_at_index(flds, {ord}) from notes where mid = {mid}"
+                        )
+                        for note in notes:
+                            id = note[0]
+                            val = NoteFields.htmlToTextLine(note[1])
+                            if not val:
+                                val = None
+                            vals.append([id, val])
+                    mw.col.db.executemany(
+                        "insert into tmp values (?,?)", vals
+                    )
+
+
+                sql = ("""
+                select id, srt from tmp order by tmp.srt is null, tmp.srt is '',
+                case when tmp.srt glob '*[^0-9.]*' then tmp.srt else cast(tmp.srt AS real) end
+                collate nocase""")
+                srt = (
+                    """
+                    (select fld from tmp where nid = n.id)
+                    collate nocase asc nulls last
+                    """
+                )
+
                 cc = self.advBrowser.newCustomColumn(
                     type=type,
                     name=name,
                     onData=fldOnData,
-                    onSort=getOnSort(srt),
+                    sortTableFunction=sortTableFunction,
+                    onSort=lambda: srt,
                     setData=setData_(name),
                 )
                 self.customColumns[name] = cc
@@ -124,18 +156,21 @@ class NoteFields:
         whenBody = " ".join(map(tuple_to_str, tups))
         return f"(case {whenBody} else null end) collate nocase asc nulls last"
 
-    # based on the one in utils.py, but keep media file names
+    # Based on the one in utils.py, but keep media file names
     def htmlToTextLine(s):
         s = s.replace("<br>", " ")
         s = s.replace("<br />", " ")
         s = s.replace("<div>", " ")
         s = s.replace("\n", " ")
-        s = re.sub(r"\[sound:([^]]+)\]", "\\1", s)  # this line is different
-        s = re.sub(r"\[\[type:[^]]+\]\]", "", s)
+        s = reSound.sub("\\1", s)  # this line is different
+        s = reType.sub("", s)
         s = anki.utils.stripHTMLMedia(s)
         s = s.strip()
         return s
 
+# Precompile some regexes for efficiency
+reSound = re.compile(r"\[sound:([^]]+)\]")
+reType = re.compile(r"\[\[type:[^]]+\]\]")
 
 nf = NoteFields()
 addHook("advBrowserLoaded", nf.onAdvBrowserLoad)

@@ -6,9 +6,7 @@ import time
 from operator import itemgetter
 
 from PyQt5 import QtWidgets
-from PyQt5 import QtWidgets
-from anki.cards import Card
-from anki.hooks import addHook, runHook
+from anki.hooks import runHook
 from aqt import *
 from aqt import gui_hooks
 from aqt.browser import Browser, DataModel, SearchContext, StatusDelegate
@@ -131,14 +129,17 @@ class AdvancedDataModel(DataModel):
                 order = order.replace(" asc", " desc")
             ctx.order = order
 
+        self.time = time.time()
+
         # If this column relies on a temporary table for sorting, build it now
         if cc.sortTableFunction:
             cc.sortTableFunction()
 
-        self.time = time.time()
+
 
     def didSearch(self, ctx: SearchContext):
-        print("Search took: %dms" % ((time.time() - self.time)*1000))
+        #print("Search took: %dms" % ((time.time() - self.time)*1000))
+        pass
 
 
     def flags(self, index):
@@ -331,6 +332,9 @@ class AdvancedBrowser(Browser):
             self.columns.extend(self.removedBuiltIns or [])
             # Only save once
             self.saveEvent = True
+
+        gui_hooks.browser_will_search.remove(self.model.willSearch)
+        gui_hooks.browser_did_search.remove(self.model.didSearch)
 
         # Let Anki do its stuff now
         super(AdvancedBrowser, self).closeEvent(evt)
