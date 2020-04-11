@@ -223,7 +223,6 @@ class CustomFields:
         )
         self.customColumns.append(cc)
 
-        # fixme: sorting
         def setData(c: Card, value: str):
             old_deck = c.col.decks.get(c.did)
             new_deck = c.col.decks.byName(value)
@@ -268,6 +267,30 @@ class CustomFields:
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.did),
             sortTableFunction=sortTableFunction,
             onSort=lambda: "(select v from tmp where k = c.did) collate nocase asc",
+            setData=setData,
+        )
+        self.customColumns.append(cc)
+
+        # Flags
+        def setData(c: Card, value: str):
+            try:
+                value = int(value)
+            except ValueError:
+                value = {"":0, "no":0,"red":1, "orange":2, "green":3, "blue":4}.get(value.strip().lower())
+                if value is None:
+                    return False
+            if not 0 <= value <= 4:
+                return False
+            c.setUserFlag(value)
+            return True
+
+        cc = advBrowser.newCustomColumn(
+            type="cflags",
+            name="Flag",
+            onData=lambda c, n, t: {1: _("Red Flag"), 2:_("Orange Flag"),
+                                    3: _("Green Flag"), 4:_("Blue Flag")}
+                .get(c.flags, None),
+            onSort=lambda: "(case when c.flags = 0 then null else c.flags end) asc nulls last",
             setData=setData,
         )
         self.customColumns.append(cc)

@@ -361,26 +361,6 @@ class InternalFields:
         )
         self.cardColumns.append(cc)
 
-        def setData(c: Card, value: str):
-            try:
-                value = int(value)
-            except ValueError:
-                value = {"":0, "no":0,"red":1, "orange":2, "green":3, "blue":4}.get(value.strip().lower())
-                if value is None:
-                    return False
-            if not 0 <= value <= 4:
-                return False
-            c.setUserFlag(value)
-            return True
-
-        cc = advBrowser.newCustomColumn(
-            type="cflags",
-            name="Card Flags",
-            onData=lambda c, n, t: c.flags,
-            onSort=lambda: "c.flags",
-            setData=setData,
-        )
-        self.cardColumns.append(cc)
 
 
 iff = InternalFields()
