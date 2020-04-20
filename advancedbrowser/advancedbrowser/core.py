@@ -39,7 +39,7 @@ class AdvancedDataModel(DataModel):
         # Keep a copy of the original active columns to restore on closing.
         self.origActiveCols = list(self.activeCols)
 
-        configuredCols = self.browser.mw.col.conf.get(CONF_KEY, None)
+        configuredCols = self.browser.mw.col.get_config(CONF_KEY)
         if configuredCols:
             # We've used this add-on before and have a configured list of columns.
             # Adjust activeCols to reflect it.
@@ -55,8 +55,8 @@ class AdvancedDataModel(DataModel):
             self.activeCols = [col for col in configuredCols if col in valids]
 
             # Also make sure the sortType is valid
-            if self.browser.mw.col.conf['sortType'] not in valids:
-                self.browser.mw.col.conf['sortType'] = 'noteFld'
+            if self.browser.mw.col.get_config('sortType') not in valids:
+                self.browser.mw.col.set_config('sortType', 'noteFld')
                 # If there is no sorted column, we add the 'Sort Field' column
                 # and sort on that. This method is one way to guarantee that we
                 # always start with at least one valid column.
@@ -116,7 +116,7 @@ class AdvancedDataModel(DataModel):
         # If the column is not a custom one handled by this add-on, do it
         # internally.
         cTypes = self.browser.customTypes
-        type = self.col.conf['sortType']
+        type = self.col.get_config('sortType')
         if type not in cTypes:
             return
 
@@ -125,7 +125,7 @@ class AdvancedDataModel(DataModel):
         if not order:
             ctx.order = None
         else:
-            if self.col.conf["sortBackwards"]:
+            if self.col.get_config('sortBackwards'):
                 order = order.replace(" asc", " desc")
             ctx.order = order
 
@@ -325,7 +325,7 @@ class AdvancedBrowser(Browser):
 
         if not self.saveEvent:
             # Save ours
-            self.mw.col.conf[CONF_KEY] = self.model.activeCols
+            self.mw.col.set_config(CONF_KEY, self.model.activeCols)
             # Restore old
             self.model.activeCols = self.model.origActiveCols
             # Restore built-in columns we removed
@@ -342,8 +342,8 @@ class AdvancedBrowser(Browser):
     def _onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
         if type in self.customTypes:
-            if self.col.conf["sortType"] == type:
-                self.col.conf["sortType"] = ""
+            if self.col.get_config('sortType') == type:
+                self.col.set_config('sortType', "")
         super(AdvancedBrowser, self)._onSortChanged(idx, ord)
 
 # Override DataModel with our subclass
