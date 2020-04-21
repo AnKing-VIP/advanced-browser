@@ -56,6 +56,7 @@ class NoteFields:
                     modelGroup.addItem(self.customColumns[fld['name']])
 
     def buildMappings(self):
+        self.fieldsToMidOrdPairs = {}
         for model in mw.col.models.all():
             # For some reason, some mids return as unicode, so convert to int
             mid = int(model['id'])
