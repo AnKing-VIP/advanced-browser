@@ -4,15 +4,12 @@
 
 import time
 
-from anki.consts import *
 from anki.cards import Card
-from anki.hooks import addHook, wrap
-from anki.rsbackend import FormatTimeSpanContext
+from anki.consts import *
+from anki.hooks import addHook
 from anki.lang import _
-from anki.stats import CardStats
-from anki.utils import fmtTimeSpan
+from anki.rsbackend import FormatTimeSpanContext
 from aqt import *
-from aqt.main import AnkiQt
 from aqt.utils import askUser
 
 
@@ -33,7 +30,6 @@ class CustomFields:
         # -- Columns -- #
 
         # First review
-
         def cFirstOnData(c, n, t):
             first = mw.col.db.scalar(
                 "select min(id) from revlog where cid = ?", c.id)
@@ -47,6 +43,7 @@ class CustomFields:
             onSort=lambda: "(select min(id) from revlog where cid = c.id)",
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
         # Last review
         def cLastOnData(c, n, t):
@@ -62,6 +59,7 @@ class CustomFields:
             onSort=lambda: "(select max(id) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
         # Average time
         def cAvgtimeOnData(c, n, t):
@@ -76,6 +74,7 @@ class CustomFields:
             onSort=lambda: "(select avg(time) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
         # Total time
         def cTottimeOnData(c, n, t):
@@ -90,6 +89,7 @@ class CustomFields:
             onSort=lambda: "(select sum(time) from revlog where cid = c.id)"
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
         # Fastest time
         def cFasttimeOnData(c, n, t):
@@ -108,6 +108,7 @@ class CustomFields:
             onSort=getOnSort(srt)
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
         # Slowest time
         def cSlowtimeOnData(c, n, t):
@@ -126,6 +127,7 @@ class CustomFields:
             onSort=getOnSort(srt)
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
         # Overdue interval
         def cOverdueIvl(c, n, t):
@@ -152,6 +154,7 @@ class CustomFields:
             onSort=getOnSort(srt)
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
         # Previous interval
         def cPrevIvl(c, n, t):
@@ -177,6 +180,7 @@ class CustomFields:
             onSort=getOnSort(srt)
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
         # Percent correct
         def cPctCorrect(c, n, t):
@@ -192,6 +196,7 @@ class CustomFields:
             onSort=lambda: "cast(c.lapses as real)/c.reps"
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
         # Previous duration
         def cPrevDur(c, n, t):
@@ -210,8 +215,9 @@ class CustomFields:
             onSort=getOnSort(srt)
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
-        # Date (and time) created
+        # Created Time (Note)
         def cDateTimeCrt(c, n, t):
             return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(c.note().id/1000))
 
@@ -222,7 +228,9 @@ class CustomFields:
             onSort=lambda: "n.id"
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
+        # Current Deck (filtered)
         def setData(c: Card, value: str):
             old_deck = c.col.decks.get(c.did)
             new_deck = c.col.decks.byName(value)
@@ -270,6 +278,7 @@ class CustomFields:
             setData=setData,
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
         # Flags
         def setData(c: Card, value: str):
@@ -294,6 +303,7 @@ class CustomFields:
             setData=setData,
         )
         self.customColumns.append(cc)
+        # ------------------------------- #
 
     def onBuildContextMenu(self, contextMenu):
         """Build our part of the browser columns context menu."""
