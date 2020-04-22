@@ -222,15 +222,41 @@ class CustomFields:
             return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(c.note().id/1000))
 
         cc = advBrowser.newCustomColumn(
-            type='cdatetimecrt',
-            name='Created (full)',
+            type='ctimecrtn',
+            name='Created Time (Note)',
             onData=cDateTimeCrt,
             onSort=lambda: "n.id"
         )
         self.customColumns.append(cc)
         # ------------------------------- #
 
-        # Current Deck (filtered)
+        # Created Date (Card)
+        def cDateTimeCrt(c, n, t):
+            return time.strftime("%Y-%m-%d", time.localtime(c.id/1000))
+
+        cc = advBrowser.newCustomColumn(
+            type='cdatecrtc',
+            name='Created Date (Card)',
+            onData=cDateTimeCrt,
+            onSort=lambda: "c.id"
+        )
+        self.customColumns.append(cc)
+        # ------------------------------- #
+
+        # Created Time (Card)
+        def cDateTimeCrt(c, n, t):
+            return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(c.id/1000))
+
+        cc = advBrowser.newCustomColumn(
+            type='ctimecrtc',
+            name='Created Time (Card)',
+            onData=cDateTimeCrt,
+            onSort=lambda: "c.id"
+        )
+        self.customColumns.append(cc)
+        # ------------------------------- #
+
+        # Current Deck (Filtered)
         def setData(c: Card, value: str):
             old_deck = c.col.decks.get(c.did)
             new_deck = c.col.decks.byName(value)
@@ -271,7 +297,7 @@ class CustomFields:
                 )
         cc = advBrowser.newCustomColumn(
             type="cdeck",
-            name="Current Deck (filtered)",
+            name="Current Deck (Filtered)",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.did),
             sortTableFunction=sortTableFunction,
             onSort=lambda: "(select v from tmp where k = c.did) collate nocase asc",
