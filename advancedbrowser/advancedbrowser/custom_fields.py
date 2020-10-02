@@ -65,7 +65,7 @@ class CustomFields:
         def cAvgtimeOnData(c, n, t):
             avgtime = mw.col.db.scalar(
                 "select avg(time)/1000.0 from revlog where cid = ?", c.id)
-            return mw.col.backend.format_time_span(avgtime)
+            return mw.col.format_timespan(avgtime)
 
         cc = advBrowser.newCustomColumn(
             type='cavgtime',
@@ -80,7 +80,7 @@ class CustomFields:
         def cTottimeOnData(c, n, t):
             tottime = mw.col.db.scalar(
                 "select sum(time)/1000.0 from revlog where cid = ?", c.id)
-            return mw.col.backend.format_time_span(tottime)
+            return mw.col.format_timespan(tottime)
 
         cc = advBrowser.newCustomColumn(
             type='ctottime',
@@ -96,7 +96,7 @@ class CustomFields:
             tm = mw.col.db.scalar(
                 "select time/1000.0 from revlog where cid = ? "
                 "order by time asc limit 1", c.id)
-            return mw.col.backend.format_time_span(tm)
+            return mw.col.format_timespan(tm)
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
                "order by time asc limit 1)")
@@ -115,7 +115,7 @@ class CustomFields:
             tm = mw.col.db.scalar(
                 "select time/1000.0 from revlog where cid = ? "
                 "order by time desc limit 1", c.id)
-            return mw.col.backend.format_time_span(tm)
+            return mw.col.format_timespan(tm)
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
                "order by time desc limit 1)")
@@ -133,7 +133,7 @@ class CustomFields:
         def cOverdueIvl(c, n, t):
             val = self.valueForOverdue(c.odid, c.queue, c.type, c.due)
             if val:
-                return mw.col.backend.format_time_span(val * 24 * 60 * 60, context=FormatTimeSpanContext.INTERVALS)
+                return mw.col.format_timespan(val * 24 * 60 * 60, context=FormatTimeSpanContext.INTERVALS)
 
         srt = (f"""
         select
@@ -166,9 +166,9 @@ class CustomFields:
             elif ivl == 0:
                 return "0 days"
             elif ivl > 0:
-                return mw.col.backend.format_time_span(ivl*86400, context=FormatTimeSpanContext.INTERVALS)
+                return mw.col.format_timespan(ivl*86400, context=FormatTimeSpanContext.INTERVALS)
             else:
-                return mw.col.backend.format_time_span(-ivl, context=FormatTimeSpanContext.INTERVALS)
+                return mw.col.format_timespan(-ivl, context=FormatTimeSpanContext.INTERVALS)
 
         srt = ("(select ivl from revlog where cid = c.id "
                "order by id desc limit 1 offset 1)")
@@ -203,7 +203,7 @@ class CustomFields:
             time = mw.col.db.scalar(
                 "select time/1000.0 from revlog where cid = ? "
                 "order by id desc limit 1", c.id)
-            return mw.col.backend.format_time_span(time)
+            return mw.col.format_timespan(time)
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
                "order by id desc limit 1)")
