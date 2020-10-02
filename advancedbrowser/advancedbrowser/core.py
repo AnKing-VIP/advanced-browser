@@ -3,13 +3,12 @@
 # https://github.com/hssm/advanced-browser
 
 import time
-from operator import itemgetter
-
 from PyQt5 import QtWidgets
 from anki.hooks import runHook
 from aqt import *
 from aqt import gui_hooks
 from aqt.browser import Browser, DataModel, SearchContext, StatusDelegate
+from operator import itemgetter
 
 from . import config
 from .column import Column, CustomColumn

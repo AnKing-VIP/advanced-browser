@@ -2,9 +2,8 @@
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
 import re
-
 from anki.cards import Card
-from anki.hooks import addHook, wrap
+from anki.hooks import addHook
 from aqt import *
 from aqt.utils import showWarning
 

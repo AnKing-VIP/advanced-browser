@@ -10,10 +10,8 @@
 
 from anki.cards import Card
 from anki.consts import *
-from anki.hooks import addHook, wrap
+from anki.hooks import addHook
 from anki.lang import _
-from aqt import mw
-from aqt.main import AnkiQt
 from aqt.utils import askUser
 
 

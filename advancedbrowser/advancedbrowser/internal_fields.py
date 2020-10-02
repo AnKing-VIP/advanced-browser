@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 # See github page to report issues or to contribute:
 # https://github.com/hssm/advanced-browser
-from anki.lang import _
 from anki.cards import Card
-from anki.lang import _
-from anki.utils import intTime, splitFields
-from aqt.utils import askUser, showWarning
-
 from anki.consts import *
-
+from anki.hooks import addHook, remHook
+from anki.lang import _
+from anki.utils import intTime
+from aqt.utils import askUser
 
 
 class InternalFields:
