@@ -13,7 +13,7 @@ from aqt import *
 from aqt.utils import askUser
 
 
-class CustomFields:
+class AdvancedFields:
 
     def onAdvBrowserLoad(self, advBrowser):
         """Called when the Advanced Browser add-on has finished
@@ -331,6 +331,7 @@ class CustomFields:
         self.customColumns.append(cc)
         # ------------------------------- #
 
+
     def onBuildContextMenu(self, contextMenu):
         """Build our part of the browser columns context menu."""
 
@@ -353,6 +354,6 @@ class CustomFields:
                 return
 
 
-cf = CustomFields()
-addHook("advBrowserLoaded", cf.onAdvBrowserLoad)
-addHook("advBrowserBuildContext", cf.onBuildContextMenu)
+af = AdvancedFields()
+addHook("advBrowserLoaded", af.onAdvBrowserLoad)
+addHook("advBrowserBuildContext", af.onBuildContextMenu)
