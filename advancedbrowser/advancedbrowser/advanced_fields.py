@@ -40,7 +40,7 @@ class AdvancedFields:
             type='cfirst',
             name='First Review',
             onData=cFirstOnData,
-            onSort=lambda: "(select min(id) from revlog where cid = c.id)",
+            onSort=lambda: "(select min(id) from revlog where cid = c.id) asc nulls last",
         )
         self.customColumns.append(cc)
         # ------------------------------- #
@@ -56,7 +56,7 @@ class AdvancedFields:
             type='clast',
             name='Last Review',
             onData=cLastOnData,
-            onSort=lambda: "(select max(id) from revlog where cid = c.id)"
+            onSort=lambda: "(select max(id) from revlog where cid = c.id) asc nulls last"
         )
         self.customColumns.append(cc)
         # ------------------------------- #
@@ -73,7 +73,7 @@ class AdvancedFields:
             type='cavgtime',
             name='Time (Average)',
             onData=cAvgtimeOnData,
-            onSort=lambda: "(select avg(time) from revlog where cid = c.id)"
+            onSort=lambda: "(select avg(time) from revlog where cid = c.id) asc nulls last"
         )
         self.customColumns.append(cc)
         # ------------------------------- #
@@ -90,7 +90,7 @@ class AdvancedFields:
             type='ctottime',
             name='Time (Total)',
             onData=cTottimeOnData,
-            onSort=lambda: "(select sum(time) from revlog where cid = c.id)"
+            onSort=lambda: "(select sum(time) from revlog where cid = c.id) asc nulls last"
         )
         self.customColumns.append(cc)
         # ------------------------------- #
@@ -104,8 +104,9 @@ class AdvancedFields:
                 return mw.col.backend.format_time_span(tm)
             return None
 
+        # Note: capital ASC required to avoid search+replace
         srt = ("(select time/1000.0 from revlog where cid = c.id "
-               "order by time asc limit 1)")
+               "order by time ASC limit 1) asc nulls last")
 
         cc = advBrowser.newCustomColumn(
             type='cfasttime',
@@ -126,7 +127,7 @@ class AdvancedFields:
             return None
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
-               "order by time desc limit 1)")
+               "order by time DESC limit 1) asc nulls last")
 
         cc = advBrowser.newCustomColumn(
             type='cslowtime',
@@ -153,7 +154,7 @@ class AdvancedFields:
              when {mw.col.sched.today} - due <= 0 then null
              when (queue = {QUEUE_TYPE_REV} or queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} or (type = {CARD_TYPE_REV} and queue < 0)) then ({mw.col.sched.today} - due)
           )
-        where id = c.id""")
+        where id = c.id asc nulls last""")
 
         cc = advBrowser.newCustomColumn(
             type='coverdueivl',
@@ -179,7 +180,7 @@ class AdvancedFields:
                 return mw.col.backend.format_time_span(-ivl, context=FormatTimeSpanContext.INTERVALS)
 
         srt = ("(select ivl from revlog where cid = c.id "
-               "order by id desc limit 1 offset 1)")
+               "order by id desc limit 1 offset 1) asc nulls last")
 
         cc = advBrowser.newCustomColumn(
             type='cprevivl',
@@ -201,7 +202,7 @@ class AdvancedFields:
             type='cpct',
             name='Percent Correct',
             onData=cPctCorrect,
-            onSort=lambda: "cast(c.lapses as real)/c.reps"
+            onSort=lambda: "cast(c.lapses as real)/c.reps asc nulls last"
         )
         self.customColumns.append(cc)
         # ------------------------------- #
@@ -216,7 +217,7 @@ class AdvancedFields:
             return None
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
-               "order by id desc limit 1)")
+               "order by id desc limit 1) asc nulls last")
 
         cc = advBrowser.newCustomColumn(
             type='cprevdur',
@@ -235,7 +236,7 @@ class AdvancedFields:
             type='ctimecrtn',
             name='Created Time (Note)',
             onData=cDateTimeCrt,
-            onSort=lambda: "n.id"
+            onSort=lambda: "n.id asc nulls last"
         )
         self.customColumns.append(cc)
         # ------------------------------- #
@@ -248,7 +249,7 @@ class AdvancedFields:
             type='cdatecrtc',
             name='Created Date (Card)',
             onData=cDateTimeCrt,
-            onSort=lambda: "c.id"
+            onSort=lambda: "c.id asc nulls last"
         )
         self.customColumns.append(cc)
         # ------------------------------- #
@@ -261,7 +262,7 @@ class AdvancedFields:
             type='ctimecrtc',
             name='Created Time (Card)',
             onData=cDateTimeCrt,
-            onSort=lambda: "c.id"
+            onSort=lambda: "c.id asc nulls last"
         )
         self.customColumns.append(cc)
         # ------------------------------- #
