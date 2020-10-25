@@ -65,7 +65,9 @@ class AdvancedFields:
         def cAvgtimeOnData(c, n, t):
             avgtime = mw.col.db.scalar(
                 "select avg(time)/1000.0 from revlog where cid = ?", c.id)
-            return mw.col.backend.format_time_span(avgtime)
+            if avgtime:
+                return mw.col.backend.format_time_span(avgtime)
+            return None
 
         cc = advBrowser.newCustomColumn(
             type='cavgtime',
@@ -80,7 +82,9 @@ class AdvancedFields:
         def cTottimeOnData(c, n, t):
             tottime = mw.col.db.scalar(
                 "select sum(time)/1000.0 from revlog where cid = ?", c.id)
-            return mw.col.backend.format_time_span(tottime)
+            if tottime:
+                return mw.col.backend.format_time_span(tottime)
+            return None
 
         cc = advBrowser.newCustomColumn(
             type='ctottime',
@@ -96,7 +100,9 @@ class AdvancedFields:
             tm = mw.col.db.scalar(
                 "select time/1000.0 from revlog where cid = ? "
                 "order by time asc limit 1", c.id)
-            return mw.col.backend.format_time_span(tm)
+            if tm:
+                return mw.col.backend.format_time_span(tm)
+            return None
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
                "order by time asc limit 1)")
@@ -115,7 +121,9 @@ class AdvancedFields:
             tm = mw.col.db.scalar(
                 "select time/1000.0 from revlog where cid = ? "
                 "order by time desc limit 1", c.id)
-            return mw.col.backend.format_time_span(tm)
+            if tm:
+                return mw.col.backend.format_time_span(tm)
+            return None
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
                "order by time desc limit 1)")
@@ -187,7 +195,7 @@ class AdvancedFields:
             if c.reps > 0:
                 return "{:2.0f}%".format(
                     100 - ((c.lapses / float(c.reps)) * 100))
-            return "0%"
+            return None
 
         cc = advBrowser.newCustomColumn(
             type='cpct',
@@ -203,7 +211,9 @@ class AdvancedFields:
             time = mw.col.db.scalar(
                 "select time/1000.0 from revlog where cid = ? "
                 "order by id desc limit 1", c.id)
-            return mw.col.backend.format_time_span(time)
+            if time:
+                return mw.col.backend.format_time_span(time)
+            return None
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
                "order by id desc limit 1)")
