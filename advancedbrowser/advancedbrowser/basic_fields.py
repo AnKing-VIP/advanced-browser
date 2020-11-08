@@ -147,7 +147,7 @@ class BasicFields:
             type="cardEase",
             name="Ease",
             onData=None,
-            onSort=lambda: f"(case when type = {CARD_TYPE_NEW} then -1 else factor end)",
+            onSort=lambda: f"(case when type = {CARD_TYPE_NEW} then null else factor end) asc nulls last",
             setData=setData,
         )
         self.customColumns.append(cc)
@@ -179,7 +179,7 @@ class BasicFields:
             name="Original Deck",
             onData=lambda c, n, t: advBrowser.mw.col.decks.name(c.odid),
             sortTableFunction=sortTableFunctionDeckName,
-            onSort=lambda: "(select v from tmp where k = c.odid) collate nocase asc",
+            onSort=lambda: "(select v from tmp where k = c.odid) collate nocase asc nulls last",
             setData=setData,
         )
         self.customColumns.append(cc)

@@ -57,7 +57,7 @@ class InternalFields:
             type="nid",
             name="Note ID",
             onData=lambda c, n, t: str(n.id),
-            onSort=lambda: "n.id",
+            onSort=lambda: "n.id asc nulls last",
             setData=setData,
         )
         self.noteColumns.append(cc)
@@ -74,7 +74,7 @@ class InternalFields:
             type="nguid",
             name="Note Guid",
             onData=lambda c, n, t: str(n.guid),
-            onSort=lambda: "n.guid",
+            onSort=lambda: "n.guid asc nulls last",
             setData=setData,
         )
         self.noteColumns.append(cc)
@@ -83,7 +83,7 @@ class InternalFields:
             type="nmid",
             name="Model ID",
             onData=lambda c, n, t: str(n.mid),
-            onSort=lambda: "n.mid"
+            onSort=lambda: "n.mid asc nulls last"
         )
         self.noteColumns.append(cc)
 
@@ -98,7 +98,7 @@ class InternalFields:
             type="nusn",
             name="Note USN",
             onData=lambda c, n, t: str(n.usn),
-            onSort=lambda: "n.usn",
+            onSort=lambda: "n.usn asc nulls last",
             setData=setData,
         )
         self.noteColumns.append(cc)
@@ -117,7 +117,7 @@ class InternalFields:
             type="nfields",
             name="Note Fields",
             onData=lambda c, n, t: u"\u25A0".join(n.fields),
-            onSort=lambda: "n.flds",
+            onSort=lambda: "n.flds asc nulls last",
             setData=setData,
         )
         self.noteColumns.append(cc)
@@ -126,7 +126,7 @@ class InternalFields:
             type="nflags",
             name="Note Flags",
             onData=lambda c, n, t: n.flags,
-            onSort=lambda: "n.flags"
+            onSort=lambda: "n.flags asc nulls last"
         )
         self.noteColumns.append(cc)
 
@@ -134,7 +134,7 @@ class InternalFields:
             type="ndata",
             name="Note Data",
             onData=lambda c, n, t: n.data,
-            onSort=lambda: "n.data"
+            onSort=lambda: "n.data asc nulls last"
         )
         self.noteColumns.append(cc)
 
@@ -157,7 +157,7 @@ class InternalFields:
             type="cid",
             name="Card ID",
             onData=lambda c, n, t: str(c.id),
-            onSort=lambda: "c.id",
+            onSort=lambda: "c.id asc nulls last",
             setData=setData,
         )
         self.cardColumns.append(cc)
@@ -190,7 +190,7 @@ class InternalFields:
             type="cdid",
             name="Deck ID",
             onData=lambda c, n, t: str(c.did),
-            onSort=lambda: "c.did",
+            onSort=lambda: "c.did asc nulls last",
             setData=setData,
         )
         self.cardColumns.append(cc)
@@ -211,7 +211,7 @@ class InternalFields:
             type="codid",
             name="Original Deck ID",
             onData=lambda c, n, t: str(c.odid),
-            onSort=lambda: "c.odid",
+            onSort=lambda: "c.odid asc nulls last",
             setData=setData,
         )
         self.cardColumns.append(cc)
@@ -237,7 +237,7 @@ class InternalFields:
             type="cord",
             name="Card Ordinal",
             onData=lambda c, n, t: str(c.ord),
-            onSort=lambda: "c.ord",
+            onSort=lambda: "c.ord asc nulls last",
             setData=setData,
         )
         self.cardColumns.append(cc)
@@ -253,7 +253,7 @@ class InternalFields:
             type="cusn",
             name="Card USN",
             onData=lambda c, n, t: str(c.usn),
-            onSort=lambda: "c.usn",
+            onSort=lambda: "c.usn asc nulls last",
             setData=setData,
         )
         self.cardColumns.append(cc)
@@ -277,7 +277,7 @@ class InternalFields:
         cc = advBrowser.newCustomColumn(
             type="ctype",
             name="Card Type",
-            onSort=lambda: "c.type",
+            onSort=lambda: "c.type asc nulls last",
             onData=lambda c, n, t: {
                 0: _("New"),
                 1: _("Lrn"),
@@ -317,7 +317,7 @@ class InternalFields:
                 3: _("Day learn relearn"),
                 4: _("Preview"),
             }.get(c.queue, c.queue),
-            onSort=lambda: "c.queue",
+            onSort=lambda: "c.queue asc nulls last",
             setData=setData,
         )
         self.cardColumns.append(cc)
@@ -334,7 +334,7 @@ class InternalFields:
             type="cleft",
             name="Card Left",
             onData=lambda c, n, t: str(c.left),
-            onSort=lambda: "c.left",
+            onSort=lambda: "c.left asc nulls last",
             setData=setData,
         )
         self.cardColumns.append(cc)
@@ -354,7 +354,7 @@ class InternalFields:
             type="codue",
             name="Card Original Due",
             onData=lambda c, n, t: str(c.odue),
-            onSort=lambda: "c.odue",
+            onSort=lambda: "c.odue asc nulls last",
             setData=setData,
         )
         self.cardColumns.append(cc)
