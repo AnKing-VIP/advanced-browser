@@ -4,7 +4,7 @@
 from anki.cards import Card
 from anki.consts import *
 from anki.hooks import addHook, remHook
-from anki.lang import _
+from aqt.utils import tr
 from anki.utils import intTime
 from aqt.utils import askUser
 
@@ -279,10 +279,10 @@ class InternalFields:
             name="Card Type",
             onSort=lambda: "c.type asc nulls last",
             onData=lambda c, n, t: {
-                0: _("New"),
-                1: _("Lrn"),
-                2: _("Rev"),
-                3: _("Relearning"),
+                0: tr(TR.ACTIONS_NEW),
+                1: "Lrn", # transalation missing
+                2: "Rev", # transalation missing
+                3: tr(TR.STATISTICS_COUNTS_RELEARNING_CARDS),
             }.get(c.type, c.type),
         )
         self.cardColumns.append(cc)
@@ -298,7 +298,7 @@ class InternalFields:
                          "lrn": 1, "rev": 2, "day learn relearn": 3, "preview": 4}.get(value.strip().lower())
                 if value is None:
                     return False
-            if not askUser(_("Do you really want to change the queue type of the card ? Values may be inconsistents if you don't change the card type, due value, etc....")):
+            if not askUser("Do you really want to change the queue type of the card ? Values may be inconsistents if you don't change the card type, due value, etc...."): # transalation missing
                 return False
             c.type = value
             c.flush()
@@ -308,14 +308,14 @@ class InternalFields:
             type="cqueue",
             name="Card Queue",
             onData=lambda c, n, t: {
-                -3: _("Manually buried"),
-                -2: _("Sibling buried"),
-                -1: _("Type suspended"),
-                0: _("New"),
-                1: _("Lrn"),
-                2: _("Rev"),
-                3: _("Day learn relearn"),
-                4: _("Preview"),
+                -3: tr(TR.STUDYING_MANUALLY_BURIED_CARDS),
+                -2: tr(TR.STUDYING_BURIED_SIBLINGS),
+                -1: tr(TR.BROWSING_SUSPENDED),
+                0: tr(TR.ACTIONS_NEW),
+                1: "Lrn", # transalation missing
+                2: "Rev", # transalation missing
+                3: "Day learn relearn", # transalation missing
+                4: tr(TR.CARD_TEMPLATES_PREVIEW_BOX),
             }.get(c.queue, c.queue),
             onSort=lambda: "c.queue asc nulls last",
             setData=setData,
@@ -344,7 +344,7 @@ class InternalFields:
                 value = int(value)
             except ValueError:
                 return False
-            if not askUser(_("Do you really want to change the original due. If the card is not already in a filtered deck, or moved to one, it may creates unexpected effect.")):
+            if not askUser("Do you really want to change the original due. If the card is not already in a filtered deck, or moved to one, it may creates unexpected effect."): # Translation missing
                 return False
             c.odue = value
             c.flush()

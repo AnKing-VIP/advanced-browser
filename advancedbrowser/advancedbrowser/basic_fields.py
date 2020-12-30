@@ -11,7 +11,7 @@
 from anki.cards import Card
 from anki.consts import *
 from anki.hooks import addHook
-from anki.lang import _
+from aqt.utils import tr
 from aqt.utils import askUser
 
 
@@ -162,7 +162,7 @@ class BasicFields:
             new_deck = c.col.decks.byName(value)
             if new_deck is None:
                 if not askUser(
-                        _("%s does not exists, do you want to create this deck ?") % value,
+                        "%s does not exists, do you want to create this deck ?" % value, # Translation missing
                         parent=advBrowser,
                         defaultno=True):
                     return False
