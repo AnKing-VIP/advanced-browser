@@ -7,8 +7,9 @@ import time
 from anki.cards import Card
 from anki.consts import *
 from anki.hooks import addHook
+
 from aqt.utils import tr
-from anki.rsbackend import FormatTimeSpanContext
+from anki.lang import FormatTimeSpan as FormatTimeSpanContext
 from aqt import *
 from aqt.utils import askUser
 
