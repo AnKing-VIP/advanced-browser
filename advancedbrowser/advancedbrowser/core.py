@@ -99,16 +99,15 @@ class AdvancedDataModel(DataModel):
     def columnData(self, index):
         # Try to handle built-in Anki column
         returned = self._columnData(self, index)
-        if returned is not None:
+        if returned:
             return returned
 
         # If Anki can't handle it, it must be one of ours.
         col = index.column()
         type = self.columnType(col)
-        c = self.getCard(index)
-        n = c.note()
-
         if type in self.browser.customTypes:
+            c = self.getCard(index)
+            n = c.note()
             return self.browser.customTypes[type].onData(c, n, type)
 
     def willSearch(self, ctx: SearchContext):
