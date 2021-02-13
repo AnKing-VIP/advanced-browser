@@ -108,7 +108,10 @@ class AdvancedDataModel(DataModel):
         if type in self.browser.customTypes:
             c = self.getCard(index)
             n = c.note()
-            return self.browser.customTypes[type].onData(c, n, type)
+            try:
+                return self.browser.customTypes[type].onData(c, n, type)
+            except:
+                return "{error}"
 
     def willSearch(self, ctx: SearchContext):
         # If the column is not a custom one handled by this add-on, do it
