@@ -177,19 +177,19 @@ class AdvancedStatusDelegate(StatusDelegate):
 class AdvancedBrowser(Browser):
     """Maintains state for the add-on."""
 
-    def newBrowserInit(self, mw):
+    def newBrowserInit(self, mw, card, search):
         """Init stub to allow us to construct a Browser without doing
         the setup until we need to."""
         QMainWindow.__init__(self, None, Qt.Window)
 
-    def __init__(self, mw):
+    def __init__(self, mw, card=None, search=None):
         # Override Browser __init_. We manually invoke the original after
         # we use our stub one. This is to work around the fact that super
         # needs to be called on Browser before its methods can be invoked,
         # which add-ons need to do in the hook.
         origInit = Browser.__init__
         Browser.__init__ = self.newBrowserInit
-        super(AdvancedBrowser, self).__init__(mw)
+        super(AdvancedBrowser, self).__init__(mw, card, search)
 
         # A list of columns to exclude when building the final column list.
         self.columnsToRemove = []
