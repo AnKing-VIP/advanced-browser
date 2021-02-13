@@ -7,7 +7,8 @@ import time
 from anki.cards import Card
 from anki.consts import *
 from anki.hooks import addHook
-from anki.lang import _
+
+from aqt.utils import tr
 from anki.lang import FormatTimeSpan as FormatTimeSpanContext
 from aqt import *
 from aqt.utils import askUser
@@ -273,7 +274,7 @@ class AdvancedFields:
             new_deck = c.col.decks.byName(value)
             if new_deck is None:
                 if not askUser(
-                        _("%s does not exists, do you want to create this deck ?") % value,
+                        "%s does not exists, do you want to create this deck ?" % value, # translation missing
                         parent=advBrowser,
                         defaultno=True):
                     return False
@@ -333,8 +334,8 @@ class AdvancedFields:
         cc = advBrowser.newCustomColumn(
             type="cflags",
             name="Flag",
-            onData=lambda c, n, t: {1: _("Red Flag"), 2:_("Orange Flag"),
-                                    3: _("Green Flag"), 4:_("Blue Flag")}
+            onData=lambda c, n, t: {1: tr(TR.ACTIONS_RED_FLAG), 2:tr(TR.ACTIONS_ORANGE_FLAG),
+                                    3: tr(TR.ACTIONS_GREEN_FLAG), 4:tr(TR.ACTIONS_BLUE_FLAG)}
                 .get(c.flags, None),
             onSort=lambda: "(case when c.flags = 0 then null else c.flags end) asc nulls last",
             setData=setData,
