@@ -205,7 +205,7 @@ class AdvancedBrowser(Browser):
 
         # Build the actual browser, which now has our state in it,
         # and restore constructor.
-        origInit(self, mw)
+        origInit(self, mw, card, search)
         Browser.__init__ = origInit
 
         # Remove excluded columns after the browser is built. Doing it here
