@@ -44,12 +44,12 @@ class NoteFields:
         fldGroup = contextMenu.newSubMenu(" - Fields -")
         if getEachFieldInSingleList():
             # And an option for each fields
-            for model in mw.col.models.models.values():
+            for model in mw.col.models.all():
                 for fld in model['flds']:
                     fldGroup.addItem(self.customColumns[fld['name']])
         else:
             # And a sub-menu for each note type
-            for model in mw.col.models.models.values():
+            for model in mw.col.models.all():
                 modelGroup = fldGroup.newSubMenu(model['name'])
                 for fld in model['flds']:
                     modelGroup.addItem(self.customColumns[fld['name']])
