@@ -28,7 +28,7 @@ class BasicFields:
 
         def setData(c: Card, value: str):
             n = c.note()
-            m = n.model()
+            m = n.note_type()
             if m["type"] == MODEL_CLOZE:
                 tmpl = m["tmpls"][0]
                 tmpl_name = tmpl["name"]

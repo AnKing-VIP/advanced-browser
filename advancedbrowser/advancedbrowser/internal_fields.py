@@ -222,7 +222,7 @@ class InternalFields:
             except ValueError:
                 return False
             n = c.note()
-            m = n.model()
+            m = n.note_type()
             if value < 0:
                 return False
             if m["type"] == MODEL_STD and value >= len(m["tmpls"]):

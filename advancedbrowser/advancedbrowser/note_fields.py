@@ -85,6 +85,7 @@ class NoteFields:
         def setData_(name):
             def setData(c: Card, value: str):
                 n = c.note()
+                m = n.note_type()
                 if not name in n:
                     showWarning(_("""The field "%s" does not belong to the note type "%s".""") % (
                         name, m["name"]))
