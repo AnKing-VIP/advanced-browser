@@ -7,11 +7,11 @@ import time
 from anki.cards import Card
 from anki.consts import *
 from anki.hooks import addHook
-
-from aqt.utils import tr
 from anki.lang import FormatTimeSpan as FormatTimeSpanContext
+
 from aqt import *
-from aqt.utils import askUser
+from aqt.operations.card import set_card_flag
+from aqt.utils import askUser, tr
 
 
 class AdvancedFields:
@@ -323,20 +323,18 @@ class AdvancedFields:
             try:
                 value = int(value)
             except ValueError:
-                value = {"":0, "no":0,"red":1, "orange":2, "green":3, "blue":4}.get(value.strip().lower())
+                value = {"":0, "no":0,"red":1, "orange":2, "green":3, "blue":4, "pink":5, "turquoise":6, "purple":7}.get(value.strip().lower())
                 if value is None:
                     return False
-            if not 0 <= value <= 4:
+            if not 0 <= value <= 7:
                 return False
-            c.setUserFlag(value)
+            set_card_flag(parent=advBrowser.browser, card_ids=[c.id], flag=value).run_in_background()
             return True
 
         cc = advBrowser.newCustomColumn(
             type="cflags",
             name="Flag",
-            onData=lambda c, n, t: {1: tr(TR.ACTIONS_RED_FLAG), 2:tr(TR.ACTIONS_ORANGE_FLAG),
-                                    3: tr(TR.ACTIONS_GREEN_FLAG), 4:tr(TR.ACTIONS_BLUE_FLAG)}
-                .get(c.flags, None),
+            onData=lambda c, n, t: mw.flags.get_flag(c.flags).label if c.flags else None,
             onSort=lambda: "(case when c.flags = 0 then null else c.flags end) asc nulls last",
             setData=setData,
         )
