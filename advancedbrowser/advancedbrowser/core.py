@@ -4,11 +4,12 @@
 
 import time
 
-from anki.collection import BrowserColumns, Collection
+from anki.collection import BrowserColumns
+from anki.browser import BrowserConfig
 from anki.hooks import runHook, wrap
 from aqt import *
 from aqt import gui_hooks
-from aqt.browser import Browser, Column as BuiltinColumn, DataModel, SearchContext, CardState, NoteState
+from aqt.browser import Column as BuiltinColumn, DataModel, SearchContext, CardState, NoteState
 
 from . import config
 from .column import Column, CustomColumn
@@ -226,99 +227,17 @@ def wrap_data(self, index, role, _old):
     return _old(self, index, role)
 
 
-# Config getting and setting
 ################################################################################
 
-def _set_advanced_browser_card_columns(self, columns):
-    self.set_config(CONF_KEY_PREFIX + "activeCols", columns)
-    self._backend.set_active_browser_columns(columns)
-
-
-def _set_advanced_browser_note_columns(self, columns):
-    self.set_config(CONF_KEY_PREFIX + "activeNoteCols", columns)
-    self._backend.set_active_browser_columns(columns)
-
-
-def _load_advanced_browser_card_columns(self):
-    columns = self.get_config(CONF_KEY_PREFIX + "activeCols") or self.get_config(
-        "activeCols", ["noteFld", "template", "cardDue", "deck"])
-    self._backend.set_active_browser_columns(columns)
-    return columns
-
-
-def _load_advanced_browser_note_columns(self):
-    columns = self.get_config(CONF_KEY_PREFIX + "activeNoteCols") or self.get_config(
-        "activeNoteCols", ["noteFld", "note", "noteCards", "noteTags"])
-    self._backend.set_active_browser_columns(columns)
-    return columns
-
-
-class AdvancedCardState(CardState):
-    def __init__(self, col):
-        super().__init__(col)
-        self.config_key_prefix = CONF_KEY_PREFIX + self.config_key_prefix
-        self._sort_column = self.col.get_config(
-            CONF_KEY_PREFIX + "sortType", self._sort_column)
-        self._sort_backwards = self.col.get_config(
-            CONF_KEY_PREFIX + "sortBackwards", self._sort_backwards)
-
-    @property
-    def sort_column(self) -> str:
-        return self._sort_column
-
-    @sort_column.setter
-    def sort_column(self, column):
-        self.col.set_config(CONF_KEY_PREFIX + "sortType", column)
-        self._sort_column = column
-
-    @property
-    def sort_backwards(self) -> bool:
-        return self._sort_backwards
-
-    @sort_backwards.setter
-    def sort_backwards(self, order):
-        self.col.set_config(CONF_KEY_PREFIX + "sortBackwards", order)
-        self._sort_backwards = order
-
-
-class AdvancedNoteState(NoteState):
-    def __init__(self, col):
-        super().__init__(col)
-        self.config_key_prefix = CONF_KEY_PREFIX + self.config_key_prefix
-        # Override loaded config if there are configs for advanced browser
-        self._sort_column = self.col.get_config(
-            CONF_KEY_PREFIX + "noteSortType", self._sort_column)
-        self._sort_backwards = self.col.get_config(
-            CONF_KEY_PREFIX + "noteSortBackwards", self._sort_backwards)
-
-    @property
-    def sort_column(self) -> str:
-        return self._sort_column
-
-    @sort_column.setter
-    def sort_column(self, column):
-        self.col.set_config(CONF_KEY_PREFIX + "noteSortType", column)
-        self._sort_column = column
-
-    @property
-    def sort_backwards(self) -> bool:
-        return self._sort_backwards
-
-    @sort_backwards.setter
-    def sort_backwards(self, order):
-        self.col.set_config(CONF_KEY_PREFIX + "sortBackwards", order)
-        self._sort_backwards = order
-
-
-################################################################################
-
-# Override methods to use our own config keys instead, when loading or setting configs 
-Collection.set_browser_card_columns = _set_advanced_browser_card_columns
-Collection.set_browser_note_columns = _set_advanced_browser_note_columns
-Collection.load_browser_card_columns = _load_advanced_browser_card_columns
-Collection.load_browser_note_columns = _load_advanced_browser_note_columns
-aqt.browser.table.state.CardState = AdvancedCardState
-aqt.browser.table.state.NoteState = AdvancedNoteState
+# Override config keys to use own set of config values
+CardState.GEOMETRY_KEY_PREFIX = CONF_KEY_PREFIX + CardState.GEOMETRY_KEY_PREFIX
+NoteState.GEOMETRY_KEY_PREFIX = CONF_KEY_PREFIX + NoteState.GEOMETRY_KEY_PREFIX
+BrowserConfig.ACTIVE_CARD_COLUMNS_KEY = CONF_KEY_PREFIX + BrowserConfig.ACTIVE_CARD_COLUMNS_KEY
+BrowserConfig.ACTIVE_NOTE_COLUMNS_KEY = CONF_KEY_PREFIX + BrowserConfig.ACTIVE_NOTE_COLUMNS_KEY
+BrowserConfig.CARDS_SORT_COLUMN_KEY = CONF_KEY_PREFIX + BrowserConfig.CARDS_SORT_COLUMN_KEY
+BrowserConfig.NOTES_SORT_COLUMN_KEY = CONF_KEY_PREFIX + BrowserConfig.NOTES_SORT_COLUMN_KEY
+BrowserConfig.CARDS_SORT_BACKWARDS_KEY = CONF_KEY_PREFIX + BrowserConfig.CARDS_SORT_BACKWARDS_KEY
+BrowserConfig.NOTES_SORT_BACKWARDS_KEY = CONF_KEY_PREFIX + BrowserConfig.NOTES_SORT_BACKWARDS_KEY
 
 # Init AdvancedBrowser
 advanced_browser = AdvancedBrowser(mw)
