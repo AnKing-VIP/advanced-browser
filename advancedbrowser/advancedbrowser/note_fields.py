@@ -44,12 +44,12 @@ class NoteFields:
         fldGroup = contextMenu.newSubMenu(" - Fields -")
         if getEachFieldInSingleList():
             # And an option for each fields
-            for model in mw.col.models.models.values():
+            for model in mw.col.models.all():
                 for fld in model['flds']:
                     fldGroup.addItem(self.customColumns[fld['name']])
         else:
             # And a sub-menu for each note type
-            for model in mw.col.models.models.values():
+            for model in mw.col.models.all():
                 modelGroup = fldGroup.newSubMenu(model['name'])
                 for fld in model['flds']:
                     modelGroup.addItem(self.customColumns[fld['name']])
@@ -85,6 +85,7 @@ class NoteFields:
         def setData_(name):
             def setData(c: Card, value: str):
                 n = c.note()
+                m = n.note_type()
                 if not name in n:
                     showWarning(_("""The field "%s" does not belong to the note type "%s".""") % (
                         name, m["name"]))

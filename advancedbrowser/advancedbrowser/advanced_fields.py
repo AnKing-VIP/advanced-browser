@@ -7,11 +7,11 @@ import time
 from anki.cards import Card
 from anki.consts import *
 from anki.hooks import addHook
-
-from aqt.utils import tr
 from anki.lang import FormatTimeSpan as FormatTimeSpanContext
+
 from aqt import *
-from aqt.utils import askUser
+from aqt.operations.card import set_card_flag
+from aqt.utils import askUser, tr
 
 
 class AdvancedFields:
@@ -67,7 +67,7 @@ class AdvancedFields:
             avgtime = mw.col.db.scalar(
                 "select avg(time)/1000.0 from revlog where cid = ?", c.id)
             if avgtime:
-                return mw.col.backend.format_time_span(avgtime)
+                return mw.col.format_timespan(avgtime)
             return None
 
         cc = advBrowser.newCustomColumn(
@@ -84,7 +84,7 @@ class AdvancedFields:
             tottime = mw.col.db.scalar(
                 "select sum(time)/1000.0 from revlog where cid = ?", c.id)
             if tottime:
-                return mw.col.backend.format_time_span(tottime)
+                return mw.col.format_timespan(tottime)
             return None
 
         cc = advBrowser.newCustomColumn(
@@ -102,7 +102,7 @@ class AdvancedFields:
                 "select time/1000.0 from revlog where cid = ? "
                 "order by time asc limit 1", c.id)
             if tm:
-                return mw.col.backend.format_time_span(tm)
+                return mw.col.format_timespan(tm)
             return None
 
         # Note: capital ASC required to avoid search+replace
@@ -124,7 +124,7 @@ class AdvancedFields:
                 "select time/1000.0 from revlog where cid = ? "
                 "order by time desc limit 1", c.id)
             if tm:
-                return mw.col.backend.format_time_span(tm)
+                return mw.col.format_timespan(tm)
             return None
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
@@ -143,7 +143,7 @@ class AdvancedFields:
         def cOverdueIvl(c, n, t):
             val = self.valueForOverdue(c.odid, c.queue, c.type, c.due)
             if val:
-                return mw.col.backend.format_time_span(val * 24 * 60 * 60, context=FormatTimeSpanContext.INTERVALS)
+                return mw.col.format_timespan(val * 24 * 60 * 60, context=FormatTimeSpanContext.INTERVALS)
 
         srt = (f"""
         select
@@ -176,9 +176,9 @@ class AdvancedFields:
             elif ivl == 0:
                 return "0 days"
             elif ivl > 0:
-                return mw.col.backend.format_time_span(ivl*86400, context=FormatTimeSpanContext.INTERVALS)
+                return mw.col.format_timespan(ivl*86400, context=FormatTimeSpanContext.INTERVALS)
             else:
-                return mw.col.backend.format_time_span(-ivl, context=FormatTimeSpanContext.INTERVALS)
+                return mw.col.format_timespan(-ivl, context=FormatTimeSpanContext.INTERVALS)
 
         srt = ("(select ivl from revlog where cid = c.id "
                "order by id desc limit 1 offset 1) asc nulls last")
@@ -214,7 +214,7 @@ class AdvancedFields:
                 "select time/1000.0 from revlog where cid = ? "
                 "order by id desc limit 1", c.id)
             if time:
-                return mw.col.backend.format_time_span(time)
+                return mw.col.format_timespan(time)
             return None
 
         srt = ("(select time/1000.0 from revlog where cid = c.id "
@@ -323,20 +323,18 @@ class AdvancedFields:
             try:
                 value = int(value)
             except ValueError:
-                value = {"":0, "no":0,"red":1, "orange":2, "green":3, "blue":4}.get(value.strip().lower())
+                value = {"":0, "no":0,"red":1, "orange":2, "green":3, "blue":4, "pink":5, "turquoise":6, "purple":7}.get(value.strip().lower())
                 if value is None:
                     return False
-            if not 0 <= value <= 4:
+            if not 0 <= value <= 7:
                 return False
-            c.setUserFlag(value)
+            set_card_flag(parent=advBrowser.browser, card_ids=[c.id], flag=value).run_in_background()
             return True
 
         cc = advBrowser.newCustomColumn(
             type="cflags",
             name="Flag",
-            onData=lambda c, n, t: {1: tr(TR.ACTIONS_RED_FLAG), 2:tr(TR.ACTIONS_ORANGE_FLAG),
-                                    3: tr(TR.ACTIONS_GREEN_FLAG), 4:tr(TR.ACTIONS_BLUE_FLAG)}
-                .get(c.flags, None),
+            onData=lambda c, n, t: mw.flags.get_flag(c.flags).label if c.flags else None,
             onSort=lambda: "(case when c.flags = 0 then null else c.flags end) asc nulls last",
             setData=setData,
         )
