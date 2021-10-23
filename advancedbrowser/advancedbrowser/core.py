@@ -84,13 +84,19 @@ class AdvancedBrowser:
         """Build a list of candidate columns. We extend the internal
         self.columns list with our custom types."""
         for key, column in self.customTypes.items():
+            alignmentConfig = config.getColumnAlignment()
+            if alignmentConfig == "Start":
+                alignment = BrowserColumns.ALIGNMENT_START
+            elif alignmentConfig == "Center":
+                alignment = BrowserColumns.ALIGNMENT_CENTER
+
             self.table._model.columns[key] = BuiltinColumn(
                 key=key,
                 cards_mode_label=column.name,
                 notes_mode_label=column.name,
                 sorting=BrowserColumns.SORTING_NORMAL if column.onSort() else BrowserColumns.SORTING_NONE,
                 uses_cell_font=False,
-                alignment=BrowserColumns.ALIGNMENT_START,
+                alignment=alignment,
             )
 
     def willSearch(self, ctx: SearchContext):
