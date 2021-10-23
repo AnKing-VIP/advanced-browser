@@ -9,4 +9,6 @@ The configuration options are:
   * "Selectable": it can be selected. All edition will be ignored
   * "Editable": Allow to edit some values directly in the table. Not all.
 
-* "Column alignment": "Start" or "Center"
+* "Column alignment": Either:
+  * "Start": text in column is left aligned
+  * "Center": text in column is center aligned
