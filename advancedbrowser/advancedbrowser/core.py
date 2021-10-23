@@ -92,7 +92,7 @@ class AdvancedBrowser:
                 notes_mode_label=column.name,
                 sorting=bc if column.onSort() else BrowserColumns.SORTING_NONE,
                 uses_cell_font=False,
-                alignment=BrowserColumns.ALIGNMENT_CENTER,
+                alignment=BrowserColumns.ALIGNMENT_START,
             )
 
     def willSearch(self, ctx: SearchContext):
