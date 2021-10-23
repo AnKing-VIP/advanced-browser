@@ -30,6 +30,8 @@ def getNoteModeShortcut():
 def getSelectable():
     return getUserOption().get("Table content", "No interaction")
 
+def getColumnAlignment():
+    return getUserOption().get("Column alignment", "Start")
 
 def update(_):
     global userOption

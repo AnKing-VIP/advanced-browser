@@ -86,13 +86,19 @@ class AdvancedBrowser:
         self.columns list with our custom types."""
         bc = BrowserColumns.SORTING_NORMAL if pointVersion() <= 49 else BrowserColumns.SORTING_ASCENDING
         for key, column in self.customTypes.items():
+            alignmentConfig = config.getColumnAlignment()
+            if alignmentConfig == "Start":
+                alignment = BrowserColumns.ALIGNMENT_START
+            elif alignmentConfig == "Center":
+                alignment = BrowserColumns.ALIGNMENT_CENTER
+
             self.table._model.columns[key] = BuiltinColumn(
                 key=key,
                 cards_mode_label=column.name,
                 notes_mode_label=column.name,
                 sorting=bc if column.onSort() else BrowserColumns.SORTING_NONE,
                 uses_cell_font=False,
-                alignment=BrowserColumns.ALIGNMENT_START,
+                alignment=alignment,
             )
 
     def willSearch(self, ctx: SearchContext):

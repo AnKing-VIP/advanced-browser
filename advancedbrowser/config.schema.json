@@ -15,6 +15,11 @@
       "type": "string",
       "enum": ["Editable", "Selectable", "No interaction"],
       "default": "Selectable"
+    },
+    "Column alignment" : {
+      "type": "string",
+      "enum": ["Start", "Center"],
+      "default": "Start"
     }
   }
 }
