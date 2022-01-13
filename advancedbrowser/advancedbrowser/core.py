@@ -48,7 +48,7 @@ class AdvancedBrowser:
         # Workaround for double-saving (see closeEvent)
         self.saveEvent = False
         if config.getSelectable() != "No interaction":
-            self.table._view.setEditTriggers(self.table._view.DoubleClicked)
+            self.table._view.setEditTriggers(self.table._view.EditTrigger.DoubleClicked)
 
     def newCustomColumn(self, type, name, onData, onSort=None,
                         setData=None, sortTableFunction=False):
@@ -151,7 +151,7 @@ class AdvancedBrowser:
                 row.cells[index].is_rtl = bool(fld and fld["rtl"])
 
     def setData(self, model, index, value, role):
-        if role not in (Qt.DisplayRole, Qt.EditRole):
+        if role not in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             return False
         if config.getSelectable() != "Editable":
             return False
@@ -219,13 +219,13 @@ class AdvancedBrowser:
 def wrap_flags(self, index, _old):
     s = _old(self, index)
     if config.getSelectable() != "No interaction":
-        s |=  Qt.ItemIsEditable
+        s |=  Qt.ItemFlag.ItemIsEditable
     return s
 
 
 def wrap_data(self, index, role, _old):
-    if role == Qt.EditRole:
-        role = Qt.DisplayRole
+    if role == Qt.ItemDataRole.EditRole:
+        role = Qt.ItemDataRole.DisplayRole
     return _old(self, index, role)
 
 
