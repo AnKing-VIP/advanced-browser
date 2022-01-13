@@ -7,6 +7,7 @@ import time
 from anki.collection import BrowserColumns
 from anki.browser import BrowserConfig
 from anki.hooks import runHook, wrap
+from anki.utils import pointVersion
 from aqt import *
 from aqt import gui_hooks
 from aqt.browser import Column as BuiltinColumn, DataModel, SearchContext, CardState, NoteState
@@ -83,12 +84,13 @@ class AdvancedBrowser:
     def setupColumns(self):
         """Build a list of candidate columns. We extend the internal
         self.columns list with our custom types."""
+        bc = BrowserColumns.SORTING_NORMAL if pointVersion() <= 49 else BrowserColumns.SORTING_ASCENDING
         for key, column in self.customTypes.items():
             self.table._model.columns[key] = BuiltinColumn(
                 key=key,
                 cards_mode_label=column.name,
                 notes_mode_label=column.name,
-                sorting=BrowserColumns.SORTING_NORMAL if column.onSort() else BrowserColumns.SORTING_NONE,
+                sorting=bc if column.onSort() else BrowserColumns.SORTING_NONE,
                 uses_cell_font=False,
                 alignment=BrowserColumns.ALIGNMENT_CENTER,
             )
