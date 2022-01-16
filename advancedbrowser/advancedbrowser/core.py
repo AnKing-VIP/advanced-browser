@@ -7,6 +7,7 @@ import time
 from anki.collection import BrowserColumns
 from anki.browser import BrowserConfig
 from anki.hooks import runHook, wrap
+from anki.utils import pointVersion
 from aqt import *
 from aqt import gui_hooks
 from aqt.browser import Column as BuiltinColumn, DataModel, SearchContext, CardState, NoteState
@@ -47,7 +48,7 @@ class AdvancedBrowser:
         # Workaround for double-saving (see closeEvent)
         self.saveEvent = False
         if config.getSelectable() != "No interaction":
-            self.table._view.setEditTriggers(self.table._view.DoubleClicked)
+            self.table._view.setEditTriggers(self.table._view.EditTrigger.DoubleClicked)
 
     def newCustomColumn(self, type, name, onData, onSort=None,
                         setData=None, sortTableFunction=False):
@@ -83,12 +84,13 @@ class AdvancedBrowser:
     def setupColumns(self):
         """Build a list of candidate columns. We extend the internal
         self.columns list with our custom types."""
+        bc = BrowserColumns.SORTING_NORMAL if pointVersion() <= 49 else BrowserColumns.SORTING_ASCENDING
         for key, column in self.customTypes.items():
             self.table._model.columns[key] = BuiltinColumn(
                 key=key,
                 cards_mode_label=column.name,
                 notes_mode_label=column.name,
-                sorting=BrowserColumns.SORTING_NORMAL if column.onSort() else BrowserColumns.SORTING_NONE,
+                sorting=bc if column.onSort() else BrowserColumns.SORTING_NONE,
                 uses_cell_font=False,
                 alignment=BrowserColumns.ALIGNMENT_CENTER,
             )
@@ -149,7 +151,7 @@ class AdvancedBrowser:
                 row.cells[index].is_rtl = bool(fld and fld["rtl"])
 
     def setData(self, model, index, value, role):
-        if role not in (Qt.DisplayRole, Qt.EditRole):
+        if role not in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             return False
         if config.getSelectable() != "Editable":
             return False
@@ -217,13 +219,13 @@ class AdvancedBrowser:
 def wrap_flags(self, index, _old):
     s = _old(self, index)
     if config.getSelectable() != "No interaction":
-        s |=  Qt.ItemIsEditable
+        s |=  Qt.ItemFlag.ItemIsEditable
     return s
 
 
 def wrap_data(self, index, role, _old):
-    if role == Qt.EditRole:
-        role = Qt.DisplayRole
+    if role == Qt.ItemDataRole.EditRole:
+        role = Qt.ItemDataRole.DisplayRole
     return _old(self, index, role)
 
 
