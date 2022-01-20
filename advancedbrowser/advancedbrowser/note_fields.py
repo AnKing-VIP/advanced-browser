@@ -4,6 +4,7 @@
 import re
 from anki.cards import Card
 from anki.hooks import addHook
+from anki.utils import pointVersion
 from aqt import *
 from aqt.utils import showWarning
 
@@ -157,7 +158,7 @@ class NoteFields:
         s = s.replace("\n", " ")
         s = reSound.sub("\\1", s)  # this line is different
         s = reType.sub("", s)
-        s = anki.utils.stripHTMLMedia(s)
+        s = anki.utils.stripHTMLMedia(s) if pointVersion() < 50 else anki.utils.strip_html_media(s)
         s = s.strip()
         return s
 
