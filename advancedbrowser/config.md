@@ -8,3 +8,7 @@ The configuration options are:
   * "No interaction": the table content can't be interacted with
   * "Selectable": it can be selected. All edition will be ignored
   * "Editable": Allow to edit some values directly in the table. Not all.
+
+* "Column alignment": Either:
+  * "Start": text in column is left aligned
+  * "Center": text in column is center aligned
