@@ -8,13 +8,13 @@ The configuration options are:
 
 &nbsp;
 
-- **`"Show internal fields"`**: Enable even more columns that map to database fields related to the cards and notes (dev option)
+- **`"Show internal fields"`**: Boolean (i.e. `true` or `false`). Enable even more columns that map to database fields related to the cards and notes (dev option)
 
 &nbsp;
 
 - **`"Table content"`**: Either:
-    - `"No interaction"`: the table content can't be interacted with
-    - `"Selectable"`: it can be selected. All edition will be ignored
+    - `"No interaction"`: the table content can't be interacted with. This makes the Advanced Browser behave like the regular Anki browser.
+    - `"Selectable"`: the table content can be selected. All changes will be ignored. This is useful because this allows you to quickly copy field contents (instead of the regular procedure where you have to do all stese steps: select the note, move the mouse to the field, select its content, then copy it).
     - `"Editable"`: Allow to edit some values directly in the table. Not all.
 
 &nbsp;
