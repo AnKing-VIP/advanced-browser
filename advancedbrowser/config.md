@@ -3,7 +3,7 @@ The configuration options are:
 &nbsp;
 
 - **`"Column alignment"`**: Either:
-    - `"Start"`: text in column is left aligned
+    - `"Start"`: text in column is left aligned (or right aligned for right-to-left scripts)
     - `"Center"`: text in column is center aligned
 
 &nbsp;
@@ -14,7 +14,7 @@ The configuration options are:
 
 - **`"Table content"`**: Either:
     - `"No interaction"`: the table content can't be interacted with. This makes the Advanced Browser behave like the regular Anki browser.
-    - `"Selectable"`: the table content can be selected. All changes will be ignored. This is useful because this allows you to quickly copy field contents (instead of the regular procedure where you have to do all stese steps: select the note, move the mouse to the field, select its content, then copy it).
+    - `"Selectable"`: the table content can be selected. All changes will be ignored. This is useful because this allows you to quickly copy field contents (instead of the regular procedure where you have to do all these steps: select the note, move the mouse to the field, select its content, then copy it).
     - `"Editable"`: Allow to edit some values directly in the table. Not all.
 
 &nbsp;
