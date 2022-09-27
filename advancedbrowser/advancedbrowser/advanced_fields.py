@@ -141,7 +141,7 @@ class AdvancedFields:
 
         # Overdue interval
         def cOverdueIvl(c, n, t):
-            val = self.valueForOverdue(c.odid, c.queue, c.type, c.due)
+            val = self.valueForOverdue(c.queue, c.type, c.due, c.odue)
             if val:
                 return mw.col.format_timespan(val * 24 * 60 * 60, context=FormatTimeSpanContext.INTERVALS)
 
@@ -351,13 +351,14 @@ class AdvancedFields:
         for column in self.customColumns:
             group.addItem(column)
 
-    def valueForOverdue(self, odid, queue, type, due):
-        if odid or queue == QUEUE_TYPE_LRN:
+    def valueForOverdue(self, queue, type, due, odue):
+        if queue == QUEUE_TYPE_LRN:
             return
         elif queue == QUEUE_TYPE_NEW or type == CARD_TYPE_NEW:
             return
         else:
-            diff = mw.col.sched.today - due
+            card_due = odue if odue else due
+            diff = mw.col.sched.today - card_due
             if diff <= 0:
                 return
             if queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (type == CARD_TYPE_REV and queue < 0):
