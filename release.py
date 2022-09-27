@@ -6,14 +6,14 @@ import sys
 import tempfile
 import time
 
-     
+
 scriptdir = os.path.dirname(os.path.realpath(__file__))
 code_folder = os.path.join(scriptdir, "advancedbrowser")
 tmp_dir = tempfile.mkdtemp()
 manifest_in_json = os.path.join(tmp_dir, "manifest.json")
 
 if sys.version_info.minor >= 8:
-    shutil.copytree(code_folder, tmp_dir, dirs_exist_ok=True)
+    shutil.copytree(code_folder, tmp_dir, dirs_exist_ok=True, copy_function=shutil.copy)
 else:
     print("Aborting. This build script only supports python 3.8 or later")
     sys.exit()
