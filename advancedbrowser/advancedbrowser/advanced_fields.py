@@ -167,6 +167,35 @@ class AdvancedFields:
         self.customColumns.append(cc)
         # ------------------------------- #
 
+        # Percentage of scheduled interval
+        def cPercentageSchedIvl(c, n, t):
+            val = self.reviewCardPercentageDue(c.odid, c.odue, c.queue, c.type, c.due, c.ivl)
+            if val:
+                return "{0:.2f}".format(val) + " %"
+
+        srt = (f"""
+        (select
+          (case
+             when odue and (type = {CARD_TYPE_REV} or type = {CARD_TYPE_RELEARNING}) then (
+                (({mw.col.sched.today} - odue + ivl) * 1.0) / (ivl * 1.0)
+                )
+             when (type = {CARD_TYPE_REV} or type = {CARD_TYPE_RELEARNING}) then (
+                (({mw.col.sched.today} - due + ivl) * 1.0) / (ivl * 1.0)
+                )
+             else null
+           end
+          )
+        from cards where id = c.id) asc nulls last""")
+
+        cc = advBrowser.newCustomColumn(
+            type='cpercentageschedivl',
+            name="% of Ivl",
+            onData=cPercentageSchedIvl,
+            onSort=getOnSort(srt)
+        )
+        self.customColumns.append(cc)
+        # ------------------------------- #
+
         # Previous interval
         def cPrevIvl(c, n, t):
             ivl = mw.col.db.scalar(
@@ -365,6 +394,22 @@ class AdvancedFields:
             else:
                 return
 
+    def reviewCardPercentageDue(self, odid, odue, queue, type, due, ivl):
+        if odid:
+            due = odue
+        if queue == QUEUE_TYPE_LRN:
+            return 0.0
+        elif queue == QUEUE_TYPE_NEW or type == CARD_TYPE_NEW:
+            return 0.0
+        elif queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (type == CARD_TYPE_REV and queue < 0):
+            try:
+                last_rev = due - ivl
+                elapsed = mw.col.sched.today - last_rev
+                p = elapsed/float(ivl) * 100
+                return p
+            except ZeroDivisionError:
+                return 0.0
+        return 0.0
 
 af = AdvancedFields()
 addHook("advBrowserLoaded", af.onAdvBrowserLoad)
