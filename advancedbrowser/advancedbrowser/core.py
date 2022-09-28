@@ -216,7 +216,7 @@ class AdvancedBrowser:
         # Start adding from the top
         addToSubgroup(main, contextMenu.items())
 
-        main.exec_(gpos)
+        main.exec(gpos)
 
 
 # Table model expansions for editable cells
