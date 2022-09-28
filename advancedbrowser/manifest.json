@@ -1,7 +1,7 @@
 {
-    "branch_index": 4,
-    "min_point_version": 45,
-    "max_point_version": 54,
+    "branch_index": 0,
+    "min_point_version": 0,
+    "max_point_version": 22,
     "name": "Advanced Browser",
     "package": "874215009"
 }
