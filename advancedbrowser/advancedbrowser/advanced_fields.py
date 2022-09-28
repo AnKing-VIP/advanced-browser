@@ -145,9 +145,8 @@ class AdvancedFields:
             if val:
                 return mw.col.format_timespan(val * 24 * 60 * 60, context=FormatTimeSpanContext.INTERVALS)
 
-
         srt = (f"""
-        (select
+        select
           (case
              when odid then null
              when queue = {QUEUE_TYPE_LRN} then null
@@ -155,9 +154,8 @@ class AdvancedFields:
              when type = {CARD_TYPE_NEW} then null
              when {mw.col.sched.today} - due <= 0 then null
              when (queue = {QUEUE_TYPE_REV} or queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} or (type = {CARD_TYPE_REV} and queue < 0)) then ({mw.col.sched.today} - due)
-           end
           )
-        from cards where id = c.id) asc nulls last""")
+        where id = c.id asc nulls last""")
 
         cc = advBrowser.newCustomColumn(
             type='coverdueivl',
