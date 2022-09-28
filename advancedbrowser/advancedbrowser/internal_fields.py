@@ -4,7 +4,7 @@
 from anki.cards import Card
 from anki.consts import *
 from anki.hooks import addHook, remHook
-from aqt.utils import tr
+from aqt.utils import TR, tr
 from anki.utils import intTime
 from aqt.utils import askUser
 
