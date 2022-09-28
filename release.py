@@ -24,7 +24,7 @@ data["mod"] = int(time.time())
 with open(manifest_in_json, "w") as f:
     json.dump(data, f)
 
-target_zip_file = os.path.join(scriptdir, f"advanced_browser__branch_index_{data['branch_index']}___{time.strftime('%Y-%m-%d_%H-%M')}")
+target_zip_file = os.path.join(scriptdir, f"Advanced_Browser__branch_idx_{data['branch_index']}__AnkiVers_{data['min_point_version']}-{data['max_point_version']}__{time.strftime('%Y-%m-%d_%H-%M')}")
 shutil.make_archive(target_zip_file, 'zip', tmp_dir)
 p = Path(f"{target_zip_file}.zip")
 p.rename(p.with_suffix('.ankiaddon'))
