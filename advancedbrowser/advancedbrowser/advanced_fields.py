@@ -193,6 +193,21 @@ class AdvancedFields:
         self.customColumns.append(cc)
         # ------------------------------- #
 
+        # Total Number of 1/Again (also on new and learning cards)
+        def cAgainCount(c, n, t):
+            val = mw.col.db.scalar(f"select count() from revlog where cid={c.id} and ease=1")
+            if val:
+                return val
+
+        cc = advBrowser.newCustomColumn(
+            type='cAgainCount',
+            name="Again Count",
+            onData=cAgainCount,
+            onSort=lambda: "(select count() from revlog where cid = c.id and ease=1)"
+        )
+        self.customColumns.append(cc)
+        # ------------------------------- #
+
         # Percent correct
         def cPctCorrect(c, n, t):
             if c.reps > 0:
