@@ -96,7 +96,8 @@ class AdvancedBrowser:
                 key=key,
                 cards_mode_label=column.name,
                 notes_mode_label=column.name,
-                sorting=bc if column.onSort() else BrowserColumns.SORTING_NONE,
+                sorting_notes=bc if column.onSort() else BrowserColumns.SORTING_NONE,
+                sorting_cards=bc if column.onSort() else BrowserColumns.SORTING_NONE,
                 uses_cell_font=False,
                 alignment=alignment,
             )
