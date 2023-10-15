@@ -5,7 +5,7 @@ from anki.cards import Card
 from anki.consts import *
 from anki.hooks import addHook, remHook
 from aqt.utils import tr
-from anki.utils import intTime
+from anki.utils import int_time
 from aqt.utils import askUser
 
 
@@ -67,7 +67,7 @@ class InternalFields:
                 return False
             n = c.note()
             n.guid = value
-            n.flush(mod=intTime())
+            n.flush(mod=int_time())
             return True
 
         cc = advBrowser.newCustomColumn(
