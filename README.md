@@ -1,15 +1,16 @@
 ##### note to future maintainers
 To build an .ankiaddon file that's suitable for uploading to ankiweb run `python3 release.py`.
 
-On Ankiweb in 2022-09 there are 5 different versions of the Advanced Browser add-on for different Anki versions:
+On Ankiweb in 2023-10 there are 6 different versions of the Advanced Browser add-on for different Anki versions:
 
 |Ankiweb version|corresponding branch in this repo|
 | ------------- | ------------- |
-|2.1.0-2.1.22|2_7_maintenance_for_Anki_2.1.0-2.1.22|
-|2.1.24-2.1.34|3_5_1_maintenance_for_Anki_24-34|
-|2.1.35-2.1.40|3_7_maintenance_for_Anki_versions_35-40|
-|2.1.41-2.1.44|3_9_maintenance_for_41-44|
-|2.1.45 or newer|master|
+|2.1.0-2.1.22|maintenance_for_00-22|
+|2.1.24-2.1.34|maintenance_for_24-34|
+|2.1.35-2.1.40|maintenance_for_35-40|
+|2.1.41-2.1.44|maintenance_for_41-44|
+|2.1.45-2.1.66|maintenance_for_45-66|
+|23.10 or newer|master|
 
 Up to 2022-09 this repo only used the master branch for fixing bugs in AB and adjustments to newer Anki versions. This made it hard to fix bugs in AB for older Anki versions. So ijgnd created the branches outlined in the table above in 2022-09. In each branch there's the file `release.py` to create an .ankiaddon file.
 
