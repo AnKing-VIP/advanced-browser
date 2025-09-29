@@ -19,6 +19,29 @@ from .contextmenu import ContextMenu
 
 CONF_KEY_PREFIX = 'advbrowse_'
 
+class PersistentMenu(QMenu):
+    """Persistent menu to support multiple selection"""
+    def mouseReleaseEvent(self, event: QMouseEvent):
+        if event.button() != Qt.MouseButton.LeftButton:
+            return super().mouseReleaseEvent(event)
+        
+        action = self.actionAt(event.pos())
+        if action and action.isCheckable():
+            # Get user data associated with the action
+            column_type = action.data()
+            if column_type:
+                table = self.property("table")
+                if table:
+                    new_state = not action.isChecked()
+                    action.setChecked(new_state)
+                    table._on_column_toggled(new_state, column_type)
+            
+            event.accept()
+            return
+        elif action:
+            return super().mouseReleaseEvent(event)
+        else:
+            self.close()
 
 class AdvancedBrowser:
     """Maintains state for the add-on."""
@@ -182,7 +205,10 @@ class AdvancedBrowser:
         well."""
 
         gpos = table._view.mapToGlobal(pos)
-        main = QMenu()
+        # Persist the main menu
+        main = PersistentMenu()
+        main.setProperty("table", table)
+        # main = QMenu()
         contextMenu = ContextMenu()
 
         # We are also a client and we need to add the built-in columns first.
@@ -196,29 +222,47 @@ class AdvancedBrowser:
         def addCheckableAction(menu, type, name):
             a = menu.addAction(name)
             a.setCheckable(True)
+            # Save column type to user data
+            a.setData(type)
             a.setChecked(table._model.active_column_index(type) is not None)
-            a.toggled.connect(lambda checked, key=type: table._on_column_toggled(checked, key))
+            if not isinstance(menu, PersistentMenu):
+                a.toggled.connect(lambda checked, key=type: table._on_column_toggled(checked, key))
 
         # For some reason, sub menus aren't added if we don't keep a
         # reference to them until exec, so keep them in this list.
         tmp = []
         # Recursively add each item/group.
 
-        def addToSubgroup(menu, items):
+        def addToSubgroup(menu, items, adv_browser):
+            # Support fields reset
             for item in items:
-                # TODO: this isn't great :(
                 if isinstance(item, ContextMenu):
-                    sub = QMenu(item.name)
+                    # Persist sub menu
+                    sub = PersistentMenu(item.name)
+                    sub.setProperty("table", table)
                     tmp.append(sub)
                     menu.addMenu(sub)
-                    addToSubgroup(sub, item.items())
+                    addToSubgroup(sub, item.items(), adv_browser)
                 else:
-                    addCheckableAction(menu, item.type, item.name)
+                    # fields reset 
+                    if item.type == "fields_reset":
+                        action = menu.addAction(item.name)
+                        action.triggered.connect(lambda: reset_fields(adv_browser))
+                    else:
+                        addCheckableAction(menu, item.type, item.name)
         # Start adding from the top
-        addToSubgroup(main, contextMenu.items())
+        addToSubgroup(main, contextMenu.items(),self)
 
         main.exec(gpos)
 
+# Fields reset 
+def reset_fields(adv_browser):
+    """Cancel all selected fields in the 'Fields'sub menu"""
+    table = adv_browser.table
+    for field_type in adv_browser.customTypes.keys():
+        if field_type.startswith("_field_"):
+            if table._model.active_column_index(field_type) is not None:
+                table._on_column_toggled(False, field_type) 
 
 # Table model expansions for editable cells
 ################################################################################
