@@ -9,7 +9,7 @@ from aqt import *
 from aqt.utils import showWarning
 
 from .config import getEachFieldInSingleList
-
+from .core import Column
 
 class NoteFields:
 
@@ -54,6 +54,9 @@ class NoteFields:
                 modelGroup = fldGroup.newSubMenu(model['name'])
                 for fld in model['flds']:
                     modelGroup.addItem(self.customColumns[fld['name']])
+        # Add fields reset into the main menu
+        reset_column = Column(type="fields_reset", name="- Fields_Reset -")
+        contextMenu.addItem(reset_column)
 
     def buildMappings(self):
         self.fieldsToMidOrdPairs = {}
